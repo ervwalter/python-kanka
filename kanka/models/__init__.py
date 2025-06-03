@@ -17,7 +17,14 @@ from .entities import (
     Ability,
     Conversation,
     Creature,
-    Tag
+    Tag,
+    Species,
+    Calendar,
+    Timeline,
+    Map,
+    Attribute,
+    EntityNote,
+    EntityEvent
 )
 from .common import Post, SearchResult, Trait
 
@@ -40,6 +47,13 @@ __all__ = [
     'Conversation',
     'Creature',
     'Tag',
+    'Species',
+    'Calendar',
+    'Timeline',
+    'Map',
+    'Attribute',
+    'EntityNote',
+    'EntityEvent',
     # Common models
     'Post',
     'SearchResult',

@@ -162,6 +162,102 @@ class Tag(Entity):
     attributes: Optional[List[Dict]] = None
 
 
+class Species(Entity):
+    """Species entity."""
+    type: Optional[str] = None
+    species_id: Optional[int] = None
+    
+    # Related data
+    posts: Optional[List['Post']] = None
+    attributes: Optional[List[Dict]] = None
+
+
+class Calendar(Entity):
+    """Calendar entity."""
+    type: Optional[str] = None
+    date: Optional[str] = None
+    parameters: Optional[str] = None
+    months: Optional[List[Dict]] = None
+    weekdays: Optional[List[str]] = None
+    years: Optional[Dict] = None
+    seasons: Optional[List[Dict]] = None
+    moons: Optional[List[Dict]] = None
+    suffix: Optional[str] = None
+    has_leap_year: Optional[bool] = None
+    leap_year_amount: Optional[int] = None
+    leap_year_month: Optional[int] = None
+    leap_year_offset: Optional[int] = None
+    leap_year_start: Optional[int] = None
+    
+    # Related data
+    posts: Optional[List['Post']] = None
+    attributes: Optional[List[Dict]] = None
+
+
+class Timeline(Entity):
+    """Timeline entity."""
+    type: Optional[str] = None
+    calendar_id: Optional[int] = None
+    
+    # Related data
+    posts: Optional[List['Post']] = None
+    attributes: Optional[List[Dict]] = None
+
+
+class Map(Entity):
+    """Map entity."""
+    type: Optional[str] = None
+    map: Optional[str] = None
+    map_url: Optional[str] = None
+    grid: Optional[int] = None
+    is_real: Optional[bool] = None
+    width: Optional[int] = None
+    height: Optional[int] = None
+    distance_name: Optional[str] = None
+    distance_measure: Optional[float] = None
+    
+    # Related data
+    posts: Optional[List['Post']] = None
+    attributes: Optional[List[Dict]] = None
+
+
+class Attribute(Entity):
+    """Attribute entity."""
+    entity_id: int
+    type: Optional[str] = None
+    api_key: Optional[str] = None
+    
+    # Related data
+    posts: Optional[List['Post']] = None
+
+
+class EntityNote(Entity):
+    """Entity note."""
+    entity_id: int
+    visibility: Optional[str] = None
+    
+    # Related data
+    posts: Optional[List['Post']] = None
+    attributes: Optional[List[Dict]] = None
+
+
+class EntityEvent(Entity):
+    """Entity event."""
+    entity_id: int
+    calendar_id: Optional[int] = None
+    date: Optional[str] = None
+    length: Optional[int] = None
+    comment: Optional[str] = None
+    is_recurring: Optional[bool] = None
+    recurring_until: Optional[str] = None
+    recurring_periodicity: Optional[str] = None
+    colour: Optional[str] = None
+    
+    # Related data
+    posts: Optional[List['Post']] = None
+    attributes: Optional[List[Dict]] = None
+
+
 # Forward reference updates
 from .common import Post
 Character.model_rebuild()
@@ -178,3 +274,10 @@ Ability.model_rebuild()
 Conversation.model_rebuild()
 Creature.model_rebuild()
 Tag.model_rebuild()
+Species.model_rebuild()
+Calendar.model_rebuild()
+Timeline.model_rebuild()
+Map.model_rebuild()
+Attribute.model_rebuild()
+EntityNote.model_rebuild()
+EntityEvent.model_rebuild()

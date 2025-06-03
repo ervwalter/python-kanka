@@ -2,7 +2,7 @@
 Common models used across the Kanka API.
 """
 
-from typing import Optional
+from typing import Optional, List, TypeVar, Generic, Dict, Any
 from datetime import datetime
 from .base import KankaModel
 
@@ -40,3 +40,19 @@ class Trait(KankaModel):
     section: str
     is_private: bool = False
     default_order: int = 0
+
+
+# Type variable for generic responses
+T = TypeVar('T', bound=KankaModel)
+
+
+class EntityResponse(KankaModel, Generic[T]):
+    """Single entity API response wrapper."""
+    data: T
+
+
+class ListResponse(KankaModel, Generic[T]):
+    """List API response wrapper with pagination."""
+    data: List[T]
+    links: Dict[str, Any]
+    meta: Dict[str, Any]

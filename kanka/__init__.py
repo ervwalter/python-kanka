@@ -1,5 +1,9 @@
-from .api import KankaClient
-from .exceptions import KankaError
+# Import the new client
+from .client import KankaClient
+
+# Keep backward compatibility imports
+from .api import KankaClient as LegacyKankaClient
+from .exceptions import KankaError, KankaException, NotFoundError, ValidationError, AuthenticationError, ForbiddenError, RateLimitError
 
 # Import models for easier access
 from .models import (
@@ -29,7 +33,14 @@ from .models import (
 
 __all__ = [
     'KankaClient',
+    'LegacyKankaClient',
     'KankaError',
+    'KankaException',
+    'NotFoundError',
+    'ValidationError', 
+    'AuthenticationError',
+    'ForbiddenError',
+    'RateLimitError',
     # Base models
     'KankaModel',
     'Entity',
