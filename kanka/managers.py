@@ -1,6 +1,6 @@
 """Entity managers for Kanka API."""
 
-from typing import Type, TypeVar, Generic, List, Dict, Any, Optional
+from typing import Type, TypeVar, Generic, List, Dict, Any, Optional, Union
 from .models.base import Entity, KankaModel
 from .models.common import EntityResponse, ListResponse
 from .exceptions import NotFoundError, ValidationError, AuthenticationError, ForbiddenError, RateLimitError, KankaException
@@ -104,11 +104,11 @@ class EntityManager(Generic[T]):
         response = self.client._request('POST', self.endpoint, json=data)
         return self.model(**response['data'])
     
-    def update(self, entity: T, **kwargs) -> T:
+    def update(self, entity_or_id: Union[T, int], **kwargs) -> T:
         """Update an entity with partial data.
         
         Args:
-            entity: The entity to update
+            entity_or_id: The entity to update or its ID
             **kwargs: Fields to update
             
         Returns:
@@ -118,34 +118,56 @@ class EntityManager(Generic[T]):
             NotFoundError: If entity doesn't exist
             ValidationError: If the data is invalid
         """
-        # Create a copy with updates
-        updates = entity.model_copy(update=kwargs)
-        
-        # Get only the changed fields
-        data = updates.model_dump(
-            exclude_unset=True,
-            exclude={'id', 'entity_id', 'created_at', 'created_by',
-                    'updated_at', 'updated_by'}
-        )
-        
-        # Only include fields that actually changed
-        original_data = entity.model_dump(exclude={'id', 'entity_id', 'created_at', 
-                                                   'created_by', 'updated_at', 'updated_by'})
-        data = {k: v for k, v in data.items() if k not in original_data or original_data[k] != v}
+        # Determine if we got an entity or just an ID
+        if isinstance(entity_or_id, int):
+            # Direct update by ID
+            entity_id = entity_or_id
+            # Validate the update data by creating a partial model
+            # We create a model with just the update fields to validate them
+            try:
+                self.model(**{**kwargs, 'id': entity_id})  # Validate fields
+            except Exception as e:
+                raise ValidationError(f"Invalid update data: {str(e)}")
+            
+            data = kwargs
+        else:
+            # Entity object provided
+            entity = entity_or_id
+            entity_id = entity.id
+            
+            # Create a copy with updates
+            updates = entity.model_copy(update=kwargs)
+            
+            # Get only the changed fields
+            data = updates.model_dump(
+                exclude_unset=True,
+                exclude={'id', 'entity_id', 'created_at', 'created_by',
+                        'updated_at', 'updated_by'}
+            )
+            
+            # Only include fields that actually changed
+            original_data = entity.model_dump(exclude={'id', 'entity_id', 'created_at', 
+                                                       'created_by', 'updated_at', 'updated_by'})
+            data = {k: v for k, v in data.items() if k not in original_data or original_data[k] != v}
         
         if not data:
-            # No changes, return original
-            return entity
+            # No changes
+            if isinstance(entity_or_id, int):
+                # If we only had an ID, fetch and return the entity
+                return self.get(entity_id)
+            else:
+                # Return original entity
+                return entity_or_id
         
-        url = f"{self.endpoint}/{entity.id}"
+        url = f"{self.endpoint}/{entity_id}"
         response = self.client._request('PATCH', url, json=data)
         return self.model(**response['data'])
     
-    def delete(self, entity: T) -> bool:
+    def delete(self, entity_or_id: Union[T, int]) -> bool:
         """Delete an entity.
         
         Args:
-            entity: The entity to delete
+            entity_or_id: The entity to delete or its ID
             
         Returns:
             True if successful
@@ -153,7 +175,13 @@ class EntityManager(Generic[T]):
         Raises:
             NotFoundError: If entity doesn't exist
         """
-        url = f"{self.endpoint}/{entity.id}"
+        # Determine if we got an entity or just an ID
+        if isinstance(entity_or_id, int):
+            entity_id = entity_or_id
+        else:
+            entity_id = entity_or_id.id
+            
+        url = f"{self.endpoint}/{entity_id}"
         self.client._request('DELETE', url)
         return True
     
