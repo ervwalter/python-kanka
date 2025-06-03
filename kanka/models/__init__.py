@@ -1,12 +1,9 @@
-from .api import KankaClient
-from .exceptions import KankaError
+"""
+Pydantic models for Kanka API entities.
+"""
 
-# Import models for easier access
-from .models import (
-    # Base models
-    KankaModel,
-    Entity,
-    # Entity models
+from .base import KankaModel, Entity
+from .entities import (
     Character,
     Location,
     Organisation,
@@ -20,16 +17,11 @@ from .models import (
     Ability,
     Conversation,
     Creature,
-    Tag,
-    # Common models
-    Post,
-    SearchResult,
-    Trait
+    Tag
 )
+from .common import Post, SearchResult, Trait
 
 __all__ = [
-    'KankaClient',
-    'KankaError',
     # Base models
     'KankaModel',
     'Entity',

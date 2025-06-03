@@ -2,32 +2,28 @@
 :mod:`kanka.user` - User Profile and Campaigns
 """
 
-from typing import Optional
+from dataclasses import dataclass, asdict
 from datetime import datetime
-from ..models.base import KankaModel
-from ..models import entities
+import kanka.objects.core as core
+from .base import KankaObject
 from ..exceptions import KankaError
-from ..utils import append_from, KankaSession
+from ..utils import append_from
 
-
-class Profile(KankaModel):
+@dataclass(repr=False)
+class Profile(KankaObject):
     """ Kanka user profile information."""
-    id: int
-    name: str
     avatar: str
     avatar_thumb: str
     locale: str
     timezone: str
-    date_format: str  # Fixed typo from date_formate
+    date_formate: str
     default_pagination: int
     last_campaign_id: int
     is_patreon: bool
 
-
-class Campaign(KankaModel):
+@dataclass(repr=False)
+class Campaign(KankaObject):
     """ Holds information about a campaign."""
-    id: int
-    name: str
     locale: str
     entry: str
     image: str
@@ -36,18 +32,10 @@ class Campaign(KankaModel):
     visibility: str
     created_at: datetime
     updated_at: datetime
-    
-    # Session management for backward compatibility
-    _session: Optional[KankaSession] = None
-    
+
     def __post_init__(self, api_token=''):
-        """Backward compatibility method - called after object creation."""
-        if api_token:
-            self.session = KankaSession(api_token=api_token)
-            self.session.base_url += f'campaigns/{str(self.id)}/'
-        elif hasattr(self, '_session') and self._session:
-            self.session = self._session
-            self.session.base_url += f'campaigns/{str(self.id)}/'
+        super().__post_init__(api_token=api_token)
+        self.session.base_url += f'campaigns/{str(self.id)}/'
 
     def get_list_of(self, endpoint):
         charlist = append_from(self.session, [], self.session.base_url + endpoint)
@@ -87,19 +75,8 @@ class Campaign(KankaModel):
     def new_entity(self, entity=None):
         """ Creates new entity. """
         if entity:
-            entity_class = getattr(entities, entity.title())
-            # Create with minimal required fields - will be filled later
-            spawn = entity_class(
-                name=f'New {entity}',
-                id=0,  # Temporary ID
-                entity_id=0,
-                created_at=datetime.now(),
-                created_by=0,
-                updated_at=datetime.now(),
-                updated_by=0
-            )
-            # Set up session for backward compatibility
-            spawn._session = KankaSession(api_token=self.session.token)
-            spawn._session.base_url = self.session.base_url + f'{entity}s'
+            spawn = getattr(core, entity.title())(name=f'New {entity}', id=None)
+            spawn.__post_init__(api_token=self.session.token)
+            spawn.session.base_url = self.session.base_url + f'{entity}s'
             return spawn
         raise KankaError("No entity type given. Specify a type, ie new_entity(entity=\"location\"")

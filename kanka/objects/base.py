@@ -1,45 +1,12 @@
 """
 :mod: kanka.base
-Base objects. Every object is derived fron KankaObject, 
-every core entitiy is derived from Entity
+Base objects. Every object is derived from KankaObject, 
+every core entity is derived from Entity
 """
 
-from datetime import datetime
-from dataclasses import dataclass
-from typing import Optional
-from ..utils import KankaSession
+# Re-export from new models location for backward compatibility
+from ..models.base import KankaModel as KankaObject, Entity
+from ..models.common import Trait
 
-@dataclass
-class KankaObject:
-    name: str
-    id: Optional[int]
-
-    def __post_init__(self, api_token=''):
-        self.session = KankaSession(api_token=api_token)
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}: {self.name} (id: {self.id})'
-
-    def __str__(self):
-        return self.__repr__()
-
-@dataclass(repr=False)
-class Entity(KankaObject):
-    image_full: str
-    image_thumb: str
-    entity_id: int
-    #tags: List[str]
-    created_at: datetime
-    created_by: int
-    updated_at: datetime
-    updated_by: int
-    entry: Optional[str] = None
-    is_private: Optional[bool] = None
-    image: Optional[str] = None
-
-@dataclass(repr=False)
-class Trait(KankaObject):
-    entry: str
-    section: str
-    is_private: bool
-    default_order: int
+# For backward compatibility with the old API
+__all__ = ['KankaObject', 'Entity', 'Trait']

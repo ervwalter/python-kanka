@@ -1,52 +1,32 @@
 """ Objects to store downloaded information about entities."""
 
 from typing import List, Optional
-from dataclasses import dataclass
-import kanka.objects.core as core
-from .base import Entity
+from ..models.entities import (
+    Character, Location, Organisation, Note, Race, Quest, Journal, Family
+)
+from ..models.base import KankaModel
 
-@dataclass(repr=False)
-class StoredCharacter(core.Character, Entity):
-    pass
+# For backward compatibility - the stored versions are now just aliases
+StoredCharacter = Character
+StoredLocation = Location
+StoredOrganisation = Organisation
+StoredNote = Note
+StoredRace = Race
+StoredQuest = Quest
+StoredJournal = Journal
+StoredFamily = Family
 
-@dataclass(repr=False)
-class StoredLocation(core.Location, Entity):
-    pass
 
-@dataclass(repr=False)
-class StoredOrganisation(core.Organisation, Entity):
-    pass
-
-@dataclass(repr=False)
-class StoredNote(core.Note, Entity):
-    pass
-
-@dataclass(repr=False)
-class StoredRace(core.Race, Entity):
-    pass
-
-@dataclass(repr=False)
-class StoredQuest(core.Quest, Entity):
-    pass
-
-@dataclass(repr=False)
-class StoredJournal(core.Journal, Entity):
-    pass
-
-@dataclass(repr=False)
-class StoredFamily(core.Family, Entity):
-    pass
-
-@dataclass(repr=False)
-class StoredCampaign():
+class StoredCampaign(KankaModel):
+    """Campaign with all related entities."""
     name: str
     id: int
     entry: Optional[str] = None
-    characters: Optional[List[StoredCharacter]] = None
-    locations: Optional[List[StoredLocation]] = None
-    organisations: Optional[List[StoredOrganisation]] = None
-    notes: Optional[List[StoredNote]] = None
-    races: Optional[List[StoredRace]] = None
-    quests: Optional[List[StoredQuest]] = None
-    journals: Optional[List[StoredJournal]] = None
-    families: Optional[List[StoredFamily]] = None
+    characters: Optional[List[Character]] = None
+    locations: Optional[List[Location]] = None
+    organisations: Optional[List[Organisation]] = None
+    notes: Optional[List[Note]] = None
+    races: Optional[List[Race]] = None
+    quests: Optional[List[Quest]] = None
+    journals: Optional[List[Journal]] = None
+    families: Optional[List[Family]] = None
