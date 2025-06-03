@@ -1,4 +1,17 @@
-"""Main Kanka API client."""
+"""Main Kanka API client for interacting with the Kanka API.
+
+This module provides the primary interface for working with Kanka's RESTful API.
+It handles authentication, request management, and provides convenient access to
+all entity types through manager objects.
+
+Example:
+    Basic usage of the KankaClient:
+
+    >>> from kanka import KankaClient
+    >>> client = KankaClient(token="your-api-token", campaign_id=12345)
+    >>> characters = client.characters.list()
+    >>> dragon = client.search("dragon")
+"""
 
 from typing import Any, Dict, List
 
@@ -36,7 +49,48 @@ from .models.entities import (
 
 
 class KankaClient:
-    """Main client for Kanka API interaction."""
+    """Main client for Kanka API interaction.
+    
+    This client provides a unified interface to access all Kanka entities
+    within a specific campaign. It handles authentication, request management,
+    and provides entity-specific managers for CRUD operations.
+    
+    Attributes:
+        BASE_URL (str): The base URL for the Kanka API
+        token (str): Authentication token for API access
+        campaign_id (int): ID of the campaign to work with
+        session: Configured requests.Session instance
+        
+    Entity Managers:
+        characters: Access to Character entities
+        locations: Access to Location entities
+        organisations: Access to Organisation entities
+        families: Access to Family entities
+        species: Access to Species entities
+        calendars: Access to Calendar entities
+        timelines: Access to Timeline entities
+        races: Access to Race entities
+        creatures: Access to Creature entities
+        events: Access to Event entities
+        journals: Access to Journal entities
+        tags: Access to Tag entities
+        notes: Access to Note entities
+        quests: Access to Quest entities
+        items: Access to Item entities
+        attributes: Access to Attribute entities
+        maps: Access to Map entities
+        entity_notes: Access to EntityNote entities
+        entity_events: Access to EntityEvent entities
+    
+    Example:
+        >>> client = KankaClient("your-token", 12345)
+        >>> # List all characters
+        >>> chars = client.characters.list()
+        >>> # Get a specific location
+        >>> loc = client.locations.get(123)
+        >>> # Search across all entities
+        >>> results = client.search("dragon")
+    """
 
     BASE_URL = "https://api.kanka.io/1.0"
 
@@ -91,97 +145,173 @@ class KankaClient:
 
     @property
     def characters(self) -> EntityManager[Character]:
-        """Access character entities."""
+        """Access character entities.
+        
+        Returns:
+            EntityManager[Character]: Manager for Character entity operations
+        """
         return self._characters
 
     @property
     def locations(self) -> EntityManager[Location]:
-        """Access location entities."""
+        """Access location entities.
+        
+        Returns:
+            EntityManager[Location]: Manager for Location entity operations
+        """
         return self._locations
 
     @property
     def organisations(self) -> EntityManager[Organisation]:
-        """Access organisation entities."""
+        """Access organisation entities.
+        
+        Returns:
+            EntityManager[Organisation]: Manager for Organisation entity operations
+        """
         return self._organisations
 
     @property
     def families(self) -> EntityManager[Family]:
-        """Access family entities."""
+        """Access family entities.
+        
+        Returns:
+            EntityManager[Family]: Manager for Family entity operations
+        """
         return self._families
 
     @property
     def species(self) -> EntityManager[Species]:
-        """Access species entities."""
+        """Access species entities.
+        
+        Returns:
+            EntityManager[Species]: Manager for Species entity operations
+        """
         return self._species
 
     @property
     def calendars(self) -> EntityManager[Calendar]:
-        """Access calendar entities."""
+        """Access calendar entities.
+        
+        Returns:
+            EntityManager[Calendar]: Manager for Calendar entity operations
+        """
         return self._calendars
 
     @property
     def timelines(self) -> EntityManager[Timeline]:
-        """Access timeline entities."""
+        """Access timeline entities.
+        
+        Returns:
+            EntityManager[Timeline]: Manager for Timeline entity operations
+        """
         return self._timelines
 
     @property
     def races(self) -> EntityManager[Race]:
-        """Access race entities."""
+        """Access race entities.
+        
+        Returns:
+            EntityManager[Race]: Manager for Race entity operations
+        """
         return self._races
 
     @property
     def creatures(self) -> EntityManager[Creature]:
-        """Access creature entities."""
+        """Access creature entities.
+        
+        Returns:
+            EntityManager[Creature]: Manager for Creature entity operations
+        """
         return self._creatures
 
     @property
     def events(self) -> EntityManager[Event]:
-        """Access event entities."""
+        """Access event entities.
+        
+        Returns:
+            EntityManager[Event]: Manager for Event entity operations
+        """
         return self._events
 
     @property
     def journals(self) -> EntityManager[Journal]:
-        """Access journal entities."""
+        """Access journal entities.
+        
+        Returns:
+            EntityManager[Journal]: Manager for Journal entity operations
+        """
         return self._journals
 
     @property
     def tags(self) -> EntityManager[Tag]:
-        """Access tag entities."""
+        """Access tag entities.
+        
+        Returns:
+            EntityManager[Tag]: Manager for Tag entity operations
+        """
         return self._tags
 
     @property
     def notes(self) -> EntityManager[Note]:
-        """Access note entities."""
+        """Access note entities.
+        
+        Returns:
+            EntityManager[Note]: Manager for Note entity operations
+        """
         return self._notes
 
     @property
     def quests(self) -> EntityManager[Quest]:
-        """Access quest entities."""
+        """Access quest entities.
+        
+        Returns:
+            EntityManager[Quest]: Manager for Quest entity operations
+        """
         return self._quests
 
     @property
     def items(self) -> EntityManager[Item]:
-        """Access item entities."""
+        """Access item entities.
+        
+        Returns:
+            EntityManager[Item]: Manager for Item entity operations
+        """
         return self._items
 
     @property
     def attributes(self) -> EntityManager[Attribute]:
-        """Access attribute entities."""
+        """Access attribute entities.
+        
+        Returns:
+            EntityManager[Attribute]: Manager for Attribute entity operations
+        """
         return self._attributes
 
     @property
     def maps(self) -> EntityManager[Map]:
-        """Access map entities."""
+        """Access map entities.
+        
+        Returns:
+            EntityManager[Map]: Manager for Map entity operations
+        """
         return self._maps
 
     @property
     def entity_notes(self) -> EntityManager[EntityNote]:
-        """Access entity note entities."""
+        """Access entity note entities.
+        
+        Returns:
+            EntityManager[EntityNote]: Manager for EntityNote entity operations
+        """
         return self._entity_notes
 
     @property
     def entity_events(self) -> EntityManager[EntityEvent]:
-        """Access entity event entities."""
+        """Access entity event entities.
+        
+        Returns:
+            EntityManager[EntityEvent]: Manager for EntityEvent entity operations
+        """
         return self._entity_events
 
     def search(self, term: str, page: int = 1, limit: int = 30) -> List[SearchResult]:
@@ -210,6 +340,9 @@ class KankaClient:
 
     def entities(self, **filters) -> List[Dict[str, Any]]:
         """Access the /entities endpoint with filters.
+        
+        This endpoint provides a unified way to query entities across all types
+        with various filtering options.
 
         Args:
             **filters: Filter parameters like types, name, is_private, tags
@@ -284,10 +417,19 @@ class KankaClient:
 
     @property
     def last_search_meta(self) -> Dict[str, Any]:
-        """Get metadata from the last search() call."""
+        """Get metadata from the last search() call.
+        
+        Returns:
+            Dict[str, Any]: Pagination metadata including current_page, from, to, 
+                           last_page, per_page, total
+        """
         return getattr(self, "_last_search_meta", {})
 
     @property
     def last_search_links(self) -> Dict[str, Any]:
-        """Get pagination links from the last search() call."""
+        """Get pagination links from the last search() call.
+        
+        Returns:
+            Dict[str, Any]: Links for pagination including first, last, prev, next URLs
+        """
         return getattr(self, "_last_search_links", {})

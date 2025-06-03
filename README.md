@@ -1,31 +1,236 @@
 # python-kanka ![](https://github.com/rbtnx/python-kanka/workflows/build/badge.svg)
-This is a python interface to the API from https://kanka.io. It's still early development so use it at your own risk.
+
+A modern Python client for the [Kanka API](https://kanka.io/en-US/docs/1.0), the collaborative worldbuilding and campaign management platform.
+
+## Features
+
+- **Full API Coverage**: Support for all Kanka entity types (characters, locations, organisations, etc.)
+- **Type Safety**: Built with Pydantic v2 for robust data validation and type hints
+- **Modern Python**: Designed for Python 3.8+ with full typing support
+- **Intuitive API**: Clean, Pythonic interface with method chaining
+- **Comprehensive Error Handling**: Detailed exceptions for API errors
+- **Entity Posts**: Full support for entity posts/notes management
+- **Advanced Filtering**: Powerful filtering and search capabilities
+- **Pagination Support**: Built-in pagination handling
 
 ## Installation
-This module is compatible with Python >= 3.8. When inside the repository root, install the module with
-```
-pip install -r requirements.txt
-python setup.py install
-```
-A virtual environment is recommended.
 
-### Development Setup
-For development, install the additional dev dependencies:
+Install from PyPI:
 ```bash
+pip install python-kanka
+```
+
+Or install from source:
+```bash
+git clone https://github.com/rbtnx/python-kanka.git
+cd python-kanka
+pip install -e .
+```
+
+## Quick Start
+
+```python
+from kanka import KankaClient
+
+# Initialize the client
+client = KankaClient(
+    token="your-api-token",      # Get from https://kanka.io/en-US/settings/api
+    campaign_id=12345            # Your campaign ID
+)
+
+# Create a character
+gandalf = client.characters.create(
+    name="Gandalf the Grey",
+    title="Wizard",
+    type="Istari",
+    age="2000+ years",
+    is_private=False
+)
+
+# Update the character
+gandalf = client.characters.update(
+    gandalf,
+    name="Gandalf the White"
+)
+
+# Search across all entities
+results = client.search("Dragon")
+for result in results:
+    print(f"{result.name} ({result.type})")
+
+# List characters with filters
+wizards = client.characters.list(
+    type="Wizard",
+    is_private=False
+)
+
+# Delete when done
+client.characters.delete(gandalf)
+```
+
+## Common Use Cases
+
+### Working with Entity Posts
+
+```python
+# Get a character with all related data
+character = client.characters.get(character_id, related=True)
+
+# Create a new post/note
+post = client.characters.create_post(
+    character,
+    name="Background",
+    entry="*Born in the ancient times...*",
+    is_private=False
+)
+
+# List all posts for an entity
+posts = client.characters.posts(character)
+for post in posts:
+    print(f"{post.name}: {post.entry[:50]}...")
+```
+
+### Advanced Filtering
+
+```python
+# Filter by multiple criteria
+results = client.characters.list(
+    name="Gandalf",          # Partial name match
+    type="Wizard",           # Exact type match
+    is_private=False,        # Only public entities
+    tags=[15, 23],          # Has specific tags
+    order_by="name",        # Sort by name
+    desc=True              # Descending order
+)
+
+# Access the generic entities endpoint
+entities = client.entities(
+    types=["character", "creature"],  # Multiple entity types
+    is_private=False,
+    updated_by=user_id
+)
+```
+
+### Working with Multiple Entity Types
+
+All entity types follow the same pattern:
+
+```python
+# Locations
+rivendell = client.locations.create(
+    name="Rivendell",
+    type="City",
+    parent_location_id=middle_earth.id
+)
+
+# Organizations
+council = client.organisations.create(
+    name="The White Council",
+    type="Council"
+)
+
+# Journals
+journal = client.journals.create(
+    name="Campaign Log",
+    date="3019-03-25"
+)
+
+# Notes (for DM/private notes)
+note = client.notes.create(
+    name="DM Notes",
+    entry="Remember: Gandalf knows about the ring",
+    is_private=True
+)
+
+# Tags
+tag = client.tags.create(
+    name="Important NPC",
+    colour="#ff0000"
+)
+```
+
+### Error Handling
+
+```python
+from kanka.exceptions import (
+    NotFoundError,
+    ValidationError,
+    RateLimitError,
+    AuthenticationError
+)
+
+try:
+    character = client.characters.get(99999)
+except NotFoundError:
+    print("Character not found")
+except RateLimitError as e:
+    print(f"Rate limited. Retry after {e.retry_after} seconds")
+except ValidationError as e:
+    print(f"Invalid data: {e.errors}")
+except AuthenticationError:
+    print("Invalid API token")
+```
+
+## Migration Guide
+
+### Upgrading from v0.x to v2.0
+
+The v2.0 release introduces a completely new API design with Pydantic models and better type safety. Here's how to migrate:
+
+#### Old API (v0.x)
+```python
+# Old way - procedural API
+import kanka
+client = kanka.KankaClient(token)
+campaign = client.campaign(campaign_id)
+char = campaign.character(char_id)
+char.name = "New Name"
+char.update()
+```
+
+#### New API (v2.0+)
+```python
+# New way - object-oriented with managers
+from kanka import KankaClient
+client = KankaClient(token, campaign_id)
+char = client.characters.get(char_id)
+char = client.characters.update(char, name="New Name")
+```
+
+### Key Differences
+
+1. **Single Client**: No more separate campaign object - everything through `KankaClient`
+2. **Entity Managers**: Each entity type has a dedicated manager (`client.characters`, `client.locations`, etc.)
+3. **Immutable Models**: Models are Pydantic objects - use manager methods to update
+4. **Better Types**: Full typing support with IDE autocomplete
+5. **Consistent API**: All entities follow the same CRUD pattern
+
+## Development Setup
+
+For development, install additional dependencies:
+
+```bash
+# Clone the repository
+git clone https://github.com/rbtnx/python-kanka.git
+cd python-kanka
+
+# Install dev dependencies
 pip install -r dev-requirements.txt
 pip install -e .  # Install in editable mode
 ```
 
-#### Development Tools
+### Development Tools
+
 This project uses several tools to maintain code quality:
 
 - **black** - Code formatter
 - **isort** - Import sorter
 - **ruff** - Fast Python linter
 - **pytest** - Testing framework
-- **mypy** - Static type checker (optional)
+- **mypy** - Static type checker
 
 Use the Makefile for common development tasks:
+
 ```bash
 make install   # Install all dependencies
 make format    # Format code with black and isort
@@ -36,101 +241,40 @@ make check     # Run all checks (lint + test)
 make clean     # Clean up temporary files
 ```
 
-#### Pre-commit Hooks (Optional)
+### Pre-commit Hooks (Optional)
+
 To automatically run formatting and linting before each commit:
+
 ```bash
 pre-commit install
 ```
 
-This will install git hooks that run black, isort, and ruff on your code before allowing a commit.
+## API Documentation
 
+See the [API Reference](API_REFERENCE.md) for detailed documentation of all classes and methods.
 
-## Usage
-To get started you need an API token, see <https://kanka.io/en-US/docs/1.0/setup> (oAuth is not supported by this module).
+## Examples
 
-Create the client with
-```python
-import kanka
-token = {your_api_token_string}
-client = kanka.KankaClient(token)
-```
+Check out the [examples/](examples/) directory for more detailed examples:
 
-With this you can get a list of campaigns and import a campaign by its ID:
-```python
-client.get_campaigns()
-my_campaign = client.campaign({campaign_id})
-```
+- `quickstart.py` - Basic usage tutorial
+- `crud_operations.py` - Full CRUD examples for all entity types
+- `filtering.py` - Advanced filtering and search
+- `posts.py` - Working with entity posts
+- `error_handling.py` - Proper error handling patterns
+- `migration.py` - Migrating from the old API
 
-With the campaign object you have access to its entities. Get a list of entities wih `Campaign.get_list_of({entities})` or import an entity with the matching method. 
-```python
-my_campaign.get_list_of("characters")
-my_campaign.get_list_of("journals")
+## Contributing
 
-char = my_campaign.character({character_id)
-char.age
-last_session = my_campaign.journal({session_id})
-last_session.name
-```
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
-### **Searching for entities**
-You can search for entities using the [/search](https://kanka.io/en/docs/1.0/search) endpoint of the kanka API:
-```python
-match = my_campaign.search("Legolas")
-```
-This returns a list of entity objects with names matching the search term. If for example the term `"Legolas"` matches twos characters and one location, the variable `match` will contain two `StoredCharacter` objects and one `StoredLocation` object as a `list`. You can access the entity's attributes as shown above with
-```python
-match[0].name    # match[0] is the first list entry,
-                 # a StoredCharacter object
-match[2].map_url # match[2] is the third list entry,
-                 # a StoredLocation object
-```
+## License
 
-### **Create new entity**
-You can create a new (empty) entity with for example
-```python
-gimli = my_campaign.new_entity("character")
-vulcan = my_campaign.new_entity("race")
-```
-All attributes will be set to `None` except the entity name, which is set to `"New {entity}"`. You can fill out as many attributes as you like and then upload the entity with
-```pyhon
-gimli.upload()
-```
-You'll receive a json dictionary with the data of the newly created entity if successfull.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### **Delete an entity**
-Delete an entity of a campaign using the campaigns `delete` method by specifying the entity type and the entity id, for example:
-```python
-my_campaign.delete("character", 666666)
-```
-If successfull, the method returns `True`.
+## Links
 
-### **Download campaign data**
-
-You can also import all the entities of a campaign into a `StoredCampaign` object:
-```python
-my_campaign = client.import_campaign({campaign_id})
-my_campaign.characters         # displays a list of all characters
-my_campaign.characters[3].name # displays the name of the fourth character in the list
-```
-
-At the moment not all entities are implemented, see table below.
-
-| Entity name | retrieve | create | update | delete |
-|:------------|:----------------------:|:----------------------:|:----------------------:|:----------------------:|
-|Profile      |:heavy_check_mark:      ||||
-|Campaign     |:heavy_check_mark:      ||||
-|Character    |:heavy_check_mark:      |:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|Location     |:heavy_check_mark:      |:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|Family       |:heavy_check_mark:      |:heavy_multiplication_x:|:heavy_multiplication_x:|:heavy_multiplication_x:|
-|Organisation |:heavy_check_mark:      |:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|Item         |:heavy_multiplication_x:|:heavy_multiplication_x:|:heavy_multiplication_x:|:heavy_multiplication_x:|
-|Note         |:heavy_check_mark:      |:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|Event        |:heavy_multiplication_x:|:heavy_multiplication_x:|:heavy_multiplication_x:|:heavy_multiplication_x:|
-|Calendar     |:heavy_multiplication_x:|:heavy_multiplication_x:|:heavy_multiplication_x:|:heavy_multiplication_x:|
-|Race         |:heavy_check_mark:      |:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|Quest        |:heavy_check_mark:      |:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|Journal      |:heavy_check_mark:      |:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|Ability      |:heavy_multiplication_x:|:heavy_multiplication_x:|:heavy_multiplication_x:|:heavy_multiplication_x:|
-|Tag          |:heavy_multiplication_x:|:heavy_multiplication_x:|:heavy_multiplication_x:|:heavy_multiplication_x:|
-|Conversation |:heavy_multiplication_x:|:heavy_multiplication_x:|:heavy_multiplication_x:|:heavy_multiplication_x:|
-|Dice Roll    |:heavy_multiplication_x:|:heavy_multiplication_x:|:heavy_multiplication_x:|:heavy_multiplication_x:|
+- [Kanka.io](https://kanka.io) - The Kanka platform
+- [Kanka API Documentation](https://kanka.io/en-US/docs/1.0) - Official API docs
+- [GitHub Repository](https://github.com/rbtnx/python-kanka) - Source code
+- [Issue Tracker](https://github.com/rbtnx/python-kanka/issues) - Report bugs or request features

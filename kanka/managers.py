@@ -239,12 +239,30 @@ class EntityManager(Generic[T]):
 
     @property
     def last_page_meta(self) -> Dict[str, Any]:
-        """Get metadata from the last list() call."""
+        """Get metadata from the last list() call.
+        
+        Returns:
+            Dict[str, Any]: Pagination metadata including:
+                - current_page: Current page number
+                - from: Starting record number
+                - to: Ending record number
+                - last_page: Total number of pages
+                - per_page: Records per page
+                - total: Total number of records
+        """
         return getattr(self, "_last_meta", {})
 
     @property
     def last_page_links(self) -> Dict[str, Any]:
-        """Get pagination links from the last list() call."""
+        """Get pagination links from the last list() call.
+        
+        Returns:
+            Dict[str, Any]: Pagination links including:
+                - first: URL to first page
+                - last: URL to last page  
+                - prev: URL to previous page (if applicable)
+                - next: URL to next page (if applicable)
+        """
         return getattr(self, "_last_links", {})
 
     # Posts functionality
@@ -377,10 +395,28 @@ class EntityManager(Generic[T]):
 
     @property
     def last_posts_meta(self) -> Dict[str, Any]:
-        """Get metadata from the last list_posts() call."""
+        """Get metadata from the last list_posts() call.
+        
+        Returns:
+            Dict[str, Any]: Pagination metadata for posts including:
+                - current_page: Current page number
+                - from: Starting record number
+                - to: Ending record number
+                - last_page: Total number of pages
+                - per_page: Records per page
+                - total: Total number of posts
+        """
         return getattr(self, "_last_posts_meta", {})
 
     @property
     def last_posts_links(self) -> Dict[str, Any]:
-        """Get pagination links from the last list_posts() call."""
+        """Get pagination links from the last list_posts() call.
+        
+        Returns:
+            Dict[str, Any]: Pagination links for posts including:
+                - first: URL to first page
+                - last: URL to last page
+                - prev: URL to previous page (if applicable)
+                - next: URL to next page (if applicable)
+        """
         return getattr(self, "_last_posts_links", {})
