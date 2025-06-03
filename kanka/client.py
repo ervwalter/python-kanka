@@ -161,16 +161,31 @@ class KankaClient:
         """Access entity event entities."""
         return self._entity_events
     
-    def search(self, term: str) -> List[SearchResult]:
+    def search(self, term: str, page: int = 1, limit: int = 30) -> List[SearchResult]:
         """Search across all entity types.
         
         Args:
             term: Search term
+            page: Page number (default: 1)
+            limit: Number of results per page (default: 30)
             
         Returns:
             List of search results
+            
+        Example:
+            results = client.search("dragon")
+            results = client.search("dragon", page=2, limit=50)
         """
-        response = self._request('GET', f'search/{term}')
+        params = {
+            'page': page,
+            'limit': limit
+        }
+        response = self._request('GET', f'search/{term}', params=params)
+        
+        # Store pagination metadata for access if needed
+        self._last_search_meta = response.get('meta', {})
+        self._last_search_links = response.get('links', {})
+        
         return [SearchResult(**item) for item in response['data']]
     
     def entities(self, **filters) -> List[Dict[str, Any]]:
@@ -246,3 +261,13 @@ class KankaClient:
             return {}
         
         return response.json()
+    
+    @property
+    def last_search_meta(self) -> Dict[str, Any]:
+        """Get metadata from the last search() call."""
+        return getattr(self, '_last_search_meta', {})
+    
+    @property
+    def last_search_links(self) -> Dict[str, Any]:
+        """Get pagination links from the last search() call."""
+        return getattr(self, '_last_search_links', {})
