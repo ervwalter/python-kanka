@@ -2,23 +2,26 @@
 Base Pydantic models for Kanka API.
 """
 
-from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional, List, Dict, Any
 from datetime import datetime
+from typing import List, Optional
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class KankaModel(BaseModel):
     """Base for all Kanka models with common config."""
+
     model_config = ConfigDict(
-        extra='allow',  # Store unknown fields
+        extra="allow",  # Store unknown fields
         validate_assignment=True,
         use_enum_values=True,
-        populate_by_name=True  # Allow both field names and aliases
+        populate_by_name=True,  # Allow both field names and aliases
     )
 
 
 class Entity(KankaModel):
     """Base for all entities from API."""
+
     id: int
     entity_id: int
     name: str
@@ -32,7 +35,7 @@ class Entity(KankaModel):
     updated_at: datetime
     updated_by: int
     entry: Optional[str] = None
-    
+
     # For MCP: easy access to entity type
     @property
     def entity_type(self) -> str:

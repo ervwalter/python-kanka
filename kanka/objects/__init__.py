@@ -3,38 +3,38 @@ Backward compatibility module.
 All objects are now in kanka.models
 """
 
-from .base import KankaObject, Entity, Trait
+from .base import Entity, KankaObject, Trait
 from .core import (
-    Core,
+    Ability,
     Character,
-    Location,
-    Organisation,
-    Note,
-    Race,
-    Quest,
-    Journal,
+    Conversation,
+    Core,
+    Event,
     Family,
     Item,
-    Event,
-    Ability,
-    Conversation
+    Journal,
+    Location,
+    Note,
+    Organisation,
+    Quest,
+    Race,
 )
 
 __all__ = [
-    'KankaObject',
-    'Entity',
-    'Trait',
-    'Core',
-    'Character',
-    'Location',
-    'Organisation',
-    'Note',
-    'Race',
-    'Quest',
-    'Journal',
-    'Family',
-    'Item',
-    'Event',
-    'Ability',
-    'Conversation'
+    "KankaObject",
+    "Entity",
+    "Trait",
+    "Core",
+    "Character",
+    "Location",
+    "Organisation",
+    "Note",
+    "Race",
+    "Quest",
+    "Journal",
+    "Family",
+    "Item",
+    "Event",
+    "Ability",
+    "Conversation",
 ]

@@ -1,10 +1,18 @@
-""" Objects to store downloaded information about entities."""
+"""Objects to store downloaded information about entities."""
 
 from typing import List, Optional
-from ..models.entities import (
-    Character, Location, Organisation, Note, Race, Quest, Journal, Family
-)
+
 from ..models.base import KankaModel
+from ..models.entities import (
+    Character,
+    Family,
+    Journal,
+    Location,
+    Note,
+    Organisation,
+    Quest,
+    Race,
+)
 
 # For backward compatibility - the stored versions are now just aliases
 StoredCharacter = Character
@@ -19,6 +27,7 @@ StoredFamily = Family
 
 class StoredCampaign(KankaModel):
     """Campaign with all related entities."""
+
     name: str
     id: int
     entry: Optional[str] = None

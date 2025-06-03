@@ -2,13 +2,15 @@
 Common models used across the Kanka API.
 """
 
-from typing import Optional, List, TypeVar, Generic, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, Generic, List, Optional, TypeVar
+
 from .base import KankaModel
 
 
 class Post(KankaModel):
     """Post/comment on entities."""
+
     id: int
     name: str
     entry: str
@@ -22,6 +24,7 @@ class Post(KankaModel):
 
 class SearchResult(KankaModel):
     """Search result item."""
+
     id: int
     entity_id: int
     name: str
@@ -37,6 +40,7 @@ class SearchResult(KankaModel):
 
 class Profile(KankaModel):
     """User profile."""
+
     id: int
     name: str
     avatar: Optional[str] = None
@@ -52,6 +56,7 @@ class Profile(KankaModel):
 
 class Trait(KankaModel):
     """Trait for entities."""
+
     id: Optional[int] = None
     name: str
     entry: str
@@ -61,16 +66,18 @@ class Trait(KankaModel):
 
 
 # Type variable for generic responses
-T = TypeVar('T', bound=KankaModel)
+T = TypeVar("T", bound=KankaModel)
 
 
 class EntityResponse(KankaModel, Generic[T]):
     """Single entity API response wrapper."""
+
     data: T
 
 
 class ListResponse(KankaModel, Generic[T]):
     """List API response wrapper with pagination."""
+
     data: List[T]
     links: Dict[str, Any]
     meta: Dict[str, Any]

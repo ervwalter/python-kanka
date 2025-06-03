@@ -1,6 +1,4 @@
-#coding=utf-8
-
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name="Python-Kanka",
@@ -10,6 +8,5 @@ setup(
     author="Kathrin Weihe",
     author_email="weihek@gmail.com",
     description="A python interface to the Kanka API.",
-    install_requires=["requests>=2.23.0",
-                      "requests_toolbelt>=0.9.1"]
+    install_requires=["requests>=2.23.0", "requests_toolbelt>=0.9.1"],
 )

@@ -2,12 +2,47 @@
 This is a python interface to the API from https://kanka.io. It's still early development so use it at your own risk.
 
 ## Installation
-This module is compatible with Python >= 3.7. When inside the repository root, install the module with
+This module is compatible with Python >= 3.8. When inside the repository root, install the module with
 ```
 pip install -r requirements.txt
 python setup.py install
 ```
 A virtual environment is recommended.
+
+### Development Setup
+For development, install the additional dev dependencies:
+```bash
+pip install -r dev-requirements.txt
+pip install -e .  # Install in editable mode
+```
+
+#### Development Tools
+This project uses several tools to maintain code quality:
+
+- **black** - Code formatter
+- **isort** - Import sorter
+- **ruff** - Fast Python linter
+- **pytest** - Testing framework
+- **mypy** - Static type checker (optional)
+
+Use the Makefile for common development tasks:
+```bash
+make install   # Install all dependencies
+make format    # Format code with black and isort
+make lint      # Run linting checks
+make test      # Run all tests
+make coverage  # Run tests with coverage report
+make check     # Run all checks (lint + test)
+make clean     # Clean up temporary files
+```
+
+#### Pre-commit Hooks (Optional)
+To automatically run formatting and linting before each commit:
+```bash
+pre-commit install
+```
+
+This will install git hooks that run black, isort, and ruff on your code before allowing a commit.
 
 
 ## Usage
