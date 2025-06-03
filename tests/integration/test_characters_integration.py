@@ -4,8 +4,8 @@ Integration tests for Character entity operations.
 from datetime import datetime
 from typing import Optional
 
-from base import IntegrationTestBase
-from kanka.objects import Character
+from .base import IntegrationTestBase
+# Character type is imported implicitly through the client
 
 
 class TestCharacterIntegration(IntegrationTestBase):
@@ -34,6 +34,7 @@ class TestCharacterIntegration(IntegrationTestBase):
             "age": "25",
             "pronouns": "they/them",
             "type": "NPC",
+            "entry": "<p>This is a <strong>test character</strong> with <em>HTML content</em>.</p><ul><li>First ability</li><li>Second skill</li></ul>",
             "is_dead": False,
             "is_private": False
         }
@@ -51,6 +52,7 @@ class TestCharacterIntegration(IntegrationTestBase):
         self.assert_equal(character.type, character_data["type"], "Character type mismatch")
         self.assert_equal(character.is_dead, False, "Character should not be dead")
         self.assert_equal(character.is_private, False, "Character should not be private")
+        self.assert_equal(character.entry, character_data["entry"], "Character entry mismatch")
         
         print(f"  Created character: {character.name} (ID: {character.id})")
         
@@ -58,13 +60,17 @@ class TestCharacterIntegration(IntegrationTestBase):
         """Test listing characters with filters."""
         # First create a character to ensure we have something to find
         test_name = f"Integration Test Character - DELETE ME - {datetime.now().isoformat()}"
-        character = self.client.characters.create(name=test_name, type="NPC")
+        character = self.client.characters.create(
+            name=test_name, 
+            type="NPC",
+            entry="<h2>Test NPC</h2><p>A character created for <a href='#'>testing</a>.</p>"
+        )
         self.created_character_id = character.id
         
         self.wait_for_api()  # Give API time to index
         
         # List all characters with our test prefix
-        characters = list(self.client.characters.all(name="Integration Test Character"))
+        characters = list(self.client.characters.list(name="Integration Test Character"))
         
         # Verify our character appears in the list
         found = False
@@ -83,7 +89,8 @@ class TestCharacterIntegration(IntegrationTestBase):
         character = self.client.characters.create(
             name=original_name,
             title="Original Title",
-            age="20"
+            age="20",
+            entry="<p>Original character description with <strong>basic HTML</strong>.</p>"
         )
         self.created_character_id = character.id
         
@@ -94,6 +101,7 @@ class TestCharacterIntegration(IntegrationTestBase):
             "title": "Updated Title",
             "age": "30",
             "pronouns": "she/her",
+            "entry": "<h2>Updated Character</h2><p>This character has been <em>updated</em> with new information:</p><ol><li>New title</li><li>New age</li><li>New pronouns</li></ol>",
             "is_dead": True
         }
         updated_character = self.client.characters.update(character.id, **updated_data)
@@ -104,6 +112,7 @@ class TestCharacterIntegration(IntegrationTestBase):
         self.assert_equal(updated_character.age, "30", "Age not updated")
         self.assert_equal(updated_character.pronouns, "she/her", "Pronouns not updated")
         self.assert_equal(updated_character.is_dead, True, "is_dead not updated")
+        self.assert_equal(updated_character.entry, updated_data["entry"], "Entry not updated")
         
         print(f"  Updated character {character.id} successfully")
         
@@ -111,7 +120,11 @@ class TestCharacterIntegration(IntegrationTestBase):
         """Test getting a specific character."""
         # Create a character
         character_name = f"Integration Test Character - DELETE ME - {datetime.now().isoformat()}"
-        created = self.client.characters.create(name=character_name, type="PC")
+        created = self.client.characters.create(
+            name=character_name, 
+            type="PC",
+            entry="<p>A <strong>player character</strong> for testing retrieval.</p>"
+        )
         self.created_character_id = created.id
         
         self.wait_for_api()
@@ -123,6 +136,7 @@ class TestCharacterIntegration(IntegrationTestBase):
         self.assert_equal(character.id, created.id, "Character ID mismatch")
         self.assert_equal(character.name, character_name, "Character name mismatch")
         self.assert_equal(character.type, "PC", "Character type mismatch")
+        self.assert_equal(character.entry, "<p>A <strong>player character</strong> for testing retrieval.</p>", "Character entry mismatch")
         
         print(f"  Retrieved character {character.id} successfully")
         
@@ -130,7 +144,8 @@ class TestCharacterIntegration(IntegrationTestBase):
         """Test deleting a character."""
         # Create a character
         character = self.client.characters.create(
-            name=f"Integration Test Character TO DELETE - {datetime.now().isoformat()}"
+            name=f"Integration Test Character TO DELETE - {datetime.now().isoformat()}",
+            entry="<p>This character will be <del>deleted</del> soon.</p>"
         )
         character_id = character.id
         

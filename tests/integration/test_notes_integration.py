@@ -4,8 +4,8 @@ Integration tests for Note entity operations.
 from datetime import datetime
 from typing import Optional
 
-from base import IntegrationTestBase
-from kanka.objects import Note
+from .base import IntegrationTestBase
+# Note type is imported implicitly through the client
 
 
 class TestNoteIntegration(IntegrationTestBase):
@@ -31,7 +31,7 @@ class TestNoteIntegration(IntegrationTestBase):
         note_data = {
             "name": f"Integration Test Note - DELETE ME - {datetime.now().isoformat()}",
             "type": "Lore",
-            "entry": "This is a test note created for integration testing purposes.",
+            "entry": "<h2>Ancient Lore</h2><p>This <strong>mystical knowledge</strong> contains:</p><ul><li>Forgotten spells</li><li>Lost artifacts</li><li>Secret rituals</li></ul><p><em>Handle with care - powerful magic within</em></p>",
             "is_private": False,
             "is_pinned": False
         }
@@ -54,13 +54,17 @@ class TestNoteIntegration(IntegrationTestBase):
         """Test listing notes with filters."""
         # First create a note to ensure we have something to find
         test_name = f"Integration Test Note - DELETE ME - {datetime.now().isoformat()}"
-        note = self.client.notes.create(name=test_name, type="Secret")
+        note = self.client.notes.create(
+            name=test_name, 
+            type="Secret",
+            entry="<p>A <strong>secret note</strong> containing <em>classified information</em>.</p>"
+        )
         self.created_note_id = note.id
         
         self.wait_for_api()  # Give API time to index
         
         # List all notes with our test prefix
-        notes = list(self.client.notes.all(name="Integration Test Note"))
+        notes = list(self.client.notes.list(name="Integration Test Note"))
         
         # Verify our note appears in the list
         found = False
@@ -79,7 +83,7 @@ class TestNoteIntegration(IntegrationTestBase):
         note = self.client.notes.create(
             name=original_name,
             type="History",
-            entry="Original note content",
+            entry="<p>Original <strong>historical record</strong> from the archives.</p>",
             is_pinned=False
         )
         self.created_note_id = note.id
@@ -89,7 +93,7 @@ class TestNoteIntegration(IntegrationTestBase):
         # Update the note
         updated_data = {
             "type": "Important History",
-            "entry": "Updated note content with additional historical details",
+            "entry": "<h2>Updated Historical Records</h2><p>These <em>crucial documents</em> reveal:</p><ol><li>Timeline of Events</li><li>Key Figures</li><li>Historical Impact</li></ol><blockquote>Those who forget history are doomed to repeat it</blockquote>",
             "is_pinned": True
         }
         updated_note = self.client.notes.update(note.id, **updated_data)
@@ -97,7 +101,7 @@ class TestNoteIntegration(IntegrationTestBase):
         # Verify updates
         self.assert_equal(updated_note.name, original_name, "Name should not change")
         self.assert_equal(updated_note.type, "Important History", "Type not updated")
-        self.assert_equal(updated_note.entry, "Updated note content with additional historical details", "Entry not updated")
+        self.assert_equal(updated_note.entry, updated_data["entry"], "Entry not updated")
         self.assert_equal(updated_note.is_pinned, True, "is_pinned not updated")
         
         print(f"  Updated note {note.id} successfully")
@@ -106,7 +110,11 @@ class TestNoteIntegration(IntegrationTestBase):
         """Test getting a specific note."""
         # Create a note
         note_name = f"Integration Test Note - DELETE ME - {datetime.now().isoformat()}"
-        created = self.client.notes.create(name=note_name, type="Plot")
+        created = self.client.notes.create(
+            name=note_name, 
+            type="Plot",
+            entry="<p>Key <strong>plot points</strong> for the <em>upcoming campaign</em>.</p>"
+        )
         self.created_note_id = created.id
         
         self.wait_for_api()
@@ -118,6 +126,7 @@ class TestNoteIntegration(IntegrationTestBase):
         self.assert_equal(note.id, created.id, "Note ID mismatch")
         self.assert_equal(note.name, note_name, "Note name mismatch")
         self.assert_equal(note.type, "Plot", "Note type mismatch")
+        self.assert_equal(note.entry, "<p>Key <strong>plot points</strong> for the <em>upcoming campaign</em>.</p>", "Note entry mismatch")
         
         print(f"  Retrieved note {note.id} successfully")
         
@@ -125,7 +134,8 @@ class TestNoteIntegration(IntegrationTestBase):
         """Test deleting a note."""
         # Create a note
         note = self.client.notes.create(
-            name=f"Integration Test Note TO DELETE - {datetime.now().isoformat()}"
+            name=f"Integration Test Note TO DELETE - {datetime.now().isoformat()}",
+            entry="<p>This note will be <del>erased</del> from the records.</p>"
         )
         note_id = note.id
         

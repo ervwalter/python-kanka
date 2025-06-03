@@ -4,8 +4,8 @@ Integration tests for Organisation entity operations.
 from datetime import datetime
 from typing import Optional
 
-from base import IntegrationTestBase
-from kanka.objects import Organisation
+from .base import IntegrationTestBase
+# Organisation type is imported implicitly through the client
 
 
 class TestOrganisationIntegration(IntegrationTestBase):
@@ -31,7 +31,7 @@ class TestOrganisationIntegration(IntegrationTestBase):
         organisation_data = {
             "name": f"Integration Test Organisation - DELETE ME - {datetime.now().isoformat()}",
             "type": "Guild",
-            "entry": "A test organisation created for integration testing.",
+            "entry": "<h2>Adventurer's Guild</h2><p>A prestigious <strong>guild</strong> offering:</p><ul><li>Quest Board</li><li>Training Facilities</li><li>Member Benefits</li></ul><p><em>Established in the year 1023</em></p>",
             "is_private": False
         }
         
@@ -52,13 +52,17 @@ class TestOrganisationIntegration(IntegrationTestBase):
         """Test listing organisations with filters."""
         # First create an organisation to ensure we have something to find
         test_name = f"Integration Test Organisation - DELETE ME - {datetime.now().isoformat()}"
-        organisation = self.client.organisations.create(name=test_name, type="Company")
+        organisation = self.client.organisations.create(
+            name=test_name, 
+            type="Company",
+            entry="<p>A <strong>trading company</strong> with <em>international reach</em>.</p>"
+        )
         self.created_organisation_id = organisation.id
         
         self.wait_for_api()  # Give API time to index
         
         # List all organisations with our test prefix
-        organisations = list(self.client.organisations.all(name="Integration Test Organisation"))
+        organisations = list(self.client.organisations.list(name="Integration Test Organisation"))
         
         # Verify our organisation appears in the list
         found = False
@@ -77,7 +81,7 @@ class TestOrganisationIntegration(IntegrationTestBase):
         organisation = self.client.organisations.create(
             name=original_name,
             type="Cult",
-            entry="Original description"
+            entry="<p>A mysterious <strong>cult</strong> worshipping ancient powers.</p>"
         )
         self.created_organisation_id = organisation.id
         
@@ -86,14 +90,14 @@ class TestOrganisationIntegration(IntegrationTestBase):
         # Update the organisation
         updated_data = {
             "type": "Secret Society",
-            "entry": "Updated description with more mysterious details"
+            "entry": "<h2>The Order of Shadows</h2><p>This <em>secret society</em> has evolved with:</p><ol><li>Hidden Chapters</li><li>Coded Messages</li><li>Shadow Network</li></ol><blockquote>Knowledge is power, secrecy is survival</blockquote>"
         }
         updated_organisation = self.client.organisations.update(organisation.id, **updated_data)
         
         # Verify updates
         self.assert_equal(updated_organisation.name, original_name, "Name should not change")
         self.assert_equal(updated_organisation.type, "Secret Society", "Type not updated")
-        self.assert_equal(updated_organisation.entry, "Updated description with more mysterious details", "Entry not updated")
+        self.assert_equal(updated_organisation.entry, updated_data["entry"], "Entry not updated")
         
         print(f"  Updated organisation {organisation.id} successfully")
         
@@ -101,7 +105,11 @@ class TestOrganisationIntegration(IntegrationTestBase):
         """Test getting a specific organisation."""
         # Create an organisation
         organisation_name = f"Integration Test Organisation - DELETE ME - {datetime.now().isoformat()}"
-        created = self.client.organisations.create(name=organisation_name, type="Government")
+        created = self.client.organisations.create(
+            name=organisation_name, 
+            type="Government",
+            entry="<p>The <strong>regional government</strong> maintaining <em>law and order</em>.</p>"
+        )
         self.created_organisation_id = created.id
         
         self.wait_for_api()
@@ -113,6 +121,7 @@ class TestOrganisationIntegration(IntegrationTestBase):
         self.assert_equal(organisation.id, created.id, "Organisation ID mismatch")
         self.assert_equal(organisation.name, organisation_name, "Organisation name mismatch")
         self.assert_equal(organisation.type, "Government", "Organisation type mismatch")
+        self.assert_equal(organisation.entry, "<p>The <strong>regional government</strong> maintaining <em>law and order</em>.</p>", "Organisation entry mismatch")
         
         print(f"  Retrieved organisation {organisation.id} successfully")
         
@@ -120,7 +129,8 @@ class TestOrganisationIntegration(IntegrationTestBase):
         """Test deleting an organisation."""
         # Create an organisation
         organisation = self.client.organisations.create(
-            name=f"Integration Test Organisation TO DELETE - {datetime.now().isoformat()}"
+            name=f"Integration Test Organisation TO DELETE - {datetime.now().isoformat()}",
+            entry="<p>This organisation will be <del>disbanded</del> immediately.</p>"
         )
         organisation_id = organisation.id
         

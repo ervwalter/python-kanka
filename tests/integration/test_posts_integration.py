@@ -4,8 +4,8 @@ Integration tests for Post sub-resource operations.
 from datetime import datetime
 from typing import Optional
 
-from base import IntegrationTestBase
-from kanka.objects import Character, Post
+from .base import IntegrationTestBase
+# Character and Post types are imported implicitly through the client
 
 
 class TestPostIntegration(IntegrationTestBase):
@@ -45,7 +45,7 @@ class TestPostIntegration(IntegrationTestBase):
         # Create post data
         post_data = {
             "name": f"Integration Test Post - DELETE ME - {datetime.now().isoformat()}",
-            "entry": "This is a test post created for integration testing.",
+            "entry": "<h3>Character Journal Entry</h3><p>Today's <strong>adventures</strong> included:</p><ul><li>Meeting with the guild</li><li>Exploring the dungeon</li><li>Finding mysterious artifact</li></ul><p><em>More details to follow...</em></p>",
             "visibility": "all"
         }
         
@@ -75,14 +75,14 @@ class TestPostIntegration(IntegrationTestBase):
         post_name = f"Integration Test Post - DELETE ME - {datetime.now().isoformat()}"
         post = self.client.characters.posts(character.id).create(
             name=post_name,
-            entry="Test post content"
+            entry="<p>A brief <strong>post</strong> with <em>simple HTML</em> content.</p>"
         )
         self.created_post_id = post.id
         
         self.wait_for_api()
         
         # List all posts for the character
-        posts = list(self.client.characters.posts(character.id).all())
+        posts = list(self.client.characters.posts(character.id).list())
         
         # Verify our post appears in the list
         found = False
@@ -108,7 +108,7 @@ class TestPostIntegration(IntegrationTestBase):
         original_name = f"Integration Test Post - DELETE ME - {datetime.now().isoformat()}"
         post = self.client.characters.posts(character.id).create(
             name=original_name,
-            entry="Original post content",
+            entry="<p>Original post with <strong>basic formatting</strong>.</p>",
             visibility="all"
         )
         self.created_post_id = post.id
@@ -117,14 +117,14 @@ class TestPostIntegration(IntegrationTestBase):
         
         # Update the post
         updated_data = {
-            "entry": "Updated post content with more details",
+            "entry": "<h3>Updated Journal Entry</h3><p>This post has been <em>updated</em> with new information:</p><ol><li>Quest completed successfully</li><li>Rewards collected</li><li>New quest received</li></ol><blockquote>The journey continues...</blockquote>",
             "visibility": "members"
         }
         updated_post = self.client.characters.posts(character.id).update(post.id, **updated_data)
         
         # Verify updates
         self.assert_equal(updated_post.name, original_name, "Name should not change")
-        self.assert_equal(updated_post.entry, "Updated post content with more details", "Entry not updated")
+        self.assert_equal(updated_post.entry, updated_data["entry"], "Entry not updated")
         self.assert_equal(updated_post.visibility, "members", "Visibility not updated")
         
         print(f"  Updated post {post.id} successfully")
@@ -143,7 +143,7 @@ class TestPostIntegration(IntegrationTestBase):
         post_name = f"Integration Test Post - DELETE ME - {datetime.now().isoformat()}"
         created = self.client.characters.posts(character.id).create(
             name=post_name,
-            entry="Test post to retrieve"
+            entry="<p>Test post with <strong>HTML tags</strong> to <em>retrieve</em>.</p>"
         )
         self.created_post_id = created.id
         
@@ -155,7 +155,7 @@ class TestPostIntegration(IntegrationTestBase):
         # Verify we got the right post
         self.assert_equal(post.id, created.id, "Post ID mismatch")
         self.assert_equal(post.name, post_name, "Post name mismatch")
-        self.assert_equal(post.entry, "Test post to retrieve", "Post entry mismatch")
+        self.assert_equal(post.entry, "<p>Test post with <strong>HTML tags</strong> to <em>retrieve</em>.</p>", "Post entry mismatch")
         
         print(f"  Retrieved post {post.id} successfully")
         
@@ -171,7 +171,8 @@ class TestPostIntegration(IntegrationTestBase):
         
         # Create a post
         post = self.client.characters.posts(character.id).create(
-            name=f"Integration Test Post TO DELETE - {datetime.now().isoformat()}"
+            name=f"Integration Test Post TO DELETE - {datetime.now().isoformat()}",
+            entry="<p>This post will be <del>deleted</del> shortly.</p>"
         )
         post_id = post.id
         

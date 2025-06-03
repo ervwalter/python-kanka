@@ -4,8 +4,8 @@ Integration tests for Location entity operations.
 from datetime import datetime
 from typing import Optional
 
-from base import IntegrationTestBase
-from kanka.objects import Location
+from .base import IntegrationTestBase
+# Location type is imported implicitly through the client
 
 
 class TestLocationIntegration(IntegrationTestBase):
@@ -31,7 +31,7 @@ class TestLocationIntegration(IntegrationTestBase):
         location_data = {
             "name": f"Integration Test Location - DELETE ME - {datetime.now().isoformat()}",
             "type": "City",
-            "entry": "A test location created for integration testing.",
+            "entry": "<h2>Test City</h2><p>This location has <a href='#'>links</a> and lists:</p><ul><li>Market Square</li><li>Temple District</li><li>Royal Palace</li></ul>",
             "is_private": False
         }
         
@@ -52,13 +52,17 @@ class TestLocationIntegration(IntegrationTestBase):
         """Test listing locations with filters."""
         # First create a location to ensure we have something to find
         test_name = f"Integration Test Location - DELETE ME - {datetime.now().isoformat()}"
-        location = self.client.locations.create(name=test_name, type="Village")
+        location = self.client.locations.create(
+            name=test_name, 
+            type="Village",
+            entry="<p>A small <em>village</em> with <strong>peaceful</strong> residents.</p>"
+        )
         self.created_location_id = location.id
         
         self.wait_for_api()  # Give API time to index
         
         # List all locations with our test prefix
-        locations = list(self.client.locations.all(name="Integration Test Location"))
+        locations = list(self.client.locations.list(name="Integration Test Location"))
         
         # Verify our location appears in the list
         found = False
@@ -77,7 +81,7 @@ class TestLocationIntegration(IntegrationTestBase):
         location = self.client.locations.create(
             name=original_name,
             type="Town",
-            entry="Original description"
+            entry="<p>A <strong>bustling town</strong> with various districts.</p>"
         )
         self.created_location_id = location.id
         
@@ -86,14 +90,14 @@ class TestLocationIntegration(IntegrationTestBase):
         # Update the location
         updated_data = {
             "type": "Metropolis",
-            "entry": "Updated description with more details"
+            "entry": "<h2>Grand Metropolis</h2><p>This location has grown into a <em>massive city</em> with:</p><ol><li>Commercial Hub</li><li>Industrial Zone</li><li>Entertainment District</li></ol><p>Population: <strong>1 million+</strong></p>"
         }
         updated_location = self.client.locations.update(location.id, **updated_data)
         
         # Verify updates
         self.assert_equal(updated_location.name, original_name, "Name should not change")
         self.assert_equal(updated_location.type, "Metropolis", "Type not updated")
-        self.assert_equal(updated_location.entry, "Updated description with more details", "Entry not updated")
+        self.assert_equal(updated_location.entry, updated_data["entry"], "Entry not updated")
         
         print(f"  Updated location {location.id} successfully")
         
@@ -101,7 +105,11 @@ class TestLocationIntegration(IntegrationTestBase):
         """Test getting a specific location."""
         # Create a location
         location_name = f"Integration Test Location - DELETE ME - {datetime.now().isoformat()}"
-        created = self.client.locations.create(name=location_name, type="Castle")
+        created = self.client.locations.create(
+            name=location_name, 
+            type="Castle",
+            entry="<p>An ancient <strong>castle</strong> perched on a <em>rocky cliff</em>.</p>"
+        )
         self.created_location_id = created.id
         
         self.wait_for_api()
@@ -113,6 +121,7 @@ class TestLocationIntegration(IntegrationTestBase):
         self.assert_equal(location.id, created.id, "Location ID mismatch")
         self.assert_equal(location.name, location_name, "Location name mismatch")
         self.assert_equal(location.type, "Castle", "Location type mismatch")
+        self.assert_equal(location.entry, "<p>An ancient <strong>castle</strong> perched on a <em>rocky cliff</em>.</p>", "Location entry mismatch")
         
         print(f"  Retrieved location {location.id} successfully")
         
@@ -120,7 +129,8 @@ class TestLocationIntegration(IntegrationTestBase):
         """Test deleting a location."""
         # Create a location
         location = self.client.locations.create(
-            name=f"Integration Test Location TO DELETE - {datetime.now().isoformat()}"
+            name=f"Integration Test Location TO DELETE - {datetime.now().isoformat()}",
+            entry="<p>This location will be <del>removed</del> from the map.</p>"
         )
         location_id = location.id
         
