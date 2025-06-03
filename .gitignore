@@ -165,3 +165,7 @@ dmypy.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Integration test files
+tests/integration/.env
+tests/integration/*.log

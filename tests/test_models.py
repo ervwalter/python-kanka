@@ -7,10 +7,8 @@ import pytest
 from kanka.models.base import Entity, KankaModel
 from kanka.models.common import Post, Profile, SearchResult
 from kanka.models.entities import (
-    Attribute,
     Calendar,
     Character,
-    EntityEvent,
     Location,
     Map,
 )
@@ -285,69 +283,6 @@ class TestMap:
         assert map_entity.height == 1080
         assert map_entity.distance_name == "miles"
         assert map_entity.distance_measure == 10.5
-
-
-class TestAttribute:
-    """Test Attribute model."""
-
-    def test_attribute_required_entity_id(self):
-        """Test that entity_id is required for attributes."""
-        attribute = Attribute(
-            id=1,
-            entity_id=100,  # Required field
-            name="Strength",
-            created_at="2024-01-01T00:00:00.000000Z",
-            created_by=1,
-            updated_at="2024-01-01T00:00:00.000000Z",
-            updated_by=1,
-            type="number",
-            api_key="str",
-        )
-
-        assert attribute.entity_id == 100
-        assert attribute.type == "number"
-        assert attribute.api_key == "str"
-
-    def test_attribute_missing_entity_id(self):
-        """Test that missing entity_id raises error."""
-        with pytest.raises(ValueError):
-            Attribute(
-                id=1,
-                # entity_id missing - should raise error
-                name="Strength",
-                created_at="2024-01-01T00:00:00.000000Z",
-                created_by=1,
-                updated_at="2024-01-01T00:00:00.000000Z",
-                updated_by=1,
-            )
-
-
-class TestEntityEvent:
-    """Test EntityEvent model."""
-
-    def test_entity_event_creation(self):
-        """Test creating an entity event."""
-        event = EntityEvent(
-            id=1,
-            entity_id=100,  # Required
-            name="Battle of Five Armies",
-            created_at="2024-01-01T00:00:00.000000Z",
-            created_by=1,
-            updated_at="2024-01-01T00:00:00.000000Z",
-            updated_by=1,
-            calendar_id=5,
-            date="15th of Summer",
-            length=3,
-            comment="A great battle",
-            is_recurring=False,
-            colour="#FF0000",
-        )
-
-        assert event.entity_id == 100
-        assert event.calendar_id == 5
-        assert event.date == "15th of Summer"
-        assert event.length == 3
-        assert event.colour == "#FF0000"
 
 
 class TestPost:

@@ -1,0 +1,69 @@
+/home/erv/miniconda3/lib/python3.12/site-packages/pytest_asyncio/plugin.py:208: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+platform linux -- Python 3.12.8, pytest-8.3.5, pluggy-1.5.0 -- /home/erv/miniconda3/bin/python
+cachedir: .pytest_cache
+rootdir: /home/erv/kanka/python-kanka
+configfile: pytest.ini
+plugins: mock-3.14.1, anyio-4.9.0, cov-4.1.0, respx-0.22.0, asyncio-1.0.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 47 items
+
+tests/test_client.py::TestKankaClient::test_client_initialization PASSED [  2%]
+tests/test_client.py::TestKankaClient::test_manager_initialization FAILED [  4%]
+tests/test_client.py::TestKankaClient::test_search PASSED                [  6%]
+tests/test_client.py::TestKankaClient::test_search_with_pagination PASSED [  8%]
+tests/test_client.py::TestKankaClient::test_entities_endpoint PASSED     [ 10%]
+tests/test_client.py::TestKankaClient::test_entities_with_multiple_filters PASSED [ 12%]
+tests/test_client.py::TestKankaClient::test_request_error_handling PASSED [ 14%]
+tests/test_client.py::TestKankaClient::test_delete_request_returns_empty_dict PASSED [ 17%]
+tests/test_exceptions.py::TestExceptions::test_base_exception PASSED     [ 19%]
+tests/test_exceptions.py::TestExceptions::test_legacy_exceptions PASSED  [ 21%]
+tests/test_exceptions.py::TestExceptions::test_specific_exceptions PASSED [ 23%]
+tests/test_exceptions.py::TestExceptions::test_exception_inheritance PASSED [ 25%]
+tests/test_exceptions.py::TestExceptions::test_exception_raising PASSED  [ 27%]
+tests/test_exceptions.py::TestExceptions::test_exception_with_extra_data PASSED [ 29%]
+tests/test_managers.py::TestEntityManager::test_manager_initialization PASSED [ 31%]
+tests/test_managers.py::TestEntityManager::test_get_entity PASSED        [ 34%]
+tests/test_managers.py::TestEntityManager::test_get_entity_with_related PASSED [ 36%]
+tests/test_managers.py::TestEntityManager::test_list_entities PASSED     [ 38%]
+tests/test_managers.py::TestEntityManager::test_list_with_filters PASSED [ 40%]
+tests/test_managers.py::TestEntityManager::test_list_with_types_filter PASSED [ 42%]
+tests/test_managers.py::TestEntityManager::test_create_entity PASSED     [ 44%]
+tests/test_managers.py::TestEntityManager::test_update_entity_by_object PASSED [ 46%]
+tests/test_managers.py::TestEntityManager::test_update_entity_by_id PASSED [ 48%]
+tests/test_managers.py::TestEntityManager::test_update_no_changes PASSED [ 51%]
+tests/test_managers.py::TestEntityManager::test_update_validation_error PASSED [ 53%]
+tests/test_managers.py::TestEntityManager::test_delete_entity_by_object PASSED [ 55%]
+tests/test_managers.py::TestEntityManager::test_delete_entity_by_id PASSED [ 57%]
+tests/test_managers.py::TestEntityManager::test_list_posts PASSED        [ 59%]
+tests/test_managers.py::TestEntityManager::test_list_posts_with_entity_object PASSED [ 61%]
+tests/test_managers.py::TestEntityManager::test_create_post PASSED       [ 63%]
+tests/test_managers.py::TestEntityManager::test_get_post PASSED          [ 65%]
+tests/test_managers.py::TestEntityManager::test_update_post PASSED       [ 68%]
+tests/test_managers.py::TestEntityManager::test_delete_post PASSED       [ 70%]
+tests/test_models.py::TestKankaModel::test_extra_fields_allowed PASSED   [ 72%]
+tests/test_models.py::TestKankaModel::test_validation_on_assignment PASSED [ 74%]
+tests/test_models.py::TestEntity::test_entity_creation_minimal PASSED    [ 76%]
+tests/test_models.py::TestEntity::test_entity_creation_full PASSED       [ 78%]
+tests/test_models.py::TestEntity::test_entity_type_property PASSED       [ 80%]
+tests/test_models.py::TestEntity::test_datetime_parsing PASSED           [ 82%]
+tests/test_models.py::TestCharacter::test_character_creation PASSED      [ 85%]
+tests/test_models.py::TestCharacter::test_character_with_relations PASSED [ 87%]
+tests/test_models.py::TestLocation::test_location_creation PASSED        [ 89%]
+tests/test_models.py::TestCalendar::test_calendar_complex_fields PASSED  [ 91%]
+tests/test_models.py::TestMap::test_map_with_measurements PASSED         [ 93%]
+tests/test_models.py::TestPost::test_post_creation PASSED                [ 95%]
+tests/test_models.py::TestSearchResult::test_search_result_creation PASSED [ 97%]
+tests/test_models.py::TestProfile::test_profile_creation PASSED          [100%]
+
+=================================== FAILURES ===================================
+_________________ TestKankaClient.test_manager_initialization __________________
+tests/test_client.py:45: in test_manager_initialization
+    assert client.species is not None
+E   AttributeError: 'KankaClient' object has no attribute 'species'
+=========================== short test summary info ============================
+FAILED tests/test_client.py::TestKankaClient::test_manager_initialization - AttributeError: 'KankaClient' object has no attribute 'species'
+========================= 1 failed, 46 passed in 0.22s =========================

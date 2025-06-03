@@ -23,10 +23,9 @@ Entity Types:
     - Tag: Organizational tags
     - Ability: Spells, skills, and abilities
     - Conversation: Dialog and conversations
-    - Species: Species taxonomy
-    - Attribute: Custom attributes
-    - EntityNote: Notes attached to entities
-    - EntityEvent: Events attached to entities
+    - DiceRoll: Dice roll configurations
+    - AttributeTemplate: Reusable attribute templates
+    - Bookmark: Quick access bookmarks
 """
 
 from typing import Dict, List, Optional
@@ -361,25 +360,32 @@ class Tag(Entity):
     attributes: Optional[List[Dict]] = None
 
 
-class Species(Entity):
-    """Species entity for detailed taxonomy.
+class DiceRoll(Entity):
+    """Dice roll entity for campaign dice rolls.
     
-    Species provide more detailed biological/taxonomical
-    organization than races.
+    Dice rolls allow tracking and sharing dice roll configurations
+    and results within your campaign.
     
     Attributes:
-        type: Species type/category
-        species_id: Parent species for subspecies
+        character_id: Character associated with the roll
+        parameters: Dice roll parameters
+        system: Game system for the roll
         posts: Related posts (when ?related=1)
         attributes: Custom attributes (when ?related=1)
     """
 
-    type: Optional[str] = None
-    species_id: Optional[int] = None
+    character_id: Optional[int] = None
+    parameters: Optional[str] = None
+    system: Optional[str] = None
 
     # Related data
     posts: Optional[List["Post"]] = None
     attributes: Optional[List[Dict]] = None
+
+    @property
+    def entity_type(self) -> str:
+        """Return the entity type name."""
+        return "dice_roll"
 
 
 class Calendar(Entity):
@@ -483,77 +489,51 @@ class Map(Entity):
     attributes: Optional[List[Dict]] = None
 
 
-class Attribute(Entity):
-    """Attribute entity for custom entity fields.
+class AttributeTemplate(Entity):
+    """Attribute template entity for reusable attribute sets.
     
-    Attributes allow adding custom fields to any entity,
-    providing flexible data storage.
-    
-    Attributes:
-        entity_id: Parent entity this attribute belongs to
-        type: Attribute type
-        api_key: API key for programmatic access
-        posts: Related posts (when ?related=1)
-    """
-
-    entity_id: int
-    type: Optional[str] = None
-    api_key: Optional[str] = None
-
-    # Related data
-    posts: Optional[List["Post"]] = None
-
-
-class EntityNote(Entity):
-    """Entity note for private annotations.
-    
-    Entity notes are private annotations that can be attached
-    to any entity, visible only to authorized users.
+    Attribute templates define reusable sets of attributes that
+    can be applied to entities for consistent data structures.
     
     Attributes:
-        entity_id: Parent entity this note belongs to
-        visibility: Visibility level of the note
+        entity_type_id: Entity type this template applies to
         posts: Related posts (when ?related=1)
         attributes: Custom attributes (when ?related=1)
     """
 
-    entity_id: int
-    visibility: Optional[str] = None
+    entity_type_id: Optional[int] = None
 
     # Related data
     posts: Optional[List["Post"]] = None
     attributes: Optional[List[Dict]] = None
 
+    @property
+    def entity_type(self) -> str:
+        """Return the entity type name."""
+        return "attribute_template"
 
-class EntityEvent(Entity):
-    """Entity event for calendar integration.
+
+class Bookmark(Entity):
+    """Bookmark entity for quick access to important entities.
     
-    Entity events link entities to specific dates on calendars,
-    allowing timeline and calendar integration.
+    Bookmarks provide quick access to frequently used entities
+    within your campaign.
     
     Attributes:
-        entity_id: Parent entity this event belongs to
-        calendar_id: Calendar this event appears on
-        date: Event date
-        length: Event duration in days
-        comment: Event description
-        is_recurring: Whether event repeats
-        recurring_until: End date for recurring events
-        recurring_periodicity: How often event recurs
-        colour: Event color on calendar
+        entity_id: Entity being bookmarked
+        type: Bookmark type
+        menu: Menu location for the bookmark
+        random_entity_type: For random entity bookmarks
+        is_private: Privacy setting
         posts: Related posts (when ?related=1)
         attributes: Custom attributes (when ?related=1)
     """
 
-    entity_id: int
-    calendar_id: Optional[int] = None
-    date: Optional[str] = None
-    length: Optional[int] = None
-    comment: Optional[str] = None
-    is_recurring: Optional[bool] = None
-    recurring_until: Optional[str] = None
-    recurring_periodicity: Optional[str] = None
-    colour: Optional[str] = None
+    entity_id: Optional[int] = None
+    type: Optional[str] = None
+    menu: Optional[str] = None
+    random_entity_type: Optional[str] = None
+    is_private: bool = True
 
     # Related data
     posts: Optional[List["Post"]] = None
@@ -575,10 +555,9 @@ Ability.model_rebuild()
 Conversation.model_rebuild()
 Creature.model_rebuild()
 Tag.model_rebuild()
-Species.model_rebuild()
+DiceRoll.model_rebuild()
 Calendar.model_rebuild()
 Timeline.model_rebuild()
 Map.model_rebuild()
-Attribute.model_rebuild()
-EntityNote.model_rebuild()
-EntityEvent.model_rebuild()
+AttributeTemplate.model_rebuild()
+Bookmark.model_rebuild()

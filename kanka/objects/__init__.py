@@ -4,6 +4,7 @@ All objects are now in kanka.models
 """
 
 from .base import Entity, KankaObject, Trait
+from ..models.common import Post
 from .core import (
     Ability,
     Character,
@@ -24,6 +25,7 @@ __all__ = [
     "KankaObject",
     "Entity",
     "Trait",
+    "Post",
     "Core",
     "Character",
     "Location",
