@@ -26,10 +26,28 @@ class SearchResult(KankaModel):
     entity_id: int
     name: str
     type: str
+    url: str
     image: Optional[str] = None
     is_private: bool = False
     tooltip: Optional[str] = None
-    url: str
+    tags: List[int] = []
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+
+class Profile(KankaModel):
+    """User profile."""
+    id: int
+    name: str
+    avatar: Optional[str] = None
+    avatar_thumb: Optional[str] = None
+    locale: Optional[str] = None
+    timezone: Optional[str] = None
+    date_format: Optional[str] = None
+    default_pagination: Optional[int] = None
+    theme: Optional[str] = None
+    is_patreon: Optional[bool] = None
+    last_campaign_id: Optional[int] = None
 
 
 class Trait(KankaModel):

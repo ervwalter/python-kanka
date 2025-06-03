@@ -132,13 +132,13 @@ class EntityManager(Generic[T]):
         Raises:
             ValidationError: If the data is invalid
         """
-        # Create model instance to validate data
-        entity = self.model(**kwargs)
+        # Don't validate with full model since we don't have ID fields yet
+        # Just prepare the data for the API
+        data = kwargs.copy()
         
-        # Convert to dict, excluding unset fields
-        data = entity.model_dump(exclude_unset=True, exclude={'id', 'entity_id', 
-                                                              'created_at', 'created_by',
-                                                              'updated_at', 'updated_by'})
+        # Remove any fields that shouldn't be sent in creation
+        for field in ['id', 'entity_id', 'created_at', 'created_by', 'updated_at', 'updated_by']:
+            data.pop(field, None)
         
         response = self.client._request('POST', self.endpoint, json=data)
         return self.model(**response['data'])
@@ -161,13 +161,7 @@ class EntityManager(Generic[T]):
         if isinstance(entity_or_id, int):
             # Direct update by ID
             entity_id = entity_or_id
-            # Validate the update data by creating a partial model
-            # We create a model with just the update fields to validate them
-            try:
-                self.model(**{**kwargs, 'id': entity_id})  # Validate fields
-            except Exception as e:
-                raise ValidationError(f"Invalid update data: {str(e)}")
-            
+            # Just use the kwargs directly - don't try to validate with full model
             data = kwargs
         else:
             # Entity object provided
