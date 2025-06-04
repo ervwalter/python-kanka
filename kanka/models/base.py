@@ -11,7 +11,7 @@ Classes:
 """
 
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -69,7 +69,7 @@ class Entity(KankaModel):
     image_full: Optional[str] = None
     image_thumb: Optional[str] = None
     is_private: bool = False
-    tags: List[int] = Field(default_factory=list)
+    tags: list[int] = Field(default_factory=list)
     created_at: datetime
     created_by: int
     updated_at: datetime

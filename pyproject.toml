@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 88
-target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+target-version = ['py39', 'py310', 'py311', 'py312']
 include = '\.pyi?$'
 extend-exclude = '''
 /(
@@ -32,7 +32,7 @@ skip_gitignore = true
 
 [tool.ruff]
 line-length = 88
-target-version = "py38"
+target-version = "py39"
 select = [
     "E",     # pycodestyle errors
     "W",     # pycodestyle warnings
@@ -89,7 +89,7 @@ asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 plugins = ["pydantic.mypy"]
 warn_return_any = true
 warn_unused_configs = true
@@ -105,6 +105,10 @@ warn_unreachable = true
 strict_optional = true
 strict_equality = true
 ignore_missing_imports = true
+exclude = [
+    "site-packages",
+    "_pytest",
+]
 
 [tool.pydantic-mypy]
 init_forbid_extra = false

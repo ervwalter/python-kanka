@@ -14,7 +14,7 @@ Example:
 """
 
 import time
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 from .exceptions import (
     AuthenticationError,
@@ -265,7 +265,7 @@ class KankaClient:
         """
         return self._tags
 
-    def search(self, term: str, page: int = 1, limit: int = 30) -> List[SearchResult]:
+    def search(self, term: str, page: int = 1, limit: int = 30) -> list[SearchResult]:
         """Search across all entity types.
 
         Args:
@@ -280,7 +280,7 @@ class KankaClient:
             results = client.search("dragon")
             results = client.search("dragon", page=2, limit=50)
         """
-        params: Dict[str, Union[int, str]] = {"page": page, "limit": limit}
+        params: dict[str, Union[int, str]] = {"page": page, "limit": limit}
         response = self._request("GET", f"search/{term}", params=params)
 
         # Store pagination metadata for access if needed
@@ -289,7 +289,7 @@ class KankaClient:
 
         return [SearchResult(**item) for item in response["data"]]
 
-    def entities(self, **filters) -> List[Dict[str, Any]]:
+    def entities(self, **filters) -> list[dict[str, Any]]:
         """Access the /entities endpoint with filters.
 
         This endpoint provides a unified way to query entities across all types
@@ -301,7 +301,7 @@ class KankaClient:
         Returns:
             List of entity data
         """
-        params: Dict[str, Union[int, str]] = {}
+        params: dict[str, Union[int, str]] = {}
 
         # Handle special filters
         if "types" in filters and isinstance(filters["types"], list):
@@ -366,7 +366,7 @@ class KankaClient:
 
         return None
 
-    def _request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
+    def _request(self, method: str, endpoint: str, **kwargs) -> dict[str, Any]:
         """Make HTTP request to Kanka API with automatic retry on rate limits.
 
         Args:
@@ -443,7 +443,7 @@ class KankaClient:
         raise KankaException("Unexpected error in request retry logic")
 
     @property
-    def last_search_meta(self) -> Dict[str, Any]:
+    def last_search_meta(self) -> dict[str, Any]:
         """Get metadata from the last search() call.
 
         Returns:
@@ -453,7 +453,7 @@ class KankaClient:
         return getattr(self, "_last_search_meta", {})
 
     @property
-    def last_search_links(self) -> Dict[str, Any]:
+    def last_search_links(self) -> dict[str, Any]:
         """Get pagination links from the last search() call.
 
         Returns:

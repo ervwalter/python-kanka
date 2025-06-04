@@ -11,7 +11,7 @@ A modern Python client for the [Kanka API](https://app.kanka.io/api-docs/1.0), t
   - Calendars, Events, Quests, Journals
   - Notes, Tags, Races, Creatures
 - **Type Safety**: Built with Pydantic v2 for data validation and type hints
-- **Python 3.8+**: Full typing support for modern Python versions
+- **Python 3.9+**: Full typing support for modern Python versions
 - **Pythonic API**: Consistent interface patterns across all entity types
 - **Error Handling**: Specific exception types for different API errors
 - **Rate Limit Handling**: Automatic retry with exponential backoff

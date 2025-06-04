@@ -9,7 +9,6 @@ import importlib
 import os
 import sys
 import time
-from typing import List, Tuple
 
 # Add the project root to the Python path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -105,7 +104,7 @@ def run_all_tests(pause_before_cleanup=False):
         return False
 
     # Run all test suites
-    all_results: List[Tuple[str, bool]] = []
+    all_results: list[tuple[str, bool]] = []
     all_testers = []
     all_cleanup_tasks = []
 

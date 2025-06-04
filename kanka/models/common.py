@@ -14,7 +14,7 @@ Classes:
 """
 
 from datetime import datetime
-from typing import Any, Dict, Generic, List, Optional, TypeVar
+from typing import Any, Generic, Optional, TypeVar
 
 from .base import KankaModel
 
@@ -76,7 +76,7 @@ class SearchResult(KankaModel):
     image: Optional[str] = None
     is_private: bool = False
     tooltip: Optional[str] = None
-    tags: List[int] = []
+    tags: list[int] = []
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
@@ -170,6 +170,6 @@ class ListResponse(KankaModel, Generic[T]):
         meta: Pagination metadata (current_page, total, etc.)
     """
 
-    data: List[T]
-    links: Dict[str, Any]
-    meta: Dict[str, Any]
+    data: list[T]
+    links: dict[str, Any]
+    meta: dict[str, Any]

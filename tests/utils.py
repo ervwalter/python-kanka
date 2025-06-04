@@ -1,11 +1,11 @@
 """Test utilities and mock factories."""
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 
 def create_mock_entity(
     entity_type: str, entity_id: int = 1, **kwargs
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a mock entity response.
 
     Args:
@@ -99,7 +99,7 @@ def create_mock_entity(
     return base_entity
 
 
-def create_mock_post(post_id: int = 1, **kwargs) -> Dict[str, Any]:
+def create_mock_post(post_id: int = 1, **kwargs) -> dict[str, Any]:
     """Create a mock post response.
 
     Args:
@@ -127,7 +127,7 @@ def create_mock_post(post_id: int = 1, **kwargs) -> Dict[str, Any]:
 
 def create_mock_search_result(
     entity_type: str, entity_id: int = 1, **kwargs
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a mock search result.
 
     Args:
@@ -154,8 +154,8 @@ def create_mock_search_result(
 
 
 def create_api_response(
-    data: Any, meta: Optional[Dict] = None, links: Optional[Dict] = None
-) -> Dict[str, Any]:
+    data: Any, meta: Optional[dict] = None, links: Optional[dict] = None
+) -> dict[str, Any]:
     """Create a mock API response with standard structure.
 
     Args:
@@ -166,7 +166,7 @@ def create_api_response(
     Returns:
         Dict representing an API response
     """
-    response: Dict[str, Any] = {
+    response: dict[str, Any] = {
         "data": data if isinstance(data, list) else [data] if data else []
     }
 
@@ -200,8 +200,8 @@ def create_api_response(
 
 
 def create_error_response(
-    status_code: int, message: str, errors: Optional[Dict] = None
-) -> Dict[str, Any]:
+    status_code: int, message: str, errors: Optional[dict] = None
+) -> dict[str, Any]:
     """Create a mock error response.
 
     Args:
@@ -228,10 +228,10 @@ class MockResponse:
 
     def __init__(
         self,
-        json_data: Dict[str, Any],
+        json_data: dict[str, Any],
         status_code: int = 200,
         text: str = "",
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
     ):
         self.json_data = json_data
         self.status_code = status_code

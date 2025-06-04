@@ -1,6 +1,6 @@
 """Entity managers for Kanka API."""
 
-from typing import TYPE_CHECKING, Any, Dict, Generic, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Generic, List, TypeVar, Union  # noqa: UP035
 
 from .models.base import Entity
 from .models.common import Post
@@ -15,7 +15,7 @@ T = TypeVar("T", bound=Entity)
 class EntityManager(Generic[T]):
     """Manages CRUD operations for a specific entity type."""
 
-    def __init__(self, client: "KankaClient", endpoint: str, model: Type[T]):
+    def __init__(self, client: "KankaClient", endpoint: str, model: type[T]):
         """Initialize the entity manager.
 
         Args:
@@ -42,13 +42,13 @@ class EntityManager(Generic[T]):
             AuthenticationError: If authentication fails
             ForbiddenError: If access is forbidden
         """
-        params: Dict[str, Union[int, str]] = {"related": 1} if related else {}
+        params: dict[str, Union[int, str]] = {"related": 1} if related else {}
         url = f"{self.endpoint}/{id}"
 
         response = self.client._request("GET", url, params=params)
         return self.model(**response["data"])
 
-    def list(self, page: int = 1, limit: int = 30, **filters) -> List[T]:
+    def list(self, page: int = 1, limit: int = 30, **filters) -> list[T]:
         """List entities with optional filters.
 
         Args:
@@ -88,7 +88,7 @@ class EntityManager(Generic[T]):
             )
         """
         # Build parameters
-        params: Dict[str, Union[int, str]] = {"page": page, "limit": limit}
+        params: dict[str, Union[int, str]] = {"page": page, "limit": limit}
 
         # Add filters
         for key, value in filters.items():
@@ -238,7 +238,7 @@ class EntityManager(Generic[T]):
         return True
 
     @property
-    def last_page_meta(self) -> Dict[str, Any]:
+    def last_page_meta(self) -> dict[str, Any]:
         """Get metadata from the last list() call.
 
         Returns:
@@ -253,7 +253,7 @@ class EntityManager(Generic[T]):
         return getattr(self, "_last_meta", {})
 
     @property
-    def last_page_links(self) -> Dict[str, Any]:
+    def last_page_links(self) -> dict[str, Any]:
         """Get pagination links from the last list() call.
 
         Returns:
@@ -268,7 +268,7 @@ class EntityManager(Generic[T]):
     # Posts functionality
     def list_posts(
         self, entity_or_id: Union[T, int], page: int = 1, limit: int = 30
-    ) -> List[Post]:
+    ) -> List[Post]:  # noqa: UP006
         """List posts for an entity.
 
         Args:
@@ -290,7 +290,7 @@ class EntityManager(Generic[T]):
             else entity_or_id
         )
 
-        params: Dict[str, Union[int, str]] = {"page": page, "limit": limit}
+        params: dict[str, Union[int, str]] = {"page": page, "limit": limit}
 
         url = f"entities/{entity_id}/posts"
         response = self.client._request("GET", url, params=params)
@@ -436,7 +436,7 @@ class EntityManager(Generic[T]):
         return True
 
     @property
-    def last_posts_meta(self) -> Dict[str, Any]:
+    def last_posts_meta(self) -> dict[str, Any]:
         """Get metadata from the last list_posts() call.
 
         Returns:
@@ -451,7 +451,7 @@ class EntityManager(Generic[T]):
         return getattr(self, "_last_posts_meta", {})
 
     @property
-    def last_posts_links(self) -> Dict[str, Any]:
+    def last_posts_links(self) -> dict[str, Any]:
         """Get pagination links from the last list_posts() call.
 
         Returns:

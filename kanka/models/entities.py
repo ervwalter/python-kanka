@@ -20,7 +20,7 @@ Entity Types:
     - Tag: Organizational tags
 """
 
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 from .base import Entity
 from .common import Post  # Import at top for forward reference
@@ -57,8 +57,8 @@ class Character(Entity):
     is_dead: bool = False
 
     # Related data (populated when ?related=1)
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
+    posts: Optional[list["Post"]] = None
+    attributes: Optional[list[dict]] = None
 
 
 class Location(Entity):
@@ -84,8 +84,8 @@ class Location(Entity):
     parent_location_id: Optional[int] = None
 
     # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
+    posts: Optional[list["Post"]] = None
+    attributes: Optional[list[dict]] = None
 
 
 class Organisation(Entity):
@@ -107,8 +107,8 @@ class Organisation(Entity):
     organisation_id: Optional[int] = None
 
     # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
+    posts: Optional[list["Post"]] = None
+    attributes: Optional[list[dict]] = None
 
 
 class Note(Entity):
@@ -127,8 +127,8 @@ class Note(Entity):
     location_id: Optional[int] = None
 
     # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
+    posts: Optional[list["Post"]] = None
+    attributes: Optional[list[dict]] = None
 
 
 class Race(Entity):
@@ -148,8 +148,8 @@ class Race(Entity):
     race_id: Optional[int] = None
 
     # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
+    posts: Optional[list["Post"]] = None
+    attributes: Optional[list[dict]] = None
 
 
 class Quest(Entity):
@@ -171,8 +171,8 @@ class Quest(Entity):
     character_id: Optional[int] = None
 
     # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
+    posts: Optional[list["Post"]] = None
+    attributes: Optional[list[dict]] = None
 
 
 class Journal(Entity):
@@ -194,8 +194,8 @@ class Journal(Entity):
     character_id: Optional[int] = None
 
     # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
+    posts: Optional[list["Post"]] = None
+    attributes: Optional[list[dict]] = None
 
 
 class Family(Entity):
@@ -215,8 +215,8 @@ class Family(Entity):
     family_id: Optional[int] = None
 
     # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
+    posts: Optional[list["Post"]] = None
+    attributes: Optional[list[dict]] = None
 
 
 class Event(Entity):
@@ -238,8 +238,8 @@ class Event(Entity):
     location_id: Optional[int] = None
 
     # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
+    posts: Optional[list["Post"]] = None
+    attributes: Optional[list[dict]] = None
 
 
 class Creature(Entity):
@@ -259,8 +259,8 @@ class Creature(Entity):
     location_id: Optional[int] = None
 
     # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
+    posts: Optional[list["Post"]] = None
+    attributes: Optional[list[dict]] = None
 
 
 class Tag(Entity):
@@ -285,8 +285,8 @@ class Tag(Entity):
     tag_id: Optional[int] = None  # Parent tag
 
     # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
+    posts: Optional[list["Post"]] = None
+    attributes: Optional[list[dict]] = None
 
 
 class Calendar(Entity):
@@ -317,11 +317,11 @@ class Calendar(Entity):
     type: Optional[str] = None
     date: Optional[str] = None
     parameters: Optional[str] = None
-    months: Optional[List[Dict]] = None
-    weekdays: Optional[List[str]] = None
-    years: Optional[Union[Dict, List]] = None
-    seasons: Optional[List[Dict]] = None
-    moons: Optional[List[Dict]] = None
+    months: Optional[list[dict]] = None
+    weekdays: Optional[list[str]] = None
+    years: Optional[Union[dict, list]] = None
+    seasons: Optional[list[dict]] = None
+    moons: Optional[list[dict]] = None
     suffix: Optional[str] = None
     has_leap_year: Optional[bool] = None
     leap_year_amount: Optional[int] = None
@@ -330,8 +330,8 @@ class Calendar(Entity):
     leap_year_start: Optional[int] = None
 
     # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
+    posts: Optional[list["Post"]] = None
+    attributes: Optional[list[dict]] = None
 
 
 # Forward reference updates
