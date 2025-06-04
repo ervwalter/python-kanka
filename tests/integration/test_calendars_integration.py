@@ -1,6 +1,7 @@
 """
 Integration tests for Calendar entity operations.
 """
+
 from datetime import datetime
 
 # Handle both direct execution and import scenarios

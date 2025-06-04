@@ -2,6 +2,7 @@
 Integration tests for entity tagging functionality.
 Tests creating entities with tags and updating entities with tags.
 """
+
 from datetime import datetime
 
 # Handle both direct execution and import scenarios

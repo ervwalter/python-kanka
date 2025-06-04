@@ -1,6 +1,7 @@
 """
 Base class for integration tests.
 """
+
 import os
 import sys
 import time
