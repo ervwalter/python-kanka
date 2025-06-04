@@ -52,7 +52,7 @@ class KankaClient:
 
     def get_profile(self):
         """Get Profile information."""
-        profile = Profile(self.session.api_request("profile")["data"])
+        profile = Profile(**self.session.api_request("profile")["data"])
 
         return profile
 

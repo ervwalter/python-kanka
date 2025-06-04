@@ -213,17 +213,17 @@ class TestKankaClient:
         mock_response = MockResponse({}, status_code=403)
         mock_session.request.return_value = mock_response
 
-        with pytest.raises(ForbiddenError) as exc_info:
+        with pytest.raises(ForbiddenError) as exc_info2:
             client._request("GET", "test")
-        assert "Access forbidden" in str(exc_info.value)
+        assert "Access forbidden" in str(exc_info2.value)
 
         # Test 404 Not Found
         mock_response = MockResponse({}, status_code=404)
         mock_session.request.return_value = mock_response
 
-        with pytest.raises(NotFoundError) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info3:
             client._request("GET", "test")
-        assert "Resource not found: test" in str(exc_info.value)
+        assert "Resource not found: test" in str(exc_info3.value)
 
         # Test 422 Validation Error
         mock_response = MockResponse(
@@ -231,25 +231,25 @@ class TestKankaClient:
         )
         mock_session.request.return_value = mock_response
 
-        with pytest.raises(ValidationError) as exc_info:
+        with pytest.raises(ValidationError) as exc_info4:
             client._request("POST", "test")
-        assert "Validation error" in str(exc_info.value)
+        assert "Validation error" in str(exc_info4.value)
 
         # Test 429 Rate Limit
         mock_response = MockResponse({}, status_code=429)
         mock_session.request.return_value = mock_response
 
-        with pytest.raises(RateLimitError) as exc_info:
+        with pytest.raises(RateLimitError) as exc_info5:
             client._request("GET", "test")
-        assert "Rate limit exceeded" in str(exc_info.value)
+        assert "Rate limit exceeded" in str(exc_info5.value)
 
         # Test generic 500 error
         mock_response = MockResponse({}, status_code=500, text="Server Error")
         mock_session.request.return_value = mock_response
 
-        with pytest.raises(KankaException) as exc_info:
+        with pytest.raises(KankaException) as exc_info6:
             client._request("GET", "test")
-        assert "API error 500" in str(exc_info.value)
+        assert "API error 500" in str(exc_info6.value)
 
     @patch("requests.Session")
     def test_delete_request_returns_empty_dict(self, mock_session_class):

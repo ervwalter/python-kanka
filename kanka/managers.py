@@ -42,7 +42,7 @@ class EntityManager(Generic[T]):
             AuthenticationError: If authentication fails
             ForbiddenError: If access is forbidden
         """
-        params = {"related": 1} if related else {}
+        params: Dict[str, Union[int, str]] = {"related": 1} if related else {}
         url = f"{self.endpoint}/{id}"
 
         response = self.client._request("GET", url, params=params)
@@ -88,7 +88,7 @@ class EntityManager(Generic[T]):
             )
         """
         # Build parameters
-        params = {"page": page, "limit": limit}
+        params: Dict[str, Union[int, str]] = {"page": page, "limit": limit}
 
         # Add filters
         for key, value in filters.items():
@@ -240,7 +240,7 @@ class EntityManager(Generic[T]):
     @property
     def last_page_meta(self) -> Dict[str, Any]:
         """Get metadata from the last list() call.
-        
+
         Returns:
             Dict[str, Any]: Pagination metadata including:
                 - current_page: Current page number
@@ -255,11 +255,11 @@ class EntityManager(Generic[T]):
     @property
     def last_page_links(self) -> Dict[str, Any]:
         """Get pagination links from the last list() call.
-        
+
         Returns:
             Dict[str, Any]: Pagination links including:
                 - first: URL to first page
-                - last: URL to last page  
+                - last: URL to last page
                 - prev: URL to previous page (if applicable)
                 - next: URL to next page (if applicable)
         """
@@ -284,9 +284,13 @@ class EntityManager(Generic[T]):
             posts = client.locations.list_posts(location_entity_id)
         """
         # Extract entity_id from entity object or use the provided entity_id directly
-        entity_id = entity_or_id.entity_id if hasattr(entity_or_id, "entity_id") else entity_or_id
+        entity_id = (
+            entity_or_id.entity_id
+            if hasattr(entity_or_id, "entity_id")
+            else entity_or_id
+        )
 
-        params = {"page": page, "limit": limit}
+        params: Dict[str, Union[int, str]] = {"page": page, "limit": limit}
 
         url = f"entities/{entity_id}/posts"
         response = self.client._request("GET", url, params=params)
@@ -330,7 +334,7 @@ class EntityManager(Generic[T]):
                 entry="The character discovered a hidden treasure...",
                 is_private=True
             )
-            
+
             # Alternative: Pass the entity_id directly (NOT character.id!)
             post = client.characters.create_post(
                 character.entity_id,  # Must use entity_id, not id!
@@ -339,7 +343,11 @@ class EntityManager(Generic[T]):
             )
         """
         # Extract entity_id from entity object or use the provided entity_id directly
-        entity_id = entity_or_id.entity_id if hasattr(entity_or_id, "entity_id") else entity_or_id
+        entity_id = (
+            entity_or_id.entity_id
+            if hasattr(entity_or_id, "entity_id")
+            else entity_or_id
+        )
 
         data = {"name": name, "entry": entry, "is_private": int(is_private), **kwargs}
 
@@ -358,7 +366,11 @@ class EntityManager(Generic[T]):
             The Post instance
         """
         # Extract entity_id from entity object or use the provided entity_id directly
-        entity_id = entity_or_id.entity_id if hasattr(entity_or_id, "entity_id") else entity_or_id
+        entity_id = (
+            entity_or_id.entity_id
+            if hasattr(entity_or_id, "entity_id")
+            else entity_or_id
+        )
 
         url = f"entities/{entity_id}/posts/{post_id}"
         response = self.client._request("GET", url)
@@ -388,7 +400,11 @@ class EntityManager(Generic[T]):
             )
         """
         # Extract entity_id from entity object or use the provided entity_id directly
-        entity_id = entity_or_id.entity_id if hasattr(entity_or_id, "entity_id") else entity_or_id
+        entity_id = (
+            entity_or_id.entity_id
+            if hasattr(entity_or_id, "entity_id")
+            else entity_or_id
+        )
 
         # Convert boolean is_private to int if present
         if "is_private" in kwargs and isinstance(kwargs["is_private"], bool):
@@ -409,7 +425,11 @@ class EntityManager(Generic[T]):
             True if successful
         """
         # Extract entity_id from entity object or use the provided entity_id directly
-        entity_id = entity_or_id.entity_id if hasattr(entity_or_id, "entity_id") else entity_or_id
+        entity_id = (
+            entity_or_id.entity_id
+            if hasattr(entity_or_id, "entity_id")
+            else entity_or_id
+        )
 
         url = f"entities/{entity_id}/posts/{post_id}"
         self.client._request("DELETE", url)
@@ -418,7 +438,7 @@ class EntityManager(Generic[T]):
     @property
     def last_posts_meta(self) -> Dict[str, Any]:
         """Get metadata from the last list_posts() call.
-        
+
         Returns:
             Dict[str, Any]: Pagination metadata for posts including:
                 - current_page: Current page number
@@ -433,7 +453,7 @@ class EntityManager(Generic[T]):
     @property
     def last_posts_links(self) -> Dict[str, Any]:
         """Get pagination links from the last list_posts() call.
-        
+
         Returns:
             Dict[str, Any]: Pagination links for posts including:
                 - first: URL to first page

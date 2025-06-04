@@ -38,29 +38,29 @@ class TestExceptions:
     def test_specific_exceptions(self):
         """Test specific exception types."""
         # NotFoundError
-        exc = NotFoundError("Entity not found")
-        assert isinstance(exc, KankaException)
-        assert str(exc) == "Entity not found"
+        exc1 = NotFoundError("Entity not found")
+        assert isinstance(exc1, KankaException)
+        assert str(exc1) == "Entity not found"
 
         # ValidationError
-        exc = ValidationError("Invalid data")
-        assert isinstance(exc, KankaException)
-        assert str(exc) == "Invalid data"
+        exc2 = ValidationError("Invalid data")
+        assert isinstance(exc2, KankaException)
+        assert str(exc2) == "Invalid data"
 
         # RateLimitError
-        exc = RateLimitError("Too many requests")
-        assert isinstance(exc, KankaException)
-        assert str(exc) == "Too many requests"
+        exc3 = RateLimitError("Too many requests")
+        assert isinstance(exc3, KankaException)
+        assert str(exc3) == "Too many requests"
 
         # AuthenticationError
-        exc = AuthenticationError("Invalid token")
-        assert isinstance(exc, KankaException)
-        assert str(exc) == "Invalid token"
+        exc4 = AuthenticationError("Invalid token")
+        assert isinstance(exc4, KankaException)
+        assert str(exc4) == "Invalid token"
 
         # ForbiddenError
-        exc = ForbiddenError("Access denied")
-        assert isinstance(exc, KankaException)
-        assert str(exc) == "Access denied"
+        exc5 = ForbiddenError("Access denied")
+        assert isinstance(exc5, KankaException)
+        assert str(exc5) == "Access denied"
 
     def test_exception_inheritance(self):
         """Test that all exceptions inherit from KankaException."""

@@ -7,309 +7,308 @@ for all supported entity types in the python-kanka library.
 """
 
 import os
-from datetime import datetime
+
 from kanka import KankaClient
 
 # Get credentials
 TOKEN = os.environ.get("KANKA_TOKEN")
-CAMPAIGN_ID = int(os.environ.get("KANKA_CAMPAIGN_ID", 0))
+CAMPAIGN_ID_STR = os.environ.get("KANKA_CAMPAIGN_ID")
 
-if not TOKEN or not CAMPAIGN_ID:
+if not TOKEN or not CAMPAIGN_ID_STR:
     print("Please set KANKA_TOKEN and KANKA_CAMPAIGN_ID environment variables")
     exit(1)
+
+CAMPAIGN_ID = int(CAMPAIGN_ID_STR)
+
 
 def demonstrate_entity_crud(client, entity_type, manager, create_data, update_data):
     """Demonstrate CRUD operations for an entity type."""
     print(f"\n{'='*50}")
     print(f"{entity_type.upper()} CRUD Operations")
-    print('='*50)
-    
+    print("=" * 50)
+    print(f"   Campaign ID: {client.campaign_id}")
+
     # CREATE
     print(f"\n1. Creating {entity_type}...")
     entity = manager.create(**create_data)
     print(f"   Created: {entity.name} (ID: {entity.id})")
-    
+
     # READ
     print(f"\n2. Reading {entity_type}...")
     retrieved = manager.get(entity.id)
     print(f"   Retrieved: {retrieved.name}")
     print(f"   Created at: {retrieved.created_at}")
-    
+
     # UPDATE
     print(f"\n3. Updating {entity_type}...")
     updated = manager.update(entity, **update_data)
     print(f"   Updated: {updated.name}")
-    for key, value in update_data.items():
+    for key in update_data:
         if hasattr(updated, key):
             print(f"   {key}: {getattr(updated, key)}")
-    
+
     # LIST
     print(f"\n4. Listing {entity_type}s...")
     items = manager.list(limit=5)
     print(f"   Found {len(items)} {entity_type}s")
-    
+
     # DELETE
     print(f"\n5. Deleting {entity_type}...")
     manager.delete(updated)
-    print(f"   Deleted successfully")
-    
+    print("   Deleted successfully")
+
     return updated
+
 
 def main():
     """Demonstrate CRUD for all entity types."""
-    
+
+    assert TOKEN is not None  # We already checked this above
     client = KankaClient(token=TOKEN, campaign_id=CAMPAIGN_ID)
     print("Python-Kanka CRUD Operations Demo")
     print("=================================")
-    
+
     # Characters
     demonstrate_entity_crud(
-        client, "character", client.characters,
+        client,
+        "character",
+        client.characters,
         create_data={
             "name": "Frodo Baggins",
             "title": "Ring-bearer",
             "type": "Hobbit",
             "age": "50",
             "sex": "Male",
-            "pronouns": "he/him"
+            "pronouns": "he/him",
         },
-        update_data={
-            "title": "Hero of Middle-earth",
-            "is_dead": False
-        }
+        update_data={"title": "Hero of Middle-earth", "is_dead": False},
     )
-    
+
     # Locations
     demonstrate_entity_crud(
-        client, "location", client.locations,
+        client,
+        "location",
+        client.locations,
         create_data={
             "name": "The Shire",
             "type": "Region",
-            "entry": "A peaceful land inhabited by hobbits"
+            "entry": "A peaceful land inhabited by hobbits",
         },
-        update_data={
-            "type": "Homeland",
-            "is_private": False
-        }
+        update_data={"type": "Homeland", "is_private": False},
     )
-    
+
     # Organizations
     demonstrate_entity_crud(
-        client, "organisation", client.organisations,
+        client,
+        "organisation",
+        client.organisations,
         create_data={
             "name": "The Fellowship",
             "type": "Adventuring Party",
-            "entry": "Nine companions united against Sauron"
+            "entry": "Nine companions united against Sauron",
         },
-        update_data={
-            "type": "Legendary Group"
-        }
+        update_data={"type": "Legendary Group"},
     )
-    
+
     # Families
     demonstrate_entity_crud(
-        client, "family", client.families,
+        client,
+        "family",
+        client.families,
         create_data={
             "name": "House Baggins",
             "type": "Hobbit Family",
-            "entry": "A respectable hobbit family"
+            "entry": "A respectable hobbit family",
         },
-        update_data={
-            "type": "Noble House"
-        }
+        update_data={"type": "Noble House"},
     )
-    
+
     # Items
     demonstrate_entity_crud(
-        client, "item", client.items,
+        client,
+        "item",
+        client.items,
         create_data={
             "name": "The One Ring",
             "type": "Artifact",
             "entry": "One Ring to rule them all",
-            "price": "Priceless"
+            "price": "Priceless",
         },
-        update_data={
-            "size": "Tiny",
-            "weight": "Almost nothing"
-        }
+        update_data={"size": "Tiny", "weight": "Almost nothing"},
     )
-    
+
     # Journals
     demonstrate_entity_crud(
-        client, "journal", client.journals,
+        client,
+        "journal",
+        client.journals,
         create_data={
             "name": "The Red Book",
             "type": "Chronicle",
             "date": "3019-03-25",
-            "entry": "There and Back Again"
+            "entry": "There and Back Again",
         },
-        update_data={
-            "type": "Historical Record"
-        }
+        update_data={"type": "Historical Record"},
     )
-    
+
     # Notes
     demonstrate_entity_crud(
-        client, "note", client.notes,
+        client,
+        "note",
+        client.notes,
         create_data={
             "name": "DM Secret",
             "type": "Plot Point",
             "entry": "The eagles are coming!",
-            "is_private": True
+            "is_private": True,
         },
-        update_data={
-            "is_pinned": True
-        }
+        update_data={"is_pinned": True},
     )
-    
+
     # Quests
     demonstrate_entity_crud(
-        client, "quest", client.quests,
+        client,
+        "quest",
+        client.quests,
         create_data={
             "name": "Destroy the Ring",
             "type": "Main Quest",
             "entry": "Take the ring to Mount Doom",
-            "is_completed": False
+            "is_completed": False,
         },
-        update_data={
-            "is_completed": True
-        }
+        update_data={"is_completed": True},
     )
-    
+
     # Tags
     demonstrate_entity_crud(
-        client, "tag", client.tags,
-        create_data={
-            "name": "Epic",
-            "type": "Category",
-            "colour": "#FFD700"
-        },
-        update_data={
-            "colour": "#FF0000"
-        }
+        client,
+        "tag",
+        client.tags,
+        create_data={"name": "Epic", "type": "Category", "colour": "#FFD700"},
+        update_data={"colour": "#FF0000"},
     )
-    
+
     # Events
     demonstrate_entity_crud(
-        client, "event", client.events,
+        client,
+        "event",
+        client.events,
         create_data={
             "name": "Battle of Pelennor Fields",
             "type": "Battle",
             "date": "March 15, 3019",
-            "entry": "The greatest battle of the war"
+            "entry": "The greatest battle of the war",
         },
-        update_data={
-            "type": "Historic Battle"
-        }
+        update_data={"type": "Historic Battle"},
     )
-    
+
     # Races
     demonstrate_entity_crud(
-        client, "race", client.races,
+        client,
+        "race",
+        client.races,
         create_data={
             "name": "Elves",
             "type": "Immortal Race",
-            "entry": "The Firstborn of Ilúvatar"
+            "entry": "The Firstborn of Ilúvatar",
         },
-        update_data={
-            "type": "Elder Race"
-        }
+        update_data={"type": "Elder Race"},
     )
-    
+
     # Creatures
     demonstrate_entity_crud(
-        client, "creature", client.creatures,
+        client,
+        "creature",
+        client.creatures,
         create_data={
             "name": "Balrog",
             "type": "Demon",
-            "entry": "Ancient evil of Morgoth"
+            "entry": "Ancient evil of Morgoth",
         },
-        update_data={
-            "is_extinct": False
-        }
+        update_data={"is_extinct": False},
     )
-    
+
     # Maps
     demonstrate_entity_crud(
-        client, "map", client.maps,
+        client,
+        "map",
+        client.maps,
         create_data={
             "name": "Middle-earth",
             "type": "World Map",
-            "entry": "The lands of Arda"
+            "entry": "The lands of Arda",
         },
-        update_data={
-            "width": 2000,
-            "height": 1500
-        }
+        update_data={"width": 2000, "height": 1500},
     )
-    
+
     # Timelines
     demonstrate_entity_crud(
-        client, "timeline", client.timelines,
+        client,
+        "timeline",
+        client.timelines,
         create_data={
             "name": "Third Age",
             "type": "Historical Period",
-            "entry": "The age of the rings"
+            "entry": "The age of the rings",
         },
-        update_data={
-            "type": "Epic Era"
-        }
+        update_data={"type": "Epic Era"},
     )
-    
+
     # Calendars
     demonstrate_entity_crud(
-        client, "calendar", client.calendars,
+        client,
+        "calendar",
+        client.calendars,
         create_data={
             "name": "Shire Reckoning",
             "type": "Hobbit Calendar",
-            "entry": "The calendar of the Shire"
+            "entry": "The calendar of the Shire",
         },
-        update_data={
-            "type": "Regional Calendar"
-        }
+        update_data={"type": "Regional Calendar"},
     )
-    
+
     # DiceRolls
     demonstrate_entity_crud(
-        client, "dice_roll", client.dice_rolls,
+        client,
+        "dice_roll",
+        client.dice_rolls,
         create_data={
             "name": "Attack Roll",
             "parameters": "1d20+5",
-            "entry": "Standard attack roll with +5 modifier"
+            "entry": "Standard attack roll with +5 modifier",
         },
-        update_data={
-            "parameters": "1d20+7"
-        }
+        update_data={"parameters": "1d20+7"},
     )
-    
+
     # AttributeTemplates
     demonstrate_entity_crud(
-        client, "attribute_template", client.attribute_templates,
+        client,
+        "attribute_template",
+        client.attribute_templates,
         create_data={
             "name": "Character Stats",
-            "entry": "Standard character attributes template"
+            "entry": "Standard character attributes template",
         },
-        update_data={
-            "name": "Character Stats v2"
-        }
+        update_data={"name": "Character Stats v2"},
     )
-    
+
     # Bookmarks
     demonstrate_entity_crud(
-        client, "bookmark", client.bookmarks,
+        client,
+        "bookmark",
+        client.bookmarks,
         create_data={
             "name": "Important NPCs",
             "type": "Quick Access",
-            "entity_id": 1  # Would need a real entity_id
+            "entity_id": 1,  # Would need a real entity_id
         },
-        update_data={
-            "name": "Key NPCs"
-        }
+        update_data={"name": "Key NPCs"},
     )
-    
-    print("\n" + "="*50)
+
+    print("\n" + "=" * 50)
     print("CRUD Operations Demo Complete!")
-    print("="*50)
+    print("=" * 50)
+
 
 if __name__ == "__main__":
     main()

@@ -18,10 +18,10 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class KankaModel(BaseModel):
     """Base for all Kanka models with common configuration.
-    
+
     This base model provides consistent configuration for all Kanka API models,
     ensuring proper handling of unknown fields, validation, and field naming.
-    
+
     Configuration:
         extra="allow": Store unknown fields from API responses
         validate_assignment=True: Validate field values on assignment
@@ -39,10 +39,10 @@ class KankaModel(BaseModel):
 
 class Entity(KankaModel):
     """Base model for all Kanka entities.
-    
+
     This class defines the common fields shared by all entity types in Kanka.
     All specific entity types (Character, Location, etc.) inherit from this base.
-    
+
     Attributes:
         id: Unique identifier for this specific entity type
         entity_id: Universal entity ID across all types
@@ -57,7 +57,7 @@ class Entity(KankaModel):
         updated_at: Last update timestamp
         updated_by: User ID who last updated entity
         entry: Main text/description content
-    
+
     Properties:
         entity_type: Returns the lowercase entity type name
     """
@@ -79,10 +79,10 @@ class Entity(KankaModel):
     @property
     def entity_type(self) -> str:
         """Return the entity type name.
-        
+
         Returns:
             str: Lowercase name of the entity class (e.g., 'character', 'location')
-            
+
         Example:
             >>> char = Character(id=1, entity_id=100, name="Hero")
             >>> char.entity_type

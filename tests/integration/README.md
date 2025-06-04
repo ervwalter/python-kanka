@@ -63,7 +63,7 @@ chmod +x tests/integration/run_integration_tests.py
 
 ### Run Individual Test Suites
 
-You can also run individual test files:
+You can also run individual test files directly. Each test file automatically loads the `.env` file if present:
 
 ```bash
 # Test characters
@@ -81,6 +81,12 @@ python tests/integration/test_notes_integration.py
 # Test posts (sub-resources)
 python tests/integration/test_posts_integration.py
 ```
+
+When running individual test files, they will:
+1. Automatically load environment variables from `.env` if it exists
+2. Set up the Python path correctly
+3. Run all tests in that file
+4. Display a summary of results
 
 ## Test Coverage
 

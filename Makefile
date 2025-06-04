@@ -1,4 +1,4 @@
-.PHONY: install test lint format check clean coverage help
+.PHONY: install test lint format typecheck check clean coverage help
 
 # Default target
 help:
@@ -6,8 +6,9 @@ help:
 	@echo "  make install   - Install development dependencies"
 	@echo "  make test      - Run all tests"
 	@echo "  make lint      - Run code linting"
+	@echo "  make typecheck - Run type checking with mypy"
 	@echo "  make format    - Format code with black and sort imports with isort"
-	@echo "  make check     - Run all checks (lint + test)"
+	@echo "  make check     - Run all checks (lint + typecheck + test)"
 	@echo "  make clean     - Clean up temporary files"
 	@echo "  make coverage  - Run tests with coverage report"
 
@@ -27,6 +28,10 @@ lint:
 	black --check .
 	isort --check-only .
 
+# Run type checking
+typecheck:
+	mypy kanka tests examples --ignore-missing-imports
+
 # Format code
 format:
 	black .
@@ -34,7 +39,7 @@ format:
 	ruff check --fix .
 
 # Run all checks
-check: lint test
+check: lint typecheck test
 
 # Clean up temporary files
 clean:

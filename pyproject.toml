@@ -90,6 +90,7 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.mypy]
 python_version = "3.8"
+plugins = ["pydantic.mypy"]
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
@@ -104,3 +105,13 @@ warn_unreachable = true
 strict_optional = true
 strict_equality = true
 ignore_missing_imports = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = false
+init_typed = true
+warn_required_dynamic_aliases = true
+
+# Ignore type errors in tests since Pydantic handles conversion
+[[tool.mypy.overrides]]
+module = "tests.*"
+disable_error_code = ["arg-type", "list-item"]

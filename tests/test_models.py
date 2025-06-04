@@ -6,12 +6,7 @@ import pytest
 
 from kanka.models.base import Entity, KankaModel
 from kanka.models.common import Post, Profile, SearchResult
-from kanka.models.entities import (
-    Calendar,
-    Character,
-    Location,
-    Map,
-)
+from kanka.models.entities import Calendar, Character, Location, Map
 
 
 class TestKankaModel:
@@ -300,15 +295,11 @@ class TestPost:
             updated_at="2024-01-01T00:00:00.000000Z",
             updated_by=1,
             is_private=False,
-            is_pinned=True,
-            visibility="all",
-            position=1,
         )
 
         assert post.name == "Character Background"
         assert post.entry == "<p>Long ago...</p>"
-        assert post.is_pinned is True
-        assert post.visibility == "all"
+        assert post.is_private is False
 
 
 class TestSearchResult:

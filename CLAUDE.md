@@ -15,7 +15,7 @@ make test
 cd tests/integration
 python run_integration_tests.py
 
-# Run a single integration test file
+# Run a single integration test file (loads .env automatically)
 python tests/integration/test_characters_integration.py
 
 # Format code
@@ -24,7 +24,10 @@ make format
 # Run all linting checks
 make lint
 
-# Run everything (lint + tests)
+# Run type checking
+make typecheck
+
+# Run everything (lint + typecheck + tests)
 make check
 
 # Generate coverage report

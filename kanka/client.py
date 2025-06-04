@@ -13,7 +13,7 @@ Example:
     >>> dragon = client.search("dragon")
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 from .exceptions import (
     AuthenticationError,
@@ -51,17 +51,17 @@ from .models.entities import (
 
 class KankaClient:
     """Main client for Kanka API interaction.
-    
+
     This client provides a unified interface to access all Kanka entities
     within a specific campaign. It handles authentication, request management,
     and provides entity-specific managers for CRUD operations.
-    
+
     Attributes:
         BASE_URL (str): The base URL for the Kanka API
         token (str): Authentication token for API access
         campaign_id (int): ID of the campaign to work with
         session: Configured requests.Session instance
-        
+
     Entity Managers:
         abilities: Access to Ability entities
         attribute_templates: Access to AttributeTemplate entities
@@ -83,7 +83,7 @@ class KankaClient:
         races: Access to Race entities
         tags: Access to Tag entities
         timelines: Access to Timeline entities
-    
+
     Example:
         >>> client = KankaClient("your-token", 12345)
         >>> # List all characters
@@ -126,7 +126,9 @@ class KankaClient:
         """Initialize entity managers for each entity type."""
         # Core entities
         self._abilities = EntityManager(self, "abilities", Ability)
-        self._attribute_templates = EntityManager(self, "attribute_templates", AttributeTemplate)
+        self._attribute_templates = EntityManager(
+            self, "attribute_templates", AttributeTemplate
+        )
         self._bookmarks = EntityManager(self, "bookmarks", Bookmark)
         self._calendars = EntityManager(self, "calendars", Calendar)
         self._characters = EntityManager(self, "characters", Character)
@@ -149,7 +151,7 @@ class KankaClient:
     @property
     def abilities(self) -> EntityManager[Ability]:
         """Access ability entities.
-        
+
         Returns:
             EntityManager[Ability]: Manager for Ability entity operations
         """
@@ -158,7 +160,7 @@ class KankaClient:
     @property
     def attribute_templates(self) -> EntityManager[AttributeTemplate]:
         """Access attribute template entities.
-        
+
         Returns:
             EntityManager[AttributeTemplate]: Manager for AttributeTemplate entity operations
         """
@@ -167,7 +169,7 @@ class KankaClient:
     @property
     def bookmarks(self) -> EntityManager[Bookmark]:
         """Access bookmark entities.
-        
+
         Returns:
             EntityManager[Bookmark]: Manager for Bookmark entity operations
         """
@@ -176,7 +178,7 @@ class KankaClient:
     @property
     def calendars(self) -> EntityManager[Calendar]:
         """Access calendar entities.
-        
+
         Returns:
             EntityManager[Calendar]: Manager for Calendar entity operations
         """
@@ -185,7 +187,7 @@ class KankaClient:
     @property
     def characters(self) -> EntityManager[Character]:
         """Access character entities.
-        
+
         Returns:
             EntityManager[Character]: Manager for Character entity operations
         """
@@ -194,7 +196,7 @@ class KankaClient:
     @property
     def conversations(self) -> EntityManager[Conversation]:
         """Access conversation entities.
-        
+
         Returns:
             EntityManager[Conversation]: Manager for Conversation entity operations
         """
@@ -203,7 +205,7 @@ class KankaClient:
     @property
     def creatures(self) -> EntityManager[Creature]:
         """Access creature entities.
-        
+
         Returns:
             EntityManager[Creature]: Manager for Creature entity operations
         """
@@ -212,7 +214,7 @@ class KankaClient:
     @property
     def dice_rolls(self) -> EntityManager[DiceRoll]:
         """Access dice roll entities.
-        
+
         Returns:
             EntityManager[DiceRoll]: Manager for DiceRoll entity operations
         """
@@ -221,7 +223,7 @@ class KankaClient:
     @property
     def events(self) -> EntityManager[Event]:
         """Access event entities.
-        
+
         Returns:
             EntityManager[Event]: Manager for Event entity operations
         """
@@ -230,7 +232,7 @@ class KankaClient:
     @property
     def families(self) -> EntityManager[Family]:
         """Access family entities.
-        
+
         Returns:
             EntityManager[Family]: Manager for Family entity operations
         """
@@ -239,7 +241,7 @@ class KankaClient:
     @property
     def items(self) -> EntityManager[Item]:
         """Access item entities.
-        
+
         Returns:
             EntityManager[Item]: Manager for Item entity operations
         """
@@ -248,7 +250,7 @@ class KankaClient:
     @property
     def journals(self) -> EntityManager[Journal]:
         """Access journal entities.
-        
+
         Returns:
             EntityManager[Journal]: Manager for Journal entity operations
         """
@@ -257,7 +259,7 @@ class KankaClient:
     @property
     def locations(self) -> EntityManager[Location]:
         """Access location entities.
-        
+
         Returns:
             EntityManager[Location]: Manager for Location entity operations
         """
@@ -266,7 +268,7 @@ class KankaClient:
     @property
     def maps(self) -> EntityManager[Map]:
         """Access map entities.
-        
+
         Returns:
             EntityManager[Map]: Manager for Map entity operations
         """
@@ -275,7 +277,7 @@ class KankaClient:
     @property
     def notes(self) -> EntityManager[Note]:
         """Access note entities.
-        
+
         Returns:
             EntityManager[Note]: Manager for Note entity operations
         """
@@ -284,7 +286,7 @@ class KankaClient:
     @property
     def organisations(self) -> EntityManager[Organisation]:
         """Access organisation entities.
-        
+
         Returns:
             EntityManager[Organisation]: Manager for Organisation entity operations
         """
@@ -293,7 +295,7 @@ class KankaClient:
     @property
     def quests(self) -> EntityManager[Quest]:
         """Access quest entities.
-        
+
         Returns:
             EntityManager[Quest]: Manager for Quest entity operations
         """
@@ -302,7 +304,7 @@ class KankaClient:
     @property
     def races(self) -> EntityManager[Race]:
         """Access race entities.
-        
+
         Returns:
             EntityManager[Race]: Manager for Race entity operations
         """
@@ -311,7 +313,7 @@ class KankaClient:
     @property
     def tags(self) -> EntityManager[Tag]:
         """Access tag entities.
-        
+
         Returns:
             EntityManager[Tag]: Manager for Tag entity operations
         """
@@ -320,7 +322,7 @@ class KankaClient:
     @property
     def timelines(self) -> EntityManager[Timeline]:
         """Access timeline entities.
-        
+
         Returns:
             EntityManager[Timeline]: Manager for Timeline entity operations
         """
@@ -341,7 +343,7 @@ class KankaClient:
             results = client.search("dragon")
             results = client.search("dragon", page=2, limit=50)
         """
-        params = {"page": page, "limit": limit}
+        params: Dict[str, Union[int, str]] = {"page": page, "limit": limit}
         response = self._request("GET", f"search/{term}", params=params)
 
         # Store pagination metadata for access if needed
@@ -352,7 +354,7 @@ class KankaClient:
 
     def entities(self, **filters) -> List[Dict[str, Any]]:
         """Access the /entities endpoint with filters.
-        
+
         This endpoint provides a unified way to query entities across all types
         with various filtering options.
 
@@ -362,7 +364,7 @@ class KankaClient:
         Returns:
             List of entity data
         """
-        params = {}
+        params: Dict[str, Union[int, str]] = {}
 
         # Handle special filters
         if "types" in filters and isinstance(filters["types"], list):
@@ -384,7 +386,7 @@ class KankaClient:
                     params[key] = filters[key]
 
         response = self._request("GET", "entities", params=params)
-        return response["data"]
+        return response["data"]  # type: ignore[no-any-return]
 
     def _request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
         """Make HTTP request to Kanka API.
@@ -425,14 +427,14 @@ class KankaClient:
         if method == "DELETE":
             return {}
 
-        return response.json()
+        return response.json()  # type: ignore[no-any-return]
 
     @property
     def last_search_meta(self) -> Dict[str, Any]:
         """Get metadata from the last search() call.
-        
+
         Returns:
-            Dict[str, Any]: Pagination metadata including current_page, from, to, 
+            Dict[str, Any]: Pagination metadata including current_page, from, to,
                            last_page, per_page, total
         """
         return getattr(self, "_last_search_meta", {})
@@ -440,7 +442,7 @@ class KankaClient:
     @property
     def last_search_links(self) -> Dict[str, Any]:
         """Get pagination links from the last search() call.
-        
+
         Returns:
             Dict[str, Any]: Links for pagination including first, last, prev, next URLs
         """

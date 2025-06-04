@@ -36,10 +36,10 @@ from .common import Post  # Import at top for forward reference
 
 class Character(Entity):
     """Character entity representing people in the campaign.
-    
+
     Characters can be player characters, NPCs, historical figures,
     or any other person in your campaign world.
-    
+
     Attributes:
         location_id: Current location of the character
         title: Character's title or role
@@ -71,10 +71,10 @@ class Character(Entity):
 
 class Location(Entity):
     """Location entity representing places in the campaign.
-    
+
     Locations can be countries, cities, buildings, rooms, or any
     other place in your campaign world.
-    
+
     Attributes:
         type: Location type (e.g., 'City', 'Country', 'Building')
         map: Map image filename
@@ -98,10 +98,10 @@ class Location(Entity):
 
 class Organisation(Entity):
     """Organisation entity representing groups in the campaign.
-    
+
     Organisations can be guilds, governments, cults, companies,
     or any other group in your campaign.
-    
+
     Attributes:
         location_id: Organisation's headquarters/location
         type: Organisation type
@@ -121,10 +121,10 @@ class Organisation(Entity):
 
 class Note(Entity):
     """Note entity for campaign documentation.
-    
+
     Notes are used for campaign lore, DM notes, world-building
     documentation, or any other textual information.
-    
+
     Attributes:
         type: Note type/category
         posts: Related posts (when ?related=1)
@@ -140,10 +140,10 @@ class Note(Entity):
 
 class Race(Entity):
     """Race entity representing character races/species.
-    
+
     Races define the various species or races that characters
     can belong to in your campaign.
-    
+
     Attributes:
         type: Race type/category
         race_id: Parent race for sub-races
@@ -161,10 +161,10 @@ class Race(Entity):
 
 class Quest(Entity):
     """Quest entity representing objectives and missions.
-    
+
     Quests track objectives, missions, and goals for characters
     or the party in your campaign.
-    
+
     Attributes:
         type: Quest type (e.g., 'Main', 'Side', 'Personal')
         quest_id: Parent quest for sub-quests
@@ -184,10 +184,10 @@ class Quest(Entity):
 
 class Journal(Entity):
     """Journal entity for session logs and chronicles.
-    
+
     Journals are used to record session notes, character journals,
     or chronicle campaign events.
-    
+
     Attributes:
         type: Journal type
         date: In-game date of journal entry
@@ -207,10 +207,10 @@ class Journal(Entity):
 
 class Family(Entity):
     """Family entity representing family groups and lineages.
-    
+
     Families track bloodlines, clans, houses, or other family
     structures in your campaign.
-    
+
     Attributes:
         location_id: Family seat/home location
         family_id: Parent family for family trees
@@ -228,10 +228,10 @@ class Family(Entity):
 
 class Item(Entity):
     """Item entity representing objects and equipment.
-    
+
     Items can be weapons, armor, artifacts, mundane objects,
     or any other physical item in your campaign.
-    
+
     Attributes:
         type: Item type/category
         location_id: Current location of item
@@ -251,10 +251,10 @@ class Item(Entity):
 
 class Event(Entity):
     """Event entity representing historical or campaign events.
-    
+
     Events track important occurrences in your campaign's
     history or timeline.
-    
+
     Attributes:
         type: Event type/category
         date: When the event occurred
@@ -274,10 +274,10 @@ class Event(Entity):
 
 class Ability(Entity):
     """Ability entity representing spells, skills, and powers.
-    
+
     Abilities define spells, skills, feats, or other special
     powers that characters can possess.
-    
+
     Attributes:
         type: Ability type (e.g., 'Spell', 'Skill', 'Feat')
         ability_id: Parent ability for hierarchies
@@ -297,10 +297,10 @@ class Ability(Entity):
 
 class Conversation(Entity):
     """Conversation entity for dialog and discussions.
-    
+
     Conversations store important dialogs, negotiations,
     or other verbal exchanges in your campaign.
-    
+
     Attributes:
         type: Conversation type
         target: Conversation participants or subject
@@ -318,10 +318,10 @@ class Conversation(Entity):
 
 class Creature(Entity):
     """Creature entity representing monsters and beasts.
-    
+
     Creatures define the various monsters, animals, and
     non-character beings in your campaign.
-    
+
     Attributes:
         type: Creature type/category
         location_id: Creature's habitat/location
@@ -339,10 +339,10 @@ class Creature(Entity):
 
 class Tag(Entity):
     """Tag entity for organizing and categorizing content.
-    
+
     Tags provide a flexible way to categorize and link
     entities across your campaign.
-    
+
     Attributes:
         type: Tag type/category
         colour: Tag color for visual organization
@@ -362,10 +362,10 @@ class Tag(Entity):
 
 class DiceRoll(Entity):
     """Dice roll entity for campaign dice rolls.
-    
+
     Dice rolls allow tracking and sharing dice roll configurations
     and results within your campaign.
-    
+
     Attributes:
         character_id: Character associated with the roll
         parameters: Dice roll parameters
@@ -390,10 +390,10 @@ class DiceRoll(Entity):
 
 class Calendar(Entity):
     """Calendar entity for campaign time tracking.
-    
+
     Calendars define custom calendar systems with months,
     weeks, and special dates for your campaign world.
-    
+
     Attributes:
         type: Calendar type
         date: Current date in the calendar
@@ -435,10 +435,10 @@ class Calendar(Entity):
 
 class Timeline(Entity):
     """Timeline entity for organizing events chronologically.
-    
+
     Timelines provide a visual way to organize and display
     events in chronological order.
-    
+
     Attributes:
         type: Timeline type
         calendar_id: Associated calendar for dates
@@ -456,10 +456,10 @@ class Timeline(Entity):
 
 class Map(Entity):
     """Map entity for visual campaign geography.
-    
+
     Maps store images with markers, allowing visual representation
     of your campaign world's geography.
-    
+
     Attributes:
         type: Map type
         map: Map image filename
@@ -491,10 +491,10 @@ class Map(Entity):
 
 class AttributeTemplate(Entity):
     """Attribute template entity for reusable attribute sets.
-    
+
     Attribute templates define reusable sets of attributes that
     can be applied to entities for consistent data structures.
-    
+
     Attributes:
         entity_type_id: Entity type this template applies to
         posts: Related posts (when ?related=1)
@@ -515,10 +515,10 @@ class AttributeTemplate(Entity):
 
 class Bookmark(Entity):
     """Bookmark entity for quick access to important entities.
-    
+
     Bookmarks provide quick access to frequently used entities
     within your campaign.
-    
+
     Attributes:
         entity_id: Entity being bookmarked
         type: Bookmark type
@@ -529,7 +529,6 @@ class Bookmark(Entity):
         attributes: Custom attributes (when ?related=1)
     """
 
-    entity_id: Optional[int] = None
     type: Optional[str] = None
     menu: Optional[str] = None
     random_entity_type: Optional[str] = None

@@ -4,6 +4,7 @@ Runner script for Kanka SDK integration tests.
 
 This script checks for required environment variables and runs all integration tests.
 """
+import importlib
 import os
 import sys
 import time
@@ -16,146 +17,127 @@ project_dir = os.path.dirname(tests_dir)
 sys.path.insert(0, project_dir)
 sys.path.insert(0, current_dir)
 
-# Import all test modules
-from base import IntegrationTestBase
-from test_characters_integration import TestCharacterIntegration
-from test_locations_integration import TestLocationIntegration
-from test_organisations_integration import TestOrganisationIntegration
-from test_notes_integration import TestNoteIntegration
-from test_posts_integration import TestPostIntegration
-
 
 def check_environment():
     """Check that required environment variables are set."""
     # Try to load from .env file first
     try:
         from dotenv import load_dotenv
-        env_file = os.path.join(os.path.dirname(__file__), '.env')
+
+        env_file = os.path.join(current_dir, ".env")
         if os.path.exists(env_file):
-            print(f"Loading credentials from {env_file}")
             load_dotenv(env_file)
-        else:
-            # Try to load from current directory
-            load_dotenv()
+            print(f"Loaded environment from {env_file}")
     except ImportError:
-        print("Warning: python-dotenv not installed. Trying to read .env manually...")
-        # Fallback to manual loading
-        env_file = os.path.join(os.path.dirname(__file__), '.env')
-        if os.path.exists(env_file):
-            with open(env_file, 'r') as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith('#') and '=' in line:
-                        key, value = line.split('=', 1)
-                        # Remove quotes if present
-                        value = value.strip().strip('"').strip("'")
-                        os.environ[key] = value
-    
-    token = os.environ.get('KANKA_TOKEN')
-    campaign_id = os.environ.get('KANKA_CAMPAIGN_ID')
-    
-    if not token:
-        print("ERROR: KANKA_TOKEN environment variable is not set!")
-        print("Please set it to your Kanka API token:")
-        print("  export KANKA_TOKEN='your-api-token-here'")
+        pass
+
+    # Check for required variables
+    missing = []
+    if not os.environ.get("KANKA_TOKEN"):
+        missing.append("KANKA_TOKEN")
+    if not os.environ.get("KANKA_CAMPAIGN_ID"):
+        missing.append("KANKA_CAMPAIGN_ID")
+
+    if missing:
+        print("ERROR: Missing required environment variables:")
+        for var in missing:
+            print(f"  - {var}")
+        print("\nPlease set these variables or create a .env file")
         return False
-        
-    if not campaign_id:
-        print("ERROR: KANKA_CAMPAIGN_ID environment variable is not set!")
-        print("Please set it to your campaign ID:")
-        print("  export KANKA_CAMPAIGN_ID='your-campaign-id'")
-        return False
-        
-    try:
-        int(campaign_id)
-    except ValueError:
-        print(f"ERROR: KANKA_CAMPAIGN_ID must be a valid integer, got: {campaign_id}")
-        return False
-        
+
     return True
 
 
-def run_all_integration_tests():
-    """Run all integration test suites."""
-    print("="*60)
-    print("KANKA SDK INTEGRATION TESTS")
-    print("="*60)
-    print("\nThese tests will create and delete real data in your Kanka campaign.")
-    print("All test entities will have 'Integration Test' and 'DELETE ME' in their names.")
-    print("\nStarting tests in 3 seconds...\n")
-    time.sleep(3)
-    
-    # Test suites to run
-    test_suites = [
-        ("Characters", TestCharacterIntegration),
-        ("Locations", TestLocationIntegration),
-        ("Organisations", TestOrganisationIntegration),
-        ("Notes", TestNoteIntegration),
-        ("Posts", TestPostIntegration),
+def load_test_classes():
+    """Dynamically load test classes to avoid import order issues."""
+    test_modules = [
+        ("test_characters_integration", "TestCharacterIntegration"),
+        ("test_locations_integration", "TestLocationIntegration"),
+        ("test_notes_integration", "TestNoteIntegration"),
+        ("test_organisations_integration", "TestOrganisationIntegration"),
+        ("test_posts_integration", "TestPostIntegration"),
     ]
-    
-    all_results: List[Tuple[str, List[Tuple[str, bool]]]] = []
-    suite_results: List[Tuple[str, bool]] = []
-    
-    for suite_name, test_class in test_suites:
-        print(f"\n{'='*60}")
-        print(f"Running {suite_name} Integration Tests")
-        print(f"{'='*60}")
-        
+
+    test_classes = []
+    for module_name, class_name in test_modules:
+        try:
+            module = importlib.import_module(module_name)
+            test_class = getattr(module, class_name)
+            test_classes.append((class_name, test_class))
+        except (ImportError, AttributeError) as e:
+            print(f"Warning: Could not load {module_name}.{class_name}: {e}")
+
+    return test_classes
+
+
+def run_all_tests():
+    """Run all integration tests and report results."""
+    print("=" * 60)
+    print("KANKA SDK INTEGRATION TESTS")
+    print("=" * 60)
+    print(f"Start time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print()
+
+    # Check environment first
+    if not check_environment():
+        return False
+
+    # Load test classes dynamically
+    test_classes = load_test_classes()
+    if not test_classes:
+        print("ERROR: No test classes could be loaded")
+        return False
+
+    # Run all test suites
+    all_results: List[Tuple[str, bool]] = []
+
+    for class_name, test_class in test_classes:
+        print(f"\n{'='*50}")
+        print(
+            f"Running {class_name.replace('Test', '').replace('Integration', '')} Tests"
+        )
+        print("=" * 50)
+
         try:
             tester = test_class()
             results = tester.run_all_tests()
-            all_results.append((suite_name, results))
-            
-            # Check if all tests in this suite passed
-            suite_passed = all(result for _, result in results)
-            suite_results.append((suite_name, suite_passed))
-            
+            all_results.extend(results)
         except Exception as e:
-            print(f"\nERROR running {suite_name} tests: {str(e)}")
+            print(f"ERROR running {class_name}: {e}")
             import traceback
+
             traceback.print_exc()
-            all_results.append((suite_name, [("Suite Error", False)]))
-            suite_results.append((suite_name, False))
-            
-        # Small delay between test suites to avoid rate limiting
-        time.sleep(1)
-    
+
     # Print summary
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("INTEGRATION TEST SUMMARY")
-    print("="*60)
-    
-    total_tests = 0
-    passed_tests = 0
-    
-    for suite_name, results in all_results:
-        suite_total = len(results)
-        suite_passed = sum(1 for _, result in results if result)
-        total_tests += suite_total
-        passed_tests += suite_passed
-        
-        print(f"\n{suite_name}: {suite_passed}/{suite_total} tests passed")
-        for test_name, result in results:
-            status = "✓" if result else "✗"
-            print(f"  {status} {test_name}")
-    
-    print(f"\n{'='*60}")
-    print(f"OVERALL: {passed_tests}/{total_tests} tests passed")
-    
-    # Return exit code based on results
-    return 0 if passed_tests == total_tests else 1
+    print("=" * 60)
 
+    total_tests = len(all_results)
+    passed_tests = sum(1 for _, passed in all_results if passed)
+    failed_tests = total_tests - passed_tests
 
-def main():
-    """Main entry point."""
-    # Check environment variables
-    if not check_environment():
-        return 1
-        
-    # Run all tests
-    return run_all_integration_tests()
+    # Group results by test suite
+    current_suite = ""
+    for test_name, passed in all_results:
+        suite = test_name.split()[0]
+        if suite != current_suite:
+            current_suite = suite
+            print(f"\n{suite} Tests:")
+
+        status = "✓ PASSED" if passed else "✗ FAILED"
+        print(f"  {test_name}: {status}")
+
+    print(f"\nTotal Tests: {total_tests}")
+    print(f"Passed: {passed_tests}")
+    print(f"Failed: {failed_tests}")
+    print(f"Success Rate: {passed_tests/total_tests*100:.1f}%")
+
+    print(f"\nEnd time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+    return failed_tests == 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    success = run_all_tests()
+    sys.exit(0 if success else 1)

@@ -11,7 +11,7 @@ Exception Hierarchy:
     ├── RateLimitError: Rate limit exceeded (429)
     ├── AuthenticationError: Invalid authentication (401)
     └── ForbiddenError: Access forbidden (403)
-    
+
 Legacy exceptions (for backward compatibility):
     - KankaError: Alias for KankaException
     - KankaAPIError: Alias for KankaException
@@ -28,10 +28,10 @@ Example:
 
 class KankaException(Exception):
     """Base exception for all Kanka API errors.
-    
+
     This is the base class for all exceptions raised by the Kanka API client.
     Catching this exception will catch any Kanka-specific error.
-    
+
     Example:
         >>> try:
         ...     result = client.search("dragon")
@@ -44,10 +44,10 @@ class KankaException(Exception):
 
 class KankaError(KankaException):
     """Legacy exception name for backward compatibility.
-    
+
     This exception is deprecated. Use KankaException instead.
     Maintained only for backward compatibility with older code.
-    
+
     .. deprecated:: 2.0
         Use :class:`KankaException` instead.
     """
@@ -57,10 +57,10 @@ class KankaError(KankaException):
 
 class KankaAPIError(KankaException):
     """Legacy exception name for backward compatibility.
-    
+
     This exception is deprecated. Use KankaException instead.
     Maintained only for backward compatibility with older code.
-    
+
     .. deprecated:: 2.0
         Use :class:`KankaException` instead.
     """
@@ -70,10 +70,10 @@ class KankaAPIError(KankaException):
 
 class NotFoundError(KankaException):
     """Raised when a requested resource is not found (HTTP 404).
-    
+
     This exception is raised when attempting to access an entity
     that doesn't exist or has been deleted.
-    
+
     Example:
         >>> try:
         ...     character = client.characters.get(99999)
@@ -86,14 +86,14 @@ class NotFoundError(KankaException):
 
 class ValidationError(KankaException):
     """Raised when request data fails validation (HTTP 422).
-    
+
     This exception is raised when the API rejects the provided data
     due to validation errors, such as missing required fields or
     invalid field values.
-    
+
     The error message typically contains details about which fields
     failed validation and why.
-    
+
     Example:
         >>> try:
         ...     character = client.characters.create(name="")  # Empty name
@@ -106,14 +106,14 @@ class ValidationError(KankaException):
 
 class RateLimitError(KankaException):
     """Raised when API rate limit is exceeded (HTTP 429).
-    
+
     Kanka API has rate limits to prevent abuse. This exception
     is raised when you've made too many requests in a short period.
-    
+
     The API allows:
     - 30 requests per minute for regular users
     - 90 requests per minute for subscribers
-    
+
     Example:
         >>> try:
         ...     for i in range(100):
@@ -128,10 +128,10 @@ class RateLimitError(KankaException):
 
 class AuthenticationError(KankaException):
     """Raised when authentication fails (HTTP 401).
-    
+
     This exception indicates that the provided API token is
     invalid, expired, or missing required permissions.
-    
+
     Example:
         >>> try:
         ...     client = KankaClient("invalid-token", campaign_id=123)
@@ -145,13 +145,13 @@ class AuthenticationError(KankaException):
 
 class ForbiddenError(KankaException):
     """Raised when access to a resource is forbidden (HTTP 403).
-    
+
     This exception occurs when you try to access a resource that
     you don't have permission to view or modify, such as:
     - Private entities in campaigns you're not a member of
     - Entities in campaigns where you lack proper permissions
     - Admin-only operations without admin rights
-    
+
     Example:
         >>> try:
         ...     private_note = client.notes.get(123)  # Private note

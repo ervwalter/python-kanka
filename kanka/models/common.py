@@ -21,10 +21,10 @@ from .base import KankaModel
 
 class Post(KankaModel):
     """Post/comment attached to entities.
-    
+
     Posts are text entries that can be attached to any entity type in Kanka,
     functioning as notes, comments, or additional narrative content.
-    
+
     Attributes:
         id: Unique post identifier
         name: Post title/name
@@ -50,10 +50,10 @@ class Post(KankaModel):
 
 class SearchResult(KankaModel):
     """Search result item from global search.
-    
+
     Represents a single result from the global search endpoint,
     providing basic information about matching entities.
-    
+
     Attributes:
         id: Entity-specific ID
         entity_id: Universal entity ID
@@ -83,9 +83,9 @@ class SearchResult(KankaModel):
 
 class Profile(KankaModel):
     """User profile information.
-    
+
     Contains information about a Kanka user account.
-    
+
     Attributes:
         id: User ID
         name: Username
@@ -115,10 +115,10 @@ class Profile(KankaModel):
 
 class Trait(KankaModel):
     """Trait/attribute for entities.
-    
+
     Traits are custom fields that can be added to entities to store
     additional structured information.
-    
+
     Attributes:
         id: Trait ID (optional for creation)
         name: Trait name/label
@@ -142,12 +142,12 @@ T = TypeVar("T", bound=KankaModel)
 
 class EntityResponse(KankaModel, Generic[T]):
     """Single entity API response wrapper.
-    
+
     Generic wrapper for API responses containing a single entity.
-    
+
     Type Parameters:
         T: The entity type contained in the response
-        
+
     Attributes:
         data: The entity instance
     """
@@ -157,13 +157,13 @@ class EntityResponse(KankaModel, Generic[T]):
 
 class ListResponse(KankaModel, Generic[T]):
     """List API response wrapper with pagination.
-    
+
     Generic wrapper for API responses containing multiple entities
     with pagination metadata.
-    
+
     Type Parameters:
         T: The entity type contained in the response
-        
+
     Attributes:
         data: List of entity instances
         links: Pagination links (first, last, prev, next)

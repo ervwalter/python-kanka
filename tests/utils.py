@@ -180,7 +180,9 @@ def create_api_response(
     Returns:
         Dict representing an API response
     """
-    response = {"data": data if isinstance(data, list) else [data] if data else []}
+    response: Dict[str, Any] = {
+        "data": data if isinstance(data, list) else [data] if data else []
+    }
 
     if meta is not None:
         response["meta"] = meta

@@ -62,8 +62,10 @@ class TestEntityManager:
         )
 
         # Verify related data
+        assert character.posts is not None
         assert len(character.posts) == 1
         assert isinstance(character.posts[0], Post)
+        assert character.attributes is not None
         assert len(character.attributes) == 1
 
     def test_list_entities(self):
@@ -432,7 +434,7 @@ class TestEntityManager:
         self.mock_client._request.assert_called_with(
             "POST",
             "entities/500/posts",  # Should use entity_id, not id
-            json={"name": "Test", "entry": "Content", "is_private": 0}
+            json={"name": "Test", "entry": "Content", "is_private": 0},
         )
 
         # Test get_post with entity object
