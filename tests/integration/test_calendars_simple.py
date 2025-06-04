@@ -2,7 +2,6 @@
 Simple integration tests for Calendar entity operations.
 Calendars have complex requirements, so we test basic CRUD only.
 """
-from datetime import datetime
 
 # Handle both direct execution and import scenarios
 if __name__ == "__main__":
@@ -26,17 +25,15 @@ class TestCalendarIntegration(IntegrationTestBase):
             if self.client:
                 self.client.calendars.delete(calendar_id)
 
-        self.register_cleanup(
-            f"Delete calendar '{name}' (ID: {calendar_id})", cleanup
-        )
+        self.register_cleanup(f"Delete calendar '{name}' (ID: {calendar_id})", cleanup)
 
     def test_list_calendars(self):
         """Test listing calendars."""
         # Just list existing calendars
         calendars = list(self.client.calendars.list())
-        
+
         print(f"  Found {len(calendars)} calendar(s) in campaign")
-        
+
         # If there are calendars, try to get one
         if calendars:
             first_calendar = calendars[0]
@@ -47,20 +44,22 @@ class TestCalendarIntegration(IntegrationTestBase):
         """Test getting a calendar if one exists."""
         # List calendars first
         calendars = list(self.client.calendars.list())
-        
+
         if not calendars:
             print("  No calendars found in campaign to test retrieval")
             return
-            
+
         # Get the first calendar
         calendar_id = calendars[0].id
         calendar = self.client.calendars.get(calendar_id)
-        
+
         # Verify we got the calendar
         self.assert_equal(calendar.id, calendar_id, "Calendar ID mismatch")
         self.assert_not_none(calendar.name, "Calendar should have name")
-        
-        print(f"  Successfully retrieved calendar '{calendar.name}' (ID: {calendar.id})")
+
+        print(
+            f"  Successfully retrieved calendar '{calendar.name}' (ID: {calendar.id})"
+        )
 
     def run_all_tests(self):
         """Run all calendar integration tests."""

@@ -46,7 +46,9 @@ class TestTagColourIntegration(IntegrationTestBase):
         self.assert_equal(tag.name, tag_data["name"], "Tag name mismatch")
         self.assert_equal(tag.colour, "red", "Tag colour mismatch")
 
-        print(f"  Created tag with colour: {tag.name} (ID: {tag.id}, colour: {tag.colour})")
+        print(
+            f"  Created tag with colour: {tag.name} (ID: {tag.id}, colour: {tag.colour})"
+        )
 
     def test_tag_without_colour(self):
         """Test creating a tag without specifying colour."""
@@ -63,7 +65,7 @@ class TestTagColourIntegration(IntegrationTestBase):
         # Verify the tag was created
         self.assert_not_none(tag.id, "Tag ID should not be None")
         self.assert_equal(tag.name, tag_data["name"], "Tag name mismatch")
-        
+
         print(f"  Created tag without colour: {tag.name} (ID: {tag.id})")
 
     def test_tag_colour_update(self):

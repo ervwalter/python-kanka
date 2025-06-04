@@ -25,9 +25,7 @@ class TestCalendarIntegration(IntegrationTestBase):
             if self.client:
                 self.client.calendars.delete(calendar_id)
 
-        self.register_cleanup(
-            f"Delete calendar '{name}' (ID: {calendar_id})", cleanup
-        )
+        self.register_cleanup(f"Delete calendar '{name}' (ID: {calendar_id})", cleanup)
 
     def test_create_calendar(self):
         """Test creating a calendar."""
@@ -70,8 +68,16 @@ class TestCalendarIntegration(IntegrationTestBase):
             {"name": "Frostmelt", "length": 28, "type": "standard"},
             {"name": "Blossoming", "length": 30, "type": "standard"},
         ]
-        weekdays = ["Moonday", "Fireday", "Waterday", "Earthday", "Airday", "Starday", "Sunday"]
-        
+        weekdays = [
+            "Moonday",
+            "Fireday",
+            "Waterday",
+            "Earthday",
+            "Airday",
+            "Starday",
+            "Sunday",
+        ]
+
         calendar_data = {
             "name": f"Complex Calendar - DELETE ME - {datetime.now().isoformat()}",
             "type": "Custom",
@@ -81,7 +87,7 @@ class TestCalendarIntegration(IntegrationTestBase):
             "leap_year_amount": 4,
             "leap_year_month": 2,  # Frostmelt gets extra day
             "leap_year_offset": 1,  # Required field, must be at least 1
-            "leap_year_start": 1,   # Required field
+            "leap_year_start": 1,  # Required field
             "entry": "<p>A calendar with <em>leap years</em> and custom months.</p>",
             # Required basic fields as arrays
             "month_name": [m["name"] for m in months],
@@ -95,12 +101,8 @@ class TestCalendarIntegration(IntegrationTestBase):
 
         # Verify configuration was saved
         self.assert_equal(calendar.has_leap_year, True, "Leap year setting mismatch")
-        self.assert_equal(
-            calendar.leap_year_amount, 4, "Leap year frequency mismatch"
-        )
-        self.assert_equal(
-            calendar.leap_year_month, 2, "Leap year month mismatch"
-        )
+        self.assert_equal(calendar.leap_year_amount, 4, "Leap year frequency mismatch")
+        self.assert_equal(calendar.leap_year_month, 2, "Leap year month mismatch")
 
         print(f"  Created calendar with custom configuration: {calendar.name}")
 

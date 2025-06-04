@@ -47,7 +47,7 @@ class KankaClient:
 
     This client provides a unified interface to access all Kanka entities
     within a specific campaign. It handles authentication, request management,
-    automatic retry on rate limits, and provides entity-specific managers 
+    automatic retry on rate limits, and provides entity-specific managers
     for CRUD operations.
 
     The client automatically handles rate limiting by:
@@ -83,10 +83,10 @@ class KankaClient:
     Example:
         >>> # Basic usage with automatic rate limit handling
         >>> client = KankaClient("your-token", 12345)
-        >>> 
+        >>>
         >>> # Disable automatic retry for rate limits
         >>> client = KankaClient("your-token", 12345, enable_rate_limit_retry=False)
-        >>> 
+        >>>
         >>> # Customize retry behavior
         >>> client = KankaClient(
         ...     "your-token", 12345,
@@ -106,7 +106,7 @@ class KankaClient:
         enable_rate_limit_retry: bool = True,
         max_retries: int = 8,
         retry_delay: float = 1.0,
-        max_retry_delay: float =15.0,
+        max_retry_delay: float = 15.0,
     ):
         """Initialize the Kanka client.
 
@@ -340,16 +340,20 @@ class KankaClient:
             except ValueError:
                 # Try parsing as date
                 from email.utils import parsedate_to_datetime
+
                 try:
                     retry_date = parsedate_to_datetime(retry_after)
-                    return (retry_date - parsedate_to_datetime(response.headers.get("Date", ""))).total_seconds()
-                except:
+                    return (
+                        retry_date
+                        - parsedate_to_datetime(response.headers.get("Date", ""))
+                    ).total_seconds()
+                except Exception:
                     pass
-        
+
         # Check X-RateLimit headers
         remaining = response.headers.get("X-RateLimit-Remaining")
         reset = response.headers.get("X-RateLimit-Reset")
-        
+
         if remaining and reset:
             try:
                 if int(remaining) == 0:
@@ -359,7 +363,7 @@ class KankaClient:
                     return max(0, reset_time - current_time)
             except (ValueError, TypeError):
                 pass
-        
+
         return None
 
     def _request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
@@ -378,16 +382,16 @@ class KankaClient:
         """
         # Build full URL
         url = f"{self.BASE_URL}/campaigns/{self.campaign_id}/{endpoint}"
-        
+
         attempts = 0
         delay = self.retry_delay
         last_exception = None
-        
+
         while attempts <= self.max_retries:
             try:
                 # Make request
                 response = self.session.request(method, url, **kwargs)
-                
+
                 # Handle errors
                 if response.status_code == 401:
                     raise AuthenticationError("Invalid authentication token")
@@ -402,33 +406,37 @@ class KankaClient:
                     # Rate limit exceeded
                     attempts += 1
                     if not self.enable_rate_limit_retry or attempts > self.max_retries:
-                        raise RateLimitError(f"Rate limit exceeded after {attempts-1} retries")
-                    
+                        raise RateLimitError(
+                            f"Rate limit exceeded after {attempts-1} retries"
+                        )
+
                     # Parse rate limit headers for smart retry
                     suggested_delay = self._parse_rate_limit_headers(response)
                     if suggested_delay is not None:
                         delay = min(suggested_delay, self.max_retry_delay)
-                    
+
                     time.sleep(delay)
                     # Exponential backoff for next attempt
                     delay = min(delay * 2, self.max_retry_delay)
                     continue
-                        
+
                 elif response.status_code >= 400:
-                    raise KankaException(f"API error {response.status_code}: {response.text}")
-                
+                    raise KankaException(
+                        f"API error {response.status_code}: {response.text}"
+                    )
+
                 # Success - return response
                 # Return empty dict for DELETE requests
                 if method == "DELETE":
                     return {}
-                
+
                 return response.json()  # type: ignore[no-any-return]
-                
+
             except RateLimitError as e:
                 last_exception = e
                 if attempts >= self.max_retries:
                     raise
-                    
+
         # Should not reach here, but just in case
         if last_exception:
             raise last_exception

@@ -227,11 +227,16 @@ class MockResponse:
     """Mock HTTP response for testing."""
 
     def __init__(
-        self, json_data: Dict[str, Any], status_code: int = 200, text: str = ""
+        self,
+        json_data: Dict[str, Any],
+        status_code: int = 200,
+        text: str = "",
+        headers: Optional[Dict[str, str]] = None,
     ):
         self.json_data = json_data
         self.status_code = status_code
         self.text = text or str(json_data)
+        self.headers = headers or {}
 
     def json(self):
         """Return JSON data."""

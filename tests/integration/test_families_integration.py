@@ -26,9 +26,7 @@ class TestFamilyIntegration(IntegrationTestBase):
             if self.client:
                 self.client.families.delete(family_id)
 
-        self.register_cleanup(
-            f"Delete family '{name}' (ID: {family_id})", cleanup
-        )
+        self.register_cleanup(f"Delete family '{name}' (ID: {family_id})", cleanup)
 
     def _register_location_cleanup(self, location_id: int, name: str):
         """Register a location for cleanup."""
@@ -38,9 +36,7 @@ class TestFamilyIntegration(IntegrationTestBase):
             if self.client:
                 self.client.locations.delete(location_id)
 
-        self.register_cleanup(
-            f"Delete location '{name}' (ID: {location_id})", cleanup
-        )
+        self.register_cleanup(f"Delete location '{name}' (ID: {location_id})", cleanup)
 
     def test_create_family(self):
         """Test creating a family."""
@@ -57,12 +53,8 @@ class TestFamilyIntegration(IntegrationTestBase):
 
         # Verify the family was created
         self.assert_not_none(family.id, "Family ID should not be None")
-        self.assert_equal(
-            family.name, family_data["name"], "Family name mismatch"
-        )
-        self.assert_equal(
-            family.entry, family_data["entry"], "Family entry mismatch"
-        )
+        self.assert_equal(family.name, family_data["name"], "Family name mismatch")
+        self.assert_equal(family.entry, family_data["entry"], "Family entry mismatch")
         self.assert_equal(family.is_private, False, "Family should not be private")
 
         print(f"  Created family: {family.name} (ID: {family.id})")
@@ -182,9 +174,7 @@ class TestFamilyIntegration(IntegrationTestBase):
         updated_family = self.client.families.update(family.id, **updated_data)
 
         # Verify updates
-        self.assert_equal(
-            updated_family.name, original_name, "Name should not change"
-        )
+        self.assert_equal(updated_family.name, original_name, "Name should not change")
         self.assert_equal(
             updated_family.entry, updated_data["entry"], "Entry not updated"
         )

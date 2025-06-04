@@ -26,9 +26,7 @@ class TestJournalIntegration(IntegrationTestBase):
             if self.client:
                 self.client.journals.delete(journal_id)
 
-        self.register_cleanup(
-            f"Delete journal '{name}' (ID: {journal_id})", cleanup
-        )
+        self.register_cleanup(f"Delete journal '{name}' (ID: {journal_id})", cleanup)
 
     def _register_character_cleanup(self, character_id: int, name: str):
         """Register a character for cleanup."""
@@ -59,15 +57,9 @@ class TestJournalIntegration(IntegrationTestBase):
 
         # Verify the journal was created
         self.assert_not_none(journal.id, "Journal ID should not be None")
-        self.assert_equal(
-            journal.name, journal_data["name"], "Journal name mismatch"
-        )
-        self.assert_equal(
-            journal.type, journal_data["type"], "Journal type mismatch"
-        )
-        self.assert_equal(
-            journal.date, journal_data["date"], "Journal date mismatch"
-        )
+        self.assert_equal(journal.name, journal_data["name"], "Journal name mismatch")
+        self.assert_equal(journal.type, journal_data["type"], "Journal type mismatch")
+        self.assert_equal(journal.date, journal_data["date"], "Journal date mismatch")
         self.assert_equal(
             journal.entry, journal_data["entry"], "Journal entry mismatch"
         )
@@ -166,9 +158,7 @@ class TestJournalIntegration(IntegrationTestBase):
         updated_journal = self.client.journals.update(journal.id, **updated_data)
 
         # Verify updates
-        self.assert_equal(
-            updated_journal.name, original_name, "Name should not change"
-        )
+        self.assert_equal(updated_journal.name, original_name, "Name should not change")
         self.assert_equal(updated_journal.type, "Session Summary", "Type not updated")
         self.assert_equal(updated_journal.date, "2024-03-19", "Date not updated")
         self.assert_equal(

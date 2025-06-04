@@ -111,7 +111,9 @@ class TestRaceIntegration(IntegrationTestBase):
     def test_update_race(self):
         """Test updating a race."""
         # Create a race
-        original_name = f"Integration Test Race - DELETE ME - {datetime.now().isoformat()}"
+        original_name = (
+            f"Integration Test Race - DELETE ME - {datetime.now().isoformat()}"
+        )
         race = self.client.races.create(
             name=original_name,
             type="Original Type",
@@ -131,7 +133,9 @@ class TestRaceIntegration(IntegrationTestBase):
         # Verify updates
         self.assert_equal(updated_race.name, original_name, "Name should not change")
         self.assert_equal(updated_race.type, "Updated Species", "Type not updated")
-        self.assert_equal(updated_race.entry, updated_data["entry"], "Entry not updated")
+        self.assert_equal(
+            updated_race.entry, updated_data["entry"], "Entry not updated"
+        )
 
         print(f"  Updated race {race.id} successfully")
 

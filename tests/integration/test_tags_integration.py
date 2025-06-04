@@ -116,7 +116,9 @@ class TestTagIntegration(IntegrationTestBase):
     def test_update_tag(self):
         """Test updating a tag."""
         # Create a tag
-        original_name = f"Integration Test Tag - DELETE ME - {datetime.now().isoformat()}"
+        original_name = (
+            f"Integration Test Tag - DELETE ME - {datetime.now().isoformat()}"
+        )
         tag = self.client.tags.create(
             name=original_name,
             type="Original Type",

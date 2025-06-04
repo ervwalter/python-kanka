@@ -1,21 +1,23 @@
-# python-kanka ![](https://github.com/rbtnx/python-kanka/workflows/build/badge.svg)
+# python-kanka
 
 A modern Python client for the [Kanka API](https://app.kanka.io/api-docs/1.0), the collaborative worldbuilding and campaign management platform.
 
+*Originally inspired by/forked from [Kathrin Weihe's python-kanka](https://github.com/rbtnx/python-kanka). Thank you to Kathrin for the foundation and inspiration.*
+
 ## Features
 
-- **Extensive Entity Support**: Support for 12 core Kanka entity types:
+- **Entity Support**: Support for 12 core Kanka entity types:
   - Characters, Locations, Organisations, Families
   - Calendars, Events, Quests, Journals
   - Notes, Tags, Races, Creatures
-- **Type Safety**: Built with Pydantic v2 for robust data validation and type hints
-- **Modern Python**: Designed for Python 3.8+ with full typing support
-- **Intuitive API**: Clean, Pythonic interface with consistent patterns
-- **Comprehensive Error Handling**: Detailed exceptions for API errors
-- **Automatic Rate Limit Handling**: Smart retry logic with exponential backoff
-- **Entity Posts**: Full support for entity posts/comments management
-- **Advanced Filtering**: Powerful filtering and search capabilities
-- **Pagination Support**: Built-in pagination handling
+- **Type Safety**: Built with Pydantic v2 for data validation and type hints
+- **Python 3.8+**: Full typing support for modern Python versions
+- **Pythonic API**: Consistent interface patterns across all entity types
+- **Error Handling**: Specific exception types for different API errors
+- **Rate Limit Handling**: Automatic retry with exponential backoff
+- **Entity Posts**: Support for entity posts/comments management
+- **Filtering and Search**: Filter entities by various criteria and search across types
+- **Pagination**: Built-in pagination support for large result sets
 
 ## Installation
 
@@ -26,7 +28,7 @@ pip install python-kanka
 
 Or install from source:
 ```bash
-git clone https://github.com/rbtnx/python-kanka.git
+git clone https://github.com/ervwalter/python-kanka.git
 cd python-kanka
 pip install -e .
 ```
@@ -209,13 +211,13 @@ client = KankaClient(
 )
 ```
 
-The client intelligently parses rate limit headers from the API to determine optimal retry delays, ensuring your requests succeed while respecting the API's limits.
+The client parses rate limit headers from the API to determine retry delays and respects the API's rate limits.
 
 ## Migration Guide
 
 ### Upgrading from v0.x to v2.0
 
-The v2.0 release introduces a completely new API design with Pydantic models and better type safety. Here's how to migrate:
+The v2.0 release introduces a new API design with Pydantic models and type safety. Here's how to migrate:
 
 #### Old API (v0.x)
 ```python
@@ -251,7 +253,7 @@ For development, install additional dependencies:
 
 ```bash
 # Clone the repository
-git clone https://github.com/rbtnx/python-kanka.git
+git clone https://github.com/ervwalter/python-kanka.git
 cd python-kanka
 
 # Install dev dependencies
@@ -316,5 +318,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Kanka.io](https://kanka.io) - The Kanka platform
 - [Kanka API Documentation](https://app.kanka.io/api-docs/1.0) - Official API docs
-- [GitHub Repository](https://github.com/rbtnx/python-kanka) - Source code
-- [Issue Tracker](https://github.com/rbtnx/python-kanka/issues) - Report bugs or request features
+- [GitHub Repository](https://github.com/ervwalter/python-kanka) - Source code
+- [Issue Tracker](https://github.com/ervwalter/python-kanka/issues) - Report bugs or request features

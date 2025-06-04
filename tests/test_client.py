@@ -191,7 +191,9 @@ class TestKankaClient:
         mock_session = MagicMock()
         mock_session_class.return_value = mock_session
 
-        client = KankaClient(token="test_token", campaign_id=123)
+        client = KankaClient(
+            token="test_token", campaign_id=123, enable_rate_limit_retry=False
+        )
 
         # Test 401 Unauthorized
         mock_response = MockResponse({}, status_code=401)

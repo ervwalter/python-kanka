@@ -26,9 +26,7 @@ class TestCreatureIntegration(IntegrationTestBase):
             if self.client:
                 self.client.creatures.delete(creature_id)
 
-        self.register_cleanup(
-            f"Delete creature '{name}' (ID: {creature_id})", cleanup
-        )
+        self.register_cleanup(f"Delete creature '{name}' (ID: {creature_id})", cleanup)
 
     def _register_location_cleanup(self, location_id: int, name: str):
         """Register a location for cleanup."""
@@ -38,9 +36,7 @@ class TestCreatureIntegration(IntegrationTestBase):
             if self.client:
                 self.client.locations.delete(location_id)
 
-        self.register_cleanup(
-            f"Delete location '{name}' (ID: {location_id})", cleanup
-        )
+        self.register_cleanup(f"Delete location '{name}' (ID: {location_id})", cleanup)
 
     def test_create_creature(self):
         """Test creating a creature."""
@@ -163,9 +159,7 @@ class TestCreatureIntegration(IntegrationTestBase):
         self.assert_equal(
             updated_creature.name, original_name, "Name should not change"
         )
-        self.assert_equal(
-            updated_creature.type, "Evolved Creature", "Type not updated"
-        )
+        self.assert_equal(updated_creature.type, "Evolved Creature", "Type not updated")
         self.assert_equal(
             updated_creature.entry, updated_data["entry"], "Entry not updated"
         )

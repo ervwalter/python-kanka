@@ -47,7 +47,7 @@ class TestEntityTagsIntegration(IntegrationTestBase):
     def _create_test_tags(self):
         """Create test tags to use in entity creation/update tests."""
         tags = []
-        
+
         # Create category tags
         tag_names = [
             ("Important", "red"),
@@ -55,7 +55,7 @@ class TestEntityTagsIntegration(IntegrationTestBase):
             ("Secret", "navy"),
             ("Player-Known", "yellow"),
         ]
-        
+
         for name, color in tag_names:
             tag = self.client.tags.create(
                 name=f"{name} - DELETE ME - {datetime.now().isoformat()}",
@@ -66,7 +66,7 @@ class TestEntityTagsIntegration(IntegrationTestBase):
             self._register_tag_cleanup(tag.id, tag.name)
             tags.append(tag)
             self.wait_for_api(0.2)  # Small delay between tag creations
-        
+
         return tags
 
     def test_create_character_with_tags(self):
@@ -90,7 +90,7 @@ class TestEntityTagsIntegration(IntegrationTestBase):
 
         # Verify character was created
         self.assert_not_none(character.id, "Character ID should not be None")
-        
+
         # Note: The API might not return tags in the create response
         # We'd need to fetch with ?related=1 to verify tags
         print(f"  Created character '{character.name}' with {len(tag_ids)} tags")
@@ -120,7 +120,7 @@ class TestEntityTagsIntegration(IntegrationTestBase):
         """Test updating an entity's tags."""
         # Create tags
         tags = self._create_test_tags()
-        
+
         # Create a journal without tags
         journal_name = f"Journal Entry - DELETE ME - {datetime.now().isoformat()}"
         journal = self.client.journals.create(
@@ -137,7 +137,7 @@ class TestEntityTagsIntegration(IntegrationTestBase):
             "tags": [tags[0].id, tags[1].id],  # Add "Important" and "Quest-Related"
             "entry": "<h2>Updated Entry</h2><p>This journal is now tagged as <strong>important</strong> and quest-related.</p>",
         }
-        updated_journal = self.client.journals.update(journal.id, **updated_data)
+        self.client.journals.update(journal.id, **updated_data)
 
         print(f"  Updated journal '{journal.name}' with 2 tags")
 
@@ -186,9 +186,7 @@ class TestEntityTagsIntegration(IntegrationTestBase):
         quest = self.client.quests.create(**quest_data)
         self._register_entity_cleanup("quests", quest.id, quest.name)
 
-        print(
-            f"  Created quest '{quest.name}' with nested tag '{main_quest_tag.name}'"
-        )
+        print(f"  Created quest '{quest.name}' with nested tag '{main_quest_tag.name}'")
 
     def test_multiple_entity_types_same_tags(self):
         """Test using the same tags across different entity types."""
@@ -227,10 +225,12 @@ class TestEntityTagsIntegration(IntegrationTestBase):
             entry="<p>An important guild known to players.</p>",
             tags=shared_tag_ids,
         )
-        self._register_entity_cleanup("organisations", organisation.id, organisation.name)
+        self._register_entity_cleanup(
+            "organisations", organisation.id, organisation.name
+        )
 
         print(
-            f"  Created 3 different entities (character, note, organisation) with same tags"
+            "  Created 3 different entities (character, note, organisation) with same tags"
         )
 
     def test_remove_tags_from_entity(self):
@@ -253,7 +253,7 @@ class TestEntityTagsIntegration(IntegrationTestBase):
         self.wait_for_api()
 
         # Update to remove some tags (keep only first tag)
-        updated_event = self.client.events.update(
+        self.client.events.update(
             event.id,
             tags=[tags[0].id],  # Keep only "Important" tag
             entry="<p>Updated: Now only marked as important.</p>",
@@ -262,7 +262,7 @@ class TestEntityTagsIntegration(IntegrationTestBase):
         print(f"  Updated event '{event.name}' - reduced from {len(tags)} to 1 tag")
 
         # Update again to remove all tags
-        updated_event = self.client.events.update(
+        self.client.events.update(
             event.id,
             tags=[],  # Remove all tags
             entry="<p>Updated: All tags removed.</p>",
@@ -302,20 +302,26 @@ class TestEntityTagsIntegration(IntegrationTestBase):
 
         # Use entities endpoint to filter by tag
         entities = self.client.entities(tags=[filter_tag.id])
-        
+
         # Verify we found our entities
         found_character = False
         found_location = False
-        
+
         for entity in entities:
-            if entity.get("child_id") == character.id and entity.get("type") == "character":
+            if (
+                entity.get("child_id") == character.id
+                and entity.get("type") == "character"
+            ):
                 found_character = True
-            elif entity.get("child_id") == location.id and entity.get("type") == "location":
+            elif (
+                entity.get("child_id") == location.id
+                and entity.get("type") == "location"
+            ):
                 found_location = True
 
         self.assert_true(
             found_character and found_location,
-            f"Should find both character and location with tag {filter_tag.id}"
+            f"Should find both character and location with tag {filter_tag.id}",
         )
 
         print(f"  Successfully filtered entities by tag '{filter_tag.name}'")

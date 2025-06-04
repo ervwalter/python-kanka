@@ -37,13 +37,9 @@ jobs:
         pip install -r dev-requirements.txt
         pip install -e .
 
-    - name: Lint with ruff
+    - name: Run all quality checks
       run: |
-        make lint
-
-    - name: Run tests
-      run: |
-        make test
+        make check
 
     - name: Generate coverage report
       if: matrix.python-version == '3.11'

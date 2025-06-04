@@ -26,9 +26,7 @@ class TestQuestIntegration(IntegrationTestBase):
             if self.client:
                 self.client.quests.delete(quest_id)
 
-        self.register_cleanup(
-            f"Delete quest '{name}' (ID: {quest_id})", cleanup
-        )
+        self.register_cleanup(f"Delete quest '{name}' (ID: {quest_id})", cleanup)
 
     def _register_character_cleanup(self, character_id: int, name: str):
         """Register a character for cleanup."""
@@ -58,15 +56,9 @@ class TestQuestIntegration(IntegrationTestBase):
 
         # Verify the quest was created
         self.assert_not_none(quest.id, "Quest ID should not be None")
-        self.assert_equal(
-            quest.name, quest_data["name"], "Quest name mismatch"
-        )
-        self.assert_equal(
-            quest.type, quest_data["type"], "Quest type mismatch"
-        )
-        self.assert_equal(
-            quest.entry, quest_data["entry"], "Quest entry mismatch"
-        )
+        self.assert_equal(quest.name, quest_data["name"], "Quest name mismatch")
+        self.assert_equal(quest.type, quest_data["type"], "Quest type mismatch")
+        self.assert_equal(quest.entry, quest_data["entry"], "Quest entry mismatch")
         self.assert_equal(quest.is_private, False, "Quest should not be private")
 
         print(f"  Created quest: {quest.name} (ID: {quest.id})")
@@ -144,9 +136,7 @@ class TestQuestIntegration(IntegrationTestBase):
     def test_list_quests_with_filter(self):
         """Test listing quests with filters."""
         # Create a quest to ensure we have something to find
-        test_name = (
-            f"Integration Test Quest - DELETE ME - {datetime.now().isoformat()}"
-        )
+        test_name = f"Integration Test Quest - DELETE ME - {datetime.now().isoformat()}"
         quest = self.client.quests.create(
             name=test_name,
             type="Test Quest",
@@ -166,9 +156,7 @@ class TestQuestIntegration(IntegrationTestBase):
                 found = True
                 break
 
-        self.assert_true(
-            found, f"Created quest {quest.id} not found in filtered list"
-        )
+        self.assert_true(found, f"Created quest {quest.id} not found in filtered list")
         print(f"  Found {len(quests)} test quest(s) in filtered list")
 
     def test_update_quest(self):
@@ -194,12 +182,8 @@ class TestQuestIntegration(IntegrationTestBase):
         updated_quest = self.client.quests.update(quest.id, **updated_data)
 
         # Verify updates
-        self.assert_equal(
-            updated_quest.name, original_name, "Name should not change"
-        )
-        self.assert_equal(
-            updated_quest.type, "Updated Quest Type", "Type not updated"
-        )
+        self.assert_equal(updated_quest.name, original_name, "Name should not change")
+        self.assert_equal(updated_quest.type, "Updated Quest Type", "Type not updated")
         self.assert_equal(
             updated_quest.entry, updated_data["entry"], "Entry not updated"
         )

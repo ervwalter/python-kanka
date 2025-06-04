@@ -36,9 +36,7 @@ class TestEventIntegration(IntegrationTestBase):
             if self.client:
                 self.client.locations.delete(location_id)
 
-        self.register_cleanup(
-            f"Delete location '{name}' (ID: {location_id})", cleanup
-        )
+        self.register_cleanup(f"Delete location '{name}' (ID: {location_id})", cleanup)
 
     def test_create_event(self):
         """Test creating an event."""
@@ -153,14 +151,18 @@ class TestEventIntegration(IntegrationTestBase):
         self.assert_equal(updated_event.name, original_name, "Name should not change")
         self.assert_equal(updated_event.type, "Updated Type", "Type not updated")
         self.assert_equal(updated_event.date, "Year 1551, Spring", "Date not updated")
-        self.assert_equal(updated_event.entry, updated_data["entry"], "Entry not updated")
+        self.assert_equal(
+            updated_event.entry, updated_data["entry"], "Entry not updated"
+        )
 
         print(f"  Updated event {event.id} successfully")
 
     def test_get_event(self):
         """Test getting a specific event."""
         # Create an event
-        event_name = f"Integration Test Event - DELETE ME - {datetime.now().isoformat()}"
+        event_name = (
+            f"Integration Test Event - DELETE ME - {datetime.now().isoformat()}"
+        )
         created = self.client.events.create(
             name=event_name,
             type="Ceremony",

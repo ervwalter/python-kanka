@@ -174,3 +174,4 @@ tests/integration/*.log
 *_test_output.txt
 *_output.txt
 test_api_response.py
+claude-notes

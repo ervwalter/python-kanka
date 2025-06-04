@@ -17,13 +17,24 @@ The main client for interacting with the Kanka API.
 ### Constructor
 
 ```python
-KankaClient(token: str, campaign_id: int, base_url: str = "https://api.kanka.io/1.0")
+KankaClient(
+    token: str, 
+    campaign_id: int, 
+    *,
+    enable_rate_limit_retry: bool = True,
+    max_retries: int = 8,
+    retry_delay: float = 1.0,
+    max_retry_delay: float = 15.0
+)
 ```
 
 **Parameters:**
 - `token` (str): Your Kanka API personal access token
 - `campaign_id` (int): The ID of the campaign to access
-- `base_url` (str, optional): The base URL for the API
+- `enable_rate_limit_retry` (bool, optional): Whether to automatically retry on rate limits (default: True)
+- `max_retries` (int, optional): Maximum number of retries for rate limited requests (default: 8)
+- `retry_delay` (float, optional): Initial delay between retries in seconds (default: 1.0)
+- `max_retry_delay` (float, optional): Maximum delay between retries in seconds (default: 15.0)
 
 **Example:**
 ```python
@@ -34,13 +45,13 @@ client = KankaClient(token="your-token", campaign_id=12345)
 
 ### Methods
 
-#### search(query, page=1, limit=5)
+#### search(term, page=1, limit=30)
 Search across all entities in the campaign.
 
 **Parameters:**
-- `query` (str): The search term
+- `term` (str): The search term
 - `page` (int, optional): Page number for pagination (default: 1)
-- `limit` (int, optional): Number of results per page (default: 5)
+- `limit` (int, optional): Number of results per page (default: 30)
 
 **Returns:** List[SearchResult]
 
@@ -51,20 +62,36 @@ for result in results:
     print(f"{result.name} ({result.type})")
 ```
 
-#### entities(types=None, name=None, tags=None, page=1, limit=30, **filters)
+#### entities(**filters)
 Get entities from the generic /entities endpoint with optional filtering.
 
 **Parameters:**
-- `types` (List[str], optional): Filter by entity types
-- `name` (str, optional): Filter by name
-- `tags` (List[int], optional): Filter by tag IDs
-- `page` (int, optional): Page number (default: 1)
-- `limit` (int, optional): Results per page (default: 30)
-- `**filters`: Additional filters
+- `**filters`: Filter parameters including:
+  - `types` (List[str]): Filter by entity types
+  - `name` (str): Filter by name
+  - `tags` (List[int]): Filter by tag IDs
+  - `page` (int): Page number (default: 1)
+  - `limit` (int): Results per page (default: 30)
+  - Additional entity-specific filters
 
-**Returns:** List[Entity]
+**Returns:** List[Dict[str, Any]]
 
 ### Properties
+
+#### Search and Pagination Metadata
+- `last_search_meta` - Metadata from the last search() call
+- `last_search_links` - Pagination links from the last search() call
+
+#### Client Attributes
+- `token` (str) - API authentication token
+- `campaign_id` (int) - Campaign ID being accessed
+- `session` (requests.Session) - HTTP session for API requests
+- `enable_rate_limit_retry` (bool) - Whether automatic retry is enabled
+- `max_retries` (int) - Maximum retry attempts for rate limits
+- `retry_delay` (float) - Initial retry delay in seconds
+- `max_retry_delay` (float) - Maximum retry delay in seconds
+
+#### Entity Managers
 
 Each implemented entity type has its own manager. The SDK currently supports the following entity types:
 
@@ -88,11 +115,12 @@ All entity managers share the same interface through the `EntityManager` class.
 
 ### Methods
 
-#### get(entity_id: int)
+#### get(id: int, related: bool = False)
 Retrieve a single entity by ID.
 
 **Parameters:**
-- `entity_id` (int): The entity ID
+- `id` (int): The entity ID
+- `related` (bool, optional): Include related data (posts, attributes) (default: False)
 
 **Returns:** The entity object
 
@@ -113,7 +141,8 @@ List entities with optional filtering.
 - `**filters`: Filter parameters
   - `name` (str): Filter by name (partial match)
   - `tags` (List[int]): Filter by tag IDs
-  - `type` (str): Filter by type
+  - `type` (str): Filter by single entity type
+  - `types` (List[str]): Filter by multiple entity types
   - `is_private` (bool): Filter by privacy
   - `created_at` (str): Filter by creation date
   - `updated_at` (str): Filter by update date
@@ -299,41 +328,108 @@ All models inherit from Pydantic's BaseModel and support:
 Base class for all Kanka models.
 
 **Fields:**
-- `id` (int, optional): The entity ID
-- `created_at` (datetime, optional): Creation timestamp
-- `created_by` (int, optional): Creator user ID
-- `updated_at` (datetime, optional): Last update timestamp
-- `updated_by` (int, optional): Last updater user ID
+- No fields defined (base class only for configuration)
 
 #### Entity
 Base class for all entity types.
 
-**Fields:** (inherits from KankaModel)
-- `entity_id` (int, optional): The parent entity ID
+**Fields:**
+- `id` (int, optional): The entity ID
+- `entity_id` (int): The parent entity ID
 - `name` (str): Entity name
+- `entry` (str, optional): Entity description/content (HTML)
 - `image` (str, optional): Image URL
 - `image_full` (str, optional): Full image URL
 - `image_thumb` (str, optional): Thumbnail URL
 - `is_private` (bool): Privacy setting (default: False)
 - `tags` (List[int]): Tag IDs (default: [])
-- `type` (str, optional): Entity subtype
+- `created_at` (datetime, optional): Creation timestamp
+- `created_by` (int, optional): Creator user ID
+- `updated_at` (datetime, optional): Last update timestamp
+- `updated_by` (int, optional): Last updater user ID
+- `posts` (List[Post], optional): Related posts (when related=True)
+- `attributes` (List[Dict], optional): Custom attributes (when related=True)
 
 ### Entity Types
 
 All entity types inherit from Entity and add type-specific fields:
 
-- **Calendar**: `date`, `months`, `weekdays`, `years`, etc.
-- **Character**: `title`, `age`, `sex`, `location_id`, `race_id`, `family_id`, etc.
-- **Creature**: `creature_id` (parent), `locations`, etc.
-- **Event**: `date`, `location_id`, etc.
-- **Family**: `family_id` (parent), `members`, etc.
-- **Journal**: `journal_id` (parent), `date`, etc.
-- **Location**: `parent_location_id`, `map`, etc.
-- **Note**: (no additional fields)
-- **Organisation**: `organisation_id` (parent), `members`, etc.
-- **Quest**: `quest_id` (parent), `characters`, `locations`, etc.
-- **Race**: `race_id` (parent), etc.
-- **Tag**: `tag_id` (parent), `colour`, etc.
+#### Calendar
+- `type` (str, optional): Calendar type
+- `date` (str, optional): Current date
+- `parameters` (str, optional): Calendar parameters
+- `months` (List[Dict], optional): Month definitions
+- `weekdays` (List[str], optional): Weekday names
+- `years` (Union[Dict, List], optional): Year configuration
+- `seasons` (List[Dict], optional): Season definitions
+- `moons` (List[Dict], optional): Moon definitions
+- `suffix` (str, optional): Date suffix
+- `has_leap_year` (bool, optional): Whether calendar has leap years
+- `leap_year_amount` (int, optional): Leap year frequency
+- `leap_year_month` (int, optional): Month that gets leap day
+- `leap_year_offset` (int, optional): Leap year offset
+- `leap_year_start` (int, optional): Leap year start
+
+#### Character
+- `type` (str, optional): Character type/class
+- `title` (str, optional): Character's title or role
+- `age` (str, optional): Character's age
+- `sex` (str, optional): Character's sex/gender
+- `pronouns` (str, optional): Character's pronouns
+- `race_id` (int, optional): Link to Race entity
+- `family_id` (int, optional): Link to Family entity
+- `location_id` (int, optional): Link to Location entity
+- `is_dead` (bool, optional): Whether character is dead
+
+#### Creature
+- `type` (str, optional): Creature type
+- `location_id` (int, optional): Link to Location entity
+
+#### Event
+- `type` (str, optional): Event type
+- `date` (str, optional): Event date
+- `location_id` (int, optional): Link to Location entity
+
+#### Family
+- `type` (str, optional): Family type
+- `family_id` (int, optional): Parent family ID
+- `location_id` (int, optional): Link to Location entity
+
+#### Journal
+- `type` (str, optional): Journal type
+- `date` (str, optional): Journal date
+- `character_id` (int, optional): Link to Character entity
+
+#### Location
+- `type` (str, optional): Location type
+- `parent_location_id` (int, optional): Parent location ID
+- `map` (str, optional): Map data
+- `map_url` (str, optional): Map URL
+- `is_map_private` (bool, optional): Map privacy setting
+
+#### Note
+- `type` (str, optional): Note type
+- `location_id` (int, optional): Link to Location entity
+
+#### Organisation
+- `type` (str, optional): Organisation type
+- `organisation_id` (int, optional): Parent organisation ID
+- `location_id` (int, optional): Link to Location entity
+
+#### Quest
+- `type` (str, optional): Quest type
+- `quest_id` (int, optional): Parent quest ID
+- `character_id` (int, optional): Link to Character entity
+- `is_completed` (bool, optional): Whether quest is completed
+
+#### Race
+- `type` (str, optional): Race type
+- `race_id` (int, optional): Parent race ID
+
+#### Tag
+- `type` (str, optional): Tag type
+- `tag_id` (int, optional): Parent tag ID
+- `colour` (str, optional): Tag color (see valid colors in documentation)
 
 ### Other Models
 
@@ -341,10 +437,14 @@ All entity types inherit from Entity and add type-specific fields:
 Represents an entity post/note.
 
 **Fields:**
-- `id` (int, optional): Post ID
+- `id` (int): Post ID
+- `entity_id` (int): Parent entity ID
 - `name` (str): Post title
-- `entry` (str, optional): Post content (HTML)
+- `entry` (str): Post content (HTML)
 - `is_private` (bool): Privacy setting (default: False)
+- `is_pinned` (bool, optional): Whether post is pinned
+- `position` (int, optional): Post position/order
+- `visibility` (str, optional): Post visibility setting
 - `created_at` (datetime, optional): Creation timestamp
 - `created_by` (int, optional): Creator user ID
 - `updated_at` (datetime, optional): Update timestamp
@@ -358,10 +458,33 @@ Represents a search result.
 - `entity_id` (int): Parent entity ID
 - `name` (str): Entity name
 - `type` (str): Entity type
+- `url` (str, optional): Entity URL
+- `tooltip` (str, optional): Tooltip text
 - `tags` (List[int]): Tag IDs (default: [])
 - `is_private` (bool): Privacy setting (default: False)
-- `image` (str, optional): Image URL
-- `image_thumb` (str, optional): Thumbnail URL
+- `created_at` (datetime, optional): Creation timestamp
+- `updated_at` (datetime, optional): Update timestamp
+
+#### Trait
+Represents a character trait.
+
+**Fields:**
+- `id` (int, optional): Trait ID
+- `name` (str): Trait name
+- `entry` (str, optional): Trait description
+- `section` (str, optional): Trait section/category
+
+#### Profile
+Represents a user profile.
+
+**Fields:**
+- `id` (int, optional): Profile ID
+- `avatar` (str, optional): Avatar URL
+- `avatar_thumb` (str, optional): Avatar thumbnail URL
+- `name` (str): Display name
+- `date_format` (str, optional): Preferred date format
+- `default_pagination` (int, optional): Default pagination size
+- `timezone` (str, optional): User timezone
 
 ## Exceptions
 
@@ -422,6 +545,43 @@ except RateLimitError:
     print("Rate limit exceeded, please wait")
 ```
 
+**Note:** The client automatically retries rate-limited requests by default.
+
+### Legacy Exceptions (Deprecated)
+
+These exceptions are available for backward compatibility but are deprecated:
+
+#### KankaError
+**Deprecated in v2.0** - Use KankaException instead.
+
+#### KankaAPIError  
+**Deprecated in v2.0** - Use KankaException instead.
+
+### Comprehensive Error Handling
+
+```python
+from kanka.exceptions import (
+    KankaException, NotFoundError, ValidationError, 
+    RateLimitError, AuthenticationError, ForbiddenError
+)
+
+try:
+    character = client.characters.get(123)
+except NotFoundError:
+    print("Character not found")
+except ValidationError as e:
+    print(f"Invalid data: {e}")
+except RateLimitError:
+    # Client automatically retries rate limits by default
+    print("Rate limit exceeded after retries")
+except AuthenticationError:
+    print("Check your API token")
+except ForbiddenError:
+    print("Access denied - check permissions")
+except KankaException as e:
+    print(f"Other API error: {e}")
+```
+
 ## Advanced Usage
 
 ### Pagination
@@ -438,6 +598,33 @@ links = client.characters.last_page_links
 if links.get('next'):
     print(f"Next page URL: {links['next']}")
 ```
+
+### Rate Limiting
+
+The client automatically handles API rate limits with configurable retry behavior:
+
+```python
+# Default behavior - automatic retry enabled
+client = KankaClient(token="your-token", campaign_id=12345)
+
+# Disable automatic retry
+client = KankaClient(
+    token="your-token", 
+    campaign_id=12345,
+    enable_rate_limit_retry=False
+)
+
+# Customize retry behavior
+client = KankaClient(
+    token="your-token",
+    campaign_id=12345,
+    max_retries=5,              # Try up to 5 times (default: 8)
+    retry_delay=2.0,            # Initial delay in seconds (default: 1.0)
+    max_retry_delay=120.0       # Maximum delay between retries (default: 15.0)
+)
+```
+
+The client parses rate limit headers from the API to determine optimal retry delays and uses exponential backoff for repeated retries.
 
 ### Filtering Examples
 

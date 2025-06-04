@@ -88,6 +88,21 @@ Integration tests are NOT pytest tests - they have custom runners:
 - Don't leave comments explaining removed/moved code
 - Use python-dotenv for environment variables: `load_dotenv()`
 
+## Code Quality Workflow
+
+**IMPORTANT**: After making any significant code changes, always run:
+
+1. **Format first**: `make format` - Runs black, isort, and ruff --fix to format code
+2. **Verify quality**: `make check` - Runs full linting, type checking, and all tests
+
+This ensures:
+- Code is properly formatted (black/isort)
+- No linting violations (ruff) 
+- Type checking passes (mypy)
+- All unit tests pass (pytest)
+
+**Never commit without running `make check` successfully**. The test `test_request_error_handling` was previously hanging due to rate limiting retry in tests - this has been fixed by disabling rate limiting retry in that specific test.
+
 ## Testing Without Breaking Production
 
 When testing against the real API:
