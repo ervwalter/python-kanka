@@ -20,17 +20,14 @@ class TestLocationIntegration(IntegrationTestBase):
 
     def __init__(self):
         super().__init__()
-        self.created_location_id: Optional[int] = None
 
-    def teardown(self):
-        """Clean up any created locations."""
-        if self.created_location_id and self.client:
-            try:
-                self.client.locations.delete(self.created_location_id)
-                print(f"  Cleaned up location {self.created_location_id}")
-            except Exception:
-                pass  # Already deleted or doesn't exist
-        super().teardown()
+    def _register_location_cleanup(self, location_id: int, name: str):
+        """Register a location for cleanup."""
+        def cleanup():
+            if self.client:
+                self.client.locations.delete(location_id)
+        
+        self.register_cleanup(f"Delete location \'{name}\' (ID: {location_id})", cleanup)
 
     def test_create_location(self):
         """Test creating a location."""
@@ -44,7 +41,7 @@ class TestLocationIntegration(IntegrationTestBase):
 
         # Create the location
         location = self.client.locations.create(**location_data)
-        self.created_location_id = location.id
+        self._register_location_cleanup(location.id, location.name)
 
         # Verify the location was created
         self.assert_not_none(location.id, "Location ID should not be None")
@@ -72,7 +69,7 @@ class TestLocationIntegration(IntegrationTestBase):
             type="Village",
             entry="<p>A small <em>village</em> with <strong>peaceful</strong> residents.</p>",
         )
-        self.created_location_id = location.id
+        self._register_location_cleanup(location.id, location.name)
 
         self.wait_for_api()  # Give API time to index
 
@@ -102,7 +99,7 @@ class TestLocationIntegration(IntegrationTestBase):
             type="Town",
             entry="<p>A <strong>bustling town</strong> with various districts.</p>",
         )
-        self.created_location_id = location.id
+        self._register_location_cleanup(location.id, location.name)
 
         self.wait_for_api()
 
@@ -135,7 +132,7 @@ class TestLocationIntegration(IntegrationTestBase):
             type="Castle",
             entry="<p>An ancient <strong>castle</strong> perched on a <em>rocky cliff</em>.</p>",
         )
-        self.created_location_id = created.id
+        self._register_location_cleanup(created.id, created.name)
 
         self.wait_for_api()
 
@@ -167,7 +164,7 @@ class TestLocationIntegration(IntegrationTestBase):
 
         # Delete the location
         self.client.locations.delete(location_id)
-        self.created_location_id = None  # Already deleted
+        # No need to register cleanup since we\'re testing deletion
 
         self.wait_for_api()
 

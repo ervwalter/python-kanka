@@ -20,17 +20,14 @@ class TestNoteIntegration(IntegrationTestBase):
 
     def __init__(self):
         super().__init__()
-        self.created_note_id: Optional[int] = None
 
-    def teardown(self):
-        """Clean up any created notes."""
-        if self.created_note_id and self.client:
-            try:
-                self.client.notes.delete(self.created_note_id)
-                print(f"  Cleaned up note {self.created_note_id}")
-            except Exception:
-                pass  # Already deleted or doesn't exist
-        super().teardown()
+    def _register_note_cleanup(self, note_id: int, name: str):
+        """Register a note for cleanup."""
+        def cleanup():
+            if self.client:
+                self.client.notes.delete(note_id)
+        
+        self.register_cleanup(f"Delete note \'{name}\' (ID: {note_id})", cleanup)
 
     def test_create_note(self):
         """Test creating a note."""
@@ -44,7 +41,7 @@ class TestNoteIntegration(IntegrationTestBase):
 
         # Create the note
         note = self.client.notes.create(**note_data)
-        self.created_note_id = note.id
+        self._register_note_cleanup(note.id, note.name)
 
         # Verify the note was created
         self.assert_not_none(note.id, "Note ID should not be None")
@@ -64,7 +61,7 @@ class TestNoteIntegration(IntegrationTestBase):
             type="Secret",
             entry="<p>A <strong>secret note</strong> containing <em>classified information</em>.</p>",
         )
-        self.created_note_id = note.id
+        self._register_note_cleanup(note.id, note.name)
 
         self.wait_for_api()  # Give API time to index
 
@@ -92,7 +89,7 @@ class TestNoteIntegration(IntegrationTestBase):
             type="History",
             entry="<p>Original <strong>historical record</strong> from the archives.</p>",
         )
-        self.created_note_id = note.id
+        self._register_note_cleanup(note.id, note.name)
 
         self.wait_for_api()
 
@@ -121,7 +118,7 @@ class TestNoteIntegration(IntegrationTestBase):
             type="Plot",
             entry="<p>Key <strong>plot points</strong> for the <em>upcoming campaign</em>.</p>",
         )
-        self.created_note_id = created.id
+        self._register_note_cleanup(created.id, created.name)
 
         self.wait_for_api()
 
@@ -153,7 +150,7 @@ class TestNoteIntegration(IntegrationTestBase):
 
         # Delete the note
         self.client.notes.delete(note_id)
-        self.created_note_id = None  # Already deleted
+        # No need to register cleanup since we\'re testing deletion
 
         self.wait_for_api()
 

@@ -20,37 +20,40 @@ class TestPostIntegration(IntegrationTestBase):
 
     def __init__(self):
         super().__init__()
-        self.created_character_id: Optional[int] = None
-        self.created_character_entity_id: Optional[int] = None
-        self.created_post_id: Optional[int] = None
-
-    def teardown(self):
-        """Clean up any created posts and characters."""
-        if self.created_post_id and self.created_character_entity_id and self.client:
-            try:
-                # Use entity_id for posts, not character id
-                self.client.characters.delete_post(
-                    self.created_character_entity_id, self.created_post_id
-                )
-                print(f"  Cleaned up post {self.created_post_id}")
-            except Exception:
-                pass  # Already deleted or doesn't exist
-
-        if self.created_character_id and self.client:
-            try:
-                self.client.characters.delete(self.created_character_id)
-                print(f"  Cleaned up character {self.created_character_id}")
-            except Exception:
-                pass  # Already deleted or doesn't exist
-        super().teardown()
+    
+    def _register_post_cleanup(self, entity_id: int, post_id: int, post_name: str, entity_type: str = "character"):
+        """Register a post for cleanup."""
+        def cleanup():
+            if self.client:
+                if entity_type == "character":
+                    self.client.characters.delete_post(entity_id, post_id)
+                elif entity_type == "location":
+                    self.client.locations.delete_post(entity_id, post_id)
+        
+        self.register_cleanup(f"Delete post '{post_name}' (ID: {post_id}) from {entity_type}", cleanup)
+    
+    def _register_character_cleanup(self, character_id: int, name: str):
+        """Register a character for cleanup."""
+        def cleanup():
+            if self.client:
+                self.client.characters.delete(character_id)
+        
+        self.register_cleanup(f"Delete character '{name}' (ID: {character_id})", cleanup)
+    
+    def _register_location_cleanup(self, location_id: int, name: str):
+        """Register a location for cleanup."""
+        def cleanup():
+            if self.client:
+                self.client.locations.delete(location_id)
+        
+        self.register_cleanup(f"Delete location '{name}' (ID: {location_id})", cleanup)
 
     def test_create_post_on_character(self):
         """Test creating a post on a character."""
         # First create a character
         character_name = f"Integration Test Character for Posts - DELETE ME - {datetime.now().isoformat()}"
         character = self.client.characters.create(name=character_name)
-        self.created_character_id = character.id
-        self.created_character_entity_id = character.entity_id
+        self._register_character_cleanup(character.id, character.name)
 
         self.wait_for_api()
 
@@ -63,7 +66,7 @@ class TestPostIntegration(IntegrationTestBase):
 
         # Create the post on the character (pass the character object, not just ID)
         post = self.client.characters.create_post(character, **post_data)
-        self.created_post_id = post.id
+        self._register_post_cleanup(character.entity_id, post.id, post.name)
 
         # Verify the post was created
         self.assert_not_none(post.id, "Post ID should not be None")
@@ -81,7 +84,7 @@ class TestPostIntegration(IntegrationTestBase):
         character = self.client.characters.create(
             name=f"Integration Test Character for Posts - DELETE ME - {datetime.now().isoformat()}"
         )
-        self.created_character_id = character.id
+        self._register_character_cleanup(character.id, character.name)
 
         self.wait_for_api()
 
@@ -92,7 +95,7 @@ class TestPostIntegration(IntegrationTestBase):
             name=post_name,
             entry="<p>A brief <strong>post</strong> with <em>simple HTML</em> content.</p>",
         )
-        self.created_post_id = post.id
+        self._register_post_cleanup(character.entity_id, post.id, post.name)
 
         self.wait_for_api()
 
@@ -117,7 +120,7 @@ class TestPostIntegration(IntegrationTestBase):
         character = self.client.characters.create(
             name=f"Integration Test Character for Posts - DELETE ME - {datetime.now().isoformat()}"
         )
-        self.created_character_id = character.id
+        self._register_character_cleanup(character.id, character.name)
 
         self.wait_for_api()
 
@@ -131,7 +134,7 @@ class TestPostIntegration(IntegrationTestBase):
             entry="<p>Original post with <strong>basic formatting</strong>.</p>",
             visibility="all",
         )
-        self.created_post_id = post.id
+        self._register_post_cleanup(character.entity_id, post.id, post.name)
 
         self.wait_for_api()
 
@@ -160,7 +163,7 @@ class TestPostIntegration(IntegrationTestBase):
         character = self.client.characters.create(
             name=f"Integration Test Character for Posts - DELETE ME - {datetime.now().isoformat()}"
         )
-        self.created_character_id = character.id
+        self._register_character_cleanup(character.id, character.name)
 
         self.wait_for_api()
 
@@ -171,7 +174,7 @@ class TestPostIntegration(IntegrationTestBase):
             name=post_name,
             entry="<p>Test post with <strong>HTML tags</strong> to <em>retrieve</em>.</p>",
         )
-        self.created_post_id = created.id
+        self._register_post_cleanup(character.entity_id, created.id, created.name)
 
         self.wait_for_api()
 
@@ -195,7 +198,7 @@ class TestPostIntegration(IntegrationTestBase):
         character = self.client.characters.create(
             name=f"Integration Test Character for Posts - DELETE ME - {datetime.now().isoformat()}"
         )
-        self.created_character_id = character.id
+        self._register_character_cleanup(character.id, character.name)
 
         self.wait_for_api()
 
@@ -211,7 +214,7 @@ class TestPostIntegration(IntegrationTestBase):
 
         # Delete the post
         self.client.characters.delete_post(character, post_id)
-        self.created_post_id = None  # Already deleted
+        # No need to register cleanup since we're testing deletion
 
         self.wait_for_api()
 

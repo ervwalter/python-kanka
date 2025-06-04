@@ -61,6 +61,22 @@ chmod +x tests/integration/run_integration_tests.py
 ./tests/integration/run_integration_tests.py
 ```
 
+### Run with Pause Mode
+
+To inspect created entities in the Kanka web app before they are cleaned up:
+
+```bash
+python tests/integration/run_integration_tests.py --pause
+# or
+python tests/integration/run_integration_tests.py -p
+```
+
+In pause mode:
+1. All entity cleanup is deferred until the end of the test run
+2. After all tests complete, you'll see a list of entities to be cleaned up
+3. The script pauses, allowing you to log into Kanka and inspect the test entities
+4. Press Enter in the terminal to continue with cleanup
+
 ### Run Individual Test Suites
 
 You can also run individual test files directly. Each test file automatically loads the `.env` file if present:

@@ -4,7 +4,7 @@ Base class for integration tests.
 import os
 import sys
 import time
-from typing import Any, Optional
+from typing import Any, Optional, List, Tuple, Callable
 
 # We need to add the project root to Python path before importing kanka
 # This is required because this module is imported by test files
@@ -23,6 +23,9 @@ class IntegrationTestBase:
         self.client: Optional[KankaClient] = None
         self.campaign_id: Optional[int] = None
         self.token: Optional[str] = None
+        self._cleanup_tasks: List[Tuple[str, Callable]] = []
+        self._defer_cleanup = False
+        self._pause_before_cleanup = False
 
     def setup(self):
         """Set up the test client with credentials from environment."""
@@ -49,10 +52,33 @@ class IntegrationTestBase:
             ) from e
 
         self.client = KankaClient(self.token, self.campaign_id)
+        
+        # Check environment variables for cleanup behavior
+        self._defer_cleanup = os.environ.get("KANKA_TEST_DEFER_CLEANUP", "").lower() == "true"
+        self._pause_before_cleanup = os.environ.get("KANKA_TEST_PAUSE_CLEANUP", "").lower() == "true"
+
+    def register_cleanup(self, description: str, cleanup_func: Callable):
+        """Register a cleanup task to be executed later."""
+        self._cleanup_tasks.append((description, cleanup_func))
 
     def teardown(self):
         """Clean up resources."""
-        pass
+        if not self._defer_cleanup:
+            self._execute_cleanup_tasks()
+
+    def _execute_cleanup_tasks(self):
+        """Execute all registered cleanup tasks."""
+        if not self._cleanup_tasks:
+            return
+            
+        print("\nExecuting cleanup tasks...")
+        for description, cleanup_func in self._cleanup_tasks:
+            try:
+                cleanup_func()
+                print(f"  ✓ {description}")
+            except Exception as e:
+                print(f"  ✗ {description} failed: {str(e)}")
+        self._cleanup_tasks.clear()
 
     def run_test(self, test_name: str, test_func):
         """Run a single test with proper setup and teardown."""

@@ -20,17 +20,14 @@ class TestCharacterIntegration(IntegrationTestBase):
 
     def __init__(self):
         super().__init__()
-        self.created_character_id: Optional[int] = None
 
-    def teardown(self):
-        """Clean up any created characters."""
-        if self.created_character_id and self.client:
-            try:
-                self.client.characters.delete(self.created_character_id)
-                print(f"  Cleaned up character {self.created_character_id}")
-            except Exception:
-                pass  # Already deleted or doesn't exist
-        super().teardown()
+    def _register_character_cleanup(self, character_id: int, name: str):
+        """Register a character for cleanup."""
+        def cleanup():
+            if self.client:
+                self.client.characters.delete(character_id)
+        
+        self.register_cleanup(f"Delete character '{name}' (ID: {character_id})", cleanup)
 
     def test_create_character(self):
         """Test creating a character."""
@@ -48,7 +45,7 @@ class TestCharacterIntegration(IntegrationTestBase):
 
         # Create the character
         character = self.client.characters.create(**character_data)
-        self.created_character_id = character.id
+        self._register_character_cleanup(character.id, character.name)
 
         # Verify the character was created
         self.assert_not_none(character.id, "Character ID should not be None")
@@ -90,7 +87,7 @@ class TestCharacterIntegration(IntegrationTestBase):
             type="NPC",
             entry="<h2>Test NPC</h2><p>A character created for <a href='#'>testing</a>.</p>",
         )
-        self.created_character_id = character.id
+        self._register_character_cleanup(character.id, character.name)
 
         self.wait_for_api()  # Give API time to index
 
@@ -123,7 +120,7 @@ class TestCharacterIntegration(IntegrationTestBase):
             age="20",
             entry="<p>Original character description with <strong>basic HTML</strong>.</p>",
         )
-        self.created_character_id = character.id
+        self._register_character_cleanup(character.id, character.name)
 
         self.wait_for_api()
 
@@ -162,7 +159,7 @@ class TestCharacterIntegration(IntegrationTestBase):
             type="PC",
             entry="<p>A <strong>player character</strong> for testing retrieval.</p>",
         )
-        self.created_character_id = created.id
+        self._register_character_cleanup(created.id, created.name)
 
         self.wait_for_api()
 
@@ -194,7 +191,7 @@ class TestCharacterIntegration(IntegrationTestBase):
 
         # Delete the character
         self.client.characters.delete(character_id)
-        self.created_character_id = None  # Already deleted
+        # No need to register cleanup since we're testing deletion
 
         self.wait_for_api()
 

@@ -4,6 +4,7 @@ Runner script for Kanka SDK integration tests.
 
 This script checks for required environment variables and runs all integration tests.
 """
+import argparse
 import importlib
 import os
 import sys
@@ -70,12 +71,18 @@ def load_test_classes():
     return test_classes
 
 
-def run_all_tests():
+def run_all_tests(pause_before_cleanup=False):
     """Run all integration tests and report results."""
     print("=" * 60)
     print("KANKA SDK INTEGRATION TESTS")
     print("=" * 60)
     print(f"Start time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    # Set environment variables based on arguments
+    if pause_before_cleanup:
+        os.environ["KANKA_TEST_DEFER_CLEANUP"] = "true"
+        os.environ["KANKA_TEST_PAUSE_CLEANUP"] = "true"
+        print("\nCleanup Mode: DEFERRED with PAUSE")
     print()
 
     # Check environment first
@@ -90,6 +97,8 @@ def run_all_tests():
 
     # Run all test suites
     all_results: List[Tuple[str, bool]] = []
+    all_testers = []
+    all_cleanup_tasks = []
 
     for class_name, test_class in test_classes:
         print(f"\n{'='*50}")
@@ -102,6 +111,12 @@ def run_all_tests():
             tester = test_class()
             results = tester.run_all_tests()
             all_results.extend(results)
+            all_testers.append(tester)
+            
+            # Collect cleanup tasks if in pause mode
+            if pause_before_cleanup and tester._cleanup_tasks:
+                all_cleanup_tasks.extend(tester._cleanup_tasks)
+                tester._cleanup_tasks = []  # Clear so they won't be executed by individual testers
         except Exception as e:
             print(f"ERROR running {class_name}: {e}")
             import traceback
@@ -133,11 +148,59 @@ def run_all_tests():
     print(f"Failed: {failed_tests}")
     print(f"Success Rate: {passed_tests/total_tests*100:.1f}%")
 
+    # Execute deferred cleanup if enabled
+    if pause_before_cleanup and all_cleanup_tasks:
+        print("\n" + "="*60)
+        print("PAUSED BEFORE CLEANUP")
+        print("="*60)
+        print(f"About to clean up {len(all_cleanup_tasks)} entities:")
+        for description, _ in all_cleanup_tasks:
+            print(f"  - {description}")
+        print("\nYou can now inspect these entities in the Kanka web app.")
+        input("Press Enter to continue with cleanup...")
+        
+        print("\nExecuting cleanup tasks...")
+        for description, cleanup_func in all_cleanup_tasks:
+            try:
+                cleanup_func()
+                print(f"  ✓ {description}")
+            except Exception as e:
+                print(f"  ✗ {description} failed: {str(e)}")
+
     print(f"\nEnd time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
     return failed_tests == 0
 
 
-if __name__ == "__main__":
-    success = run_all_tests()
+def main():
+    """Main entry point with argument parsing."""
+    parser = argparse.ArgumentParser(
+        description="Run Kanka SDK integration tests",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Run tests normally (cleanup immediately after each test)
+  python run_integration_tests.py
+  
+  # Run tests with pause before cleanup to inspect entities in Kanka
+  python run_integration_tests.py --pause
+  
+  # Short form
+  python run_integration_tests.py -p
+"""
+    )
+    
+    parser.add_argument(
+        "-p", "--pause",
+        action="store_true",
+        help="Defer cleanup to end and pause before cleanup to allow manual inspection in Kanka web app"
+    )
+    
+    args = parser.parse_args()
+    
+    success = run_all_tests(pause_before_cleanup=args.pause)
     sys.exit(0 if success else 1)
+
+
+if __name__ == "__main__":
+    main()

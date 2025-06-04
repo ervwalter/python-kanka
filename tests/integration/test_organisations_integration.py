@@ -20,17 +20,14 @@ class TestOrganisationIntegration(IntegrationTestBase):
 
     def __init__(self):
         super().__init__()
-        self.created_organisation_id: Optional[int] = None
 
-    def teardown(self):
-        """Clean up any created organisations."""
-        if self.created_organisation_id and self.client:
-            try:
-                self.client.organisations.delete(self.created_organisation_id)
-                print(f"  Cleaned up organisation {self.created_organisation_id}")
-            except Exception:
-                pass  # Already deleted or doesn't exist
-        super().teardown()
+    def _register_organisation_cleanup(self, organisation_id: int, name: str):
+        """Register a organisation for cleanup."""
+        def cleanup():
+            if self.client:
+                self.client.organisations.delete(organisation_id)
+        
+        self.register_cleanup(f"Delete organisation \'{name}\' (ID: {organisation_id})", cleanup)
 
     def test_create_organisation(self):
         """Test creating an organisation."""
@@ -44,7 +41,7 @@ class TestOrganisationIntegration(IntegrationTestBase):
 
         # Create the organisation
         organisation = self.client.organisations.create(**organisation_data)
-        self.created_organisation_id = organisation.id
+        self._register_organisation_cleanup(organisation.id, organisation.name)
 
         # Verify the organisation was created
         self.assert_not_none(organisation.id, "Organisation ID should not be None")
@@ -76,7 +73,7 @@ class TestOrganisationIntegration(IntegrationTestBase):
             type="Company",
             entry="<p>A <strong>trading company</strong> with <em>international reach</em>.</p>",
         )
-        self.created_organisation_id = organisation.id
+        self._register_organisation_cleanup(organisation.id, organisation.name)
 
         self.wait_for_api()  # Give API time to index
 
@@ -108,7 +105,7 @@ class TestOrganisationIntegration(IntegrationTestBase):
             type="Cult",
             entry="<p>A mysterious <strong>cult</strong> worshipping ancient powers.</p>",
         )
-        self.created_organisation_id = organisation.id
+        self._register_organisation_cleanup(organisation.id, organisation.name)
 
         self.wait_for_api()
 
@@ -145,7 +142,7 @@ class TestOrganisationIntegration(IntegrationTestBase):
             type="Government",
             entry="<p>The <strong>regional government</strong> maintaining <em>law and order</em>.</p>",
         )
-        self.created_organisation_id = created.id
+        self._register_organisation_cleanup(created.id, created.name)
 
         self.wait_for_api()
 
@@ -179,7 +176,7 @@ class TestOrganisationIntegration(IntegrationTestBase):
 
         # Delete the organisation
         self.client.organisations.delete(organisation_id)
-        self.created_organisation_id = None  # Already deleted
+        # No need to register cleanup since we\'re testing deletion
 
         self.wait_for_api()
 
