@@ -1,6 +1,6 @@
 # Code formatting
 black>=24.3.0
-isort==5.13.2
+isort==6.0.1
 
 # Linting
 ruff==0.1.9
