@@ -14,3 +14,6 @@ mypy==1.8.0
 
 # Pre-commit hooks
 pre-commit==3.6.0
+
+# Environment variable management
+python-dotenv>=1.0.0

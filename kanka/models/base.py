@@ -73,7 +73,7 @@ class Entity(KankaModel):
     created_at: datetime
     created_by: int
     updated_at: datetime
-    updated_by: int
+    updated_by: Optional[int] = None
     entry: Optional[str] = None
 
     @property

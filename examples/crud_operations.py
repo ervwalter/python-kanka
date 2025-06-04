@@ -269,16 +269,41 @@ def main():
         }
     )
     
-    # Species (similar to races but separate entity type)
+    # DiceRolls
     demonstrate_entity_crud(
-        client, "species", client.species,
+        client, "dice_roll", client.dice_rolls,
         create_data={
-            "name": "Ents",
-            "type": "Tree-shepherds",
-            "entry": "The oldest living things"
+            "name": "Attack Roll",
+            "parameters": "1d20+5",
+            "entry": "Standard attack roll with +5 modifier"
         },
         update_data={
-            "type": "Ancient Beings"
+            "parameters": "1d20+7"
+        }
+    )
+    
+    # AttributeTemplates
+    demonstrate_entity_crud(
+        client, "attribute_template", client.attribute_templates,
+        create_data={
+            "name": "Character Stats",
+            "entry": "Standard character attributes template"
+        },
+        update_data={
+            "name": "Character Stats v2"
+        }
+    )
+    
+    # Bookmarks
+    demonstrate_entity_crud(
+        client, "bookmark", client.bookmarks,
+        create_data={
+            "name": "Important NPCs",
+            "type": "Quick Access",
+            "entity_id": 1  # Would need a real entity_id
+        },
+        update_data={
+            "name": "Key NPCs"
         }
     )
     

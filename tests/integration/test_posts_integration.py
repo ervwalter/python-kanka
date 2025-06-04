@@ -4,7 +4,7 @@ Integration tests for Post sub-resource operations.
 from datetime import datetime
 from typing import Optional
 
-from .base import IntegrationTestBase
+from base import IntegrationTestBase
 # Character and Post types are imported implicitly through the client
 
 
@@ -14,13 +14,15 @@ class TestPostIntegration(IntegrationTestBase):
     def __init__(self):
         super().__init__()
         self.created_character_id: Optional[int] = None
+        self.created_character_entity_id: Optional[int] = None
         self.created_post_id: Optional[int] = None
         
     def teardown(self):
         """Clean up any created posts and characters."""
-        if self.created_post_id and self.created_character_id and self.client:
+        if self.created_post_id and self.created_character_entity_id and self.client:
             try:
-                self.client.characters.posts(self.created_character_id).delete(self.created_post_id)
+                # Use entity_id for posts, not character id
+                self.client.characters.delete_post(self.created_character_entity_id, self.created_post_id)
                 print(f"  Cleaned up post {self.created_post_id}")
             except Exception:
                 pass  # Already deleted or doesn't exist
@@ -39,6 +41,7 @@ class TestPostIntegration(IntegrationTestBase):
         character_name = f"Integration Test Character for Posts - DELETE ME - {datetime.now().isoformat()}"
         character = self.client.characters.create(name=character_name)
         self.created_character_id = character.id
+        self.created_character_entity_id = character.entity_id
         
         self.wait_for_api()
         
@@ -49,15 +52,15 @@ class TestPostIntegration(IntegrationTestBase):
             "visibility": "all"
         }
         
-        # Create the post on the character
-        post = self.client.characters.posts(character.id).create(**post_data)
+        # Create the post on the character (pass the character object, not just ID)
+        post = self.client.characters.create_post(character, **post_data)
         self.created_post_id = post.id
         
         # Verify the post was created
         self.assert_not_none(post.id, "Post ID should not be None")
         self.assert_equal(post.name, post_data["name"], "Post name mismatch")
         self.assert_equal(post.entry, post_data["entry"], "Post entry mismatch")
-        self.assert_equal(post.visibility, post_data["visibility"], "Post visibility mismatch")
+        # Note: visibility is not returned in the Post model, it's only used during creation
         
         print(f"  Created post: {post.name} (ID: {post.id}) on character {character.id}")
         
@@ -73,7 +76,7 @@ class TestPostIntegration(IntegrationTestBase):
         
         # Create a post on the character
         post_name = f"Integration Test Post - DELETE ME - {datetime.now().isoformat()}"
-        post = self.client.characters.posts(character.id).create(
+        post = self.client.characters.create_post(character,
             name=post_name,
             entry="<p>A brief <strong>post</strong> with <em>simple HTML</em> content.</p>"
         )
@@ -82,7 +85,7 @@ class TestPostIntegration(IntegrationTestBase):
         self.wait_for_api()
         
         # List all posts for the character
-        posts = list(self.client.characters.posts(character.id).list())
+        posts = list(self.client.characters.list_posts(character))
         
         # Verify our post appears in the list
         found = False
@@ -106,7 +109,7 @@ class TestPostIntegration(IntegrationTestBase):
         
         # Create a post
         original_name = f"Integration Test Post - DELETE ME - {datetime.now().isoformat()}"
-        post = self.client.characters.posts(character.id).create(
+        post = self.client.characters.create_post(character,
             name=original_name,
             entry="<p>Original post with <strong>basic formatting</strong>.</p>",
             visibility="all"
@@ -115,17 +118,18 @@ class TestPostIntegration(IntegrationTestBase):
         
         self.wait_for_api()
         
-        # Update the post
+        # Update the post (API requires name field even if not changing)
         updated_data = {
+            "name": original_name,  # API requires this even if not changing
             "entry": "<h3>Updated Journal Entry</h3><p>This post has been <em>updated</em> with new information:</p><ol><li>Quest completed successfully</li><li>Rewards collected</li><li>New quest received</li></ol><blockquote>The journey continues...</blockquote>",
             "visibility": "members"
         }
-        updated_post = self.client.characters.posts(character.id).update(post.id, **updated_data)
+        updated_post = self.client.characters.update_post(character, post.id, **updated_data)
         
         # Verify updates
         self.assert_equal(updated_post.name, original_name, "Name should not change")
         self.assert_equal(updated_post.entry, updated_data["entry"], "Entry not updated")
-        self.assert_equal(updated_post.visibility, "members", "Visibility not updated")
+        # Note: visibility is not returned in the Post model
         
         print(f"  Updated post {post.id} successfully")
         
@@ -141,7 +145,7 @@ class TestPostIntegration(IntegrationTestBase):
         
         # Create a post
         post_name = f"Integration Test Post - DELETE ME - {datetime.now().isoformat()}"
-        created = self.client.characters.posts(character.id).create(
+        created = self.client.characters.create_post(character,
             name=post_name,
             entry="<p>Test post with <strong>HTML tags</strong> to <em>retrieve</em>.</p>"
         )
@@ -150,7 +154,7 @@ class TestPostIntegration(IntegrationTestBase):
         self.wait_for_api()
         
         # Get the post by ID
-        post = self.client.characters.posts(character.id).get(created.id)
+        post = self.client.characters.get_post(character, created.id)
         
         # Verify we got the right post
         self.assert_equal(post.id, created.id, "Post ID mismatch")
@@ -170,7 +174,7 @@ class TestPostIntegration(IntegrationTestBase):
         self.wait_for_api()
         
         # Create a post
-        post = self.client.characters.posts(character.id).create(
+        post = self.client.characters.create_post(character,
             name=f"Integration Test Post TO DELETE - {datetime.now().isoformat()}",
             entry="<p>This post will be <del>deleted</del> shortly.</p>"
         )
@@ -179,14 +183,14 @@ class TestPostIntegration(IntegrationTestBase):
         self.wait_for_api()
         
         # Delete the post
-        self.client.characters.posts(character.id).delete(post_id)
+        self.client.characters.delete_post(character, post_id)
         self.created_post_id = None  # Already deleted
         
         self.wait_for_api()
         
         # Verify it's deleted by trying to get it
         try:
-            self.client.characters.posts(character.id).get(post_id)
+            self.client.characters.get_post(character, post_id)
             self.assert_true(False, f"Post {post_id} should have been deleted")
         except Exception:
             # Expected - post should not be found

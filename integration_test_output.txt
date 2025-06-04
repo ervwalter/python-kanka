@@ -1,0 +1,248 @@
+Traceback (most recent call last):
+  File "/home/erv/kanka/python-kanka/tests/integration/base.py", line 58, in run_test
+    test_func()
+  File "/home/erv/kanka/python-kanka/tests/integration/test_posts_integration.py", line 53, in test_create_post_on_character
+    post = self.client.characters.create_post(character.id, **post_data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/erv/kanka/python-kanka/kanka/managers.py", line 332, in create_post
+    response = self.client._request("POST", url, json=data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/erv/kanka/python-kanka/kanka/client.py", line 415, in _request
+    raise NotFoundError(f"Resource not found: {endpoint}")
+kanka.exceptions.NotFoundError: Resource not found: characters/1989335/posts
+Traceback (most recent call last):
+  File "/home/erv/kanka/python-kanka/tests/integration/base.py", line 58, in run_test
+    test_func()
+  File "/home/erv/kanka/python-kanka/tests/integration/test_posts_integration.py", line 76, in test_list_posts_for_character
+    post = self.client.characters.create_post(character.id,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/erv/kanka/python-kanka/kanka/managers.py", line 332, in create_post
+    response = self.client._request("POST", url, json=data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/erv/kanka/python-kanka/kanka/client.py", line 415, in _request
+    raise NotFoundError(f"Resource not found: {endpoint}")
+kanka.exceptions.NotFoundError: Resource not found: characters/1989336/posts
+Traceback (most recent call last):
+  File "/home/erv/kanka/python-kanka/tests/integration/base.py", line 58, in run_test
+    test_func()
+  File "/home/erv/kanka/python-kanka/tests/integration/test_posts_integration.py", line 109, in test_update_post
+    post = self.client.characters.create_post(character.id,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/erv/kanka/python-kanka/kanka/managers.py", line 332, in create_post
+    response = self.client._request("POST", url, json=data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/erv/kanka/python-kanka/kanka/client.py", line 415, in _request
+    raise NotFoundError(f"Resource not found: {endpoint}")
+kanka.exceptions.NotFoundError: Resource not found: characters/1989337/posts
+Traceback (most recent call last):
+  File "/home/erv/kanka/python-kanka/tests/integration/base.py", line 58, in run_test
+    test_func()
+  File "/home/erv/kanka/python-kanka/tests/integration/test_posts_integration.py", line 144, in test_get_post
+    created = self.client.characters.create_post(character.id,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/erv/kanka/python-kanka/kanka/managers.py", line 332, in create_post
+    response = self.client._request("POST", url, json=data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/erv/kanka/python-kanka/kanka/client.py", line 415, in _request
+    raise NotFoundError(f"Resource not found: {endpoint}")
+kanka.exceptions.NotFoundError: Resource not found: characters/1989338/posts
+Traceback (most recent call last):
+  File "/home/erv/kanka/python-kanka/tests/integration/base.py", line 58, in run_test
+    test_func()
+  File "/home/erv/kanka/python-kanka/tests/integration/test_posts_integration.py", line 173, in test_delete_post
+    post = self.client.characters.create_post(character.id,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/erv/kanka/python-kanka/kanka/managers.py", line 332, in create_post
+    response = self.client._request("POST", url, json=data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/erv/kanka/python-kanka/kanka/client.py", line 415, in _request
+    raise NotFoundError(f"Resource not found: {endpoint}")
+kanka.exceptions.NotFoundError: Resource not found: characters/1989339/posts
+Loading credentials from /home/erv/kanka/python-kanka/tests/integration/.env
+============================================================
+KANKA SDK INTEGRATION TESTS
+============================================================
+
+These tests will create and delete real data in your Kanka campaign.
+All test entities will have 'Integration Test' and 'DELETE ME' in their names.
+
+Starting tests in 3 seconds...
+
+
+============================================================
+Running Characters Integration Tests
+============================================================
+
+Running Character Creation...
+  Created character: Integration Test Character - DELETE ME - 2025-06-03T20:21:49.485815 (ID: 1989329)
+✓ Character Creation passed
+  Cleaned up character 1989329
+
+Running Character Listing with Filter...
+  Found 11 test character(s) in filtered list
+✓ Character Listing with Filter passed
+  Cleaned up character 1989330
+
+Running Character Update...
+  Updated character 1989331 successfully
+✓ Character Update passed
+  Cleaned up character 1989331
+
+Running Character Retrieval...
+  Retrieved character 1989332 successfully
+✓ Character Retrieval passed
+  Cleaned up character 1989332
+
+Running Character Deletion...
+  Deleted character 1989333 successfully
+✓ Character Deletion passed
+
+============================================================
+Running Locations Integration Tests
+============================================================
+
+Running Location Creation...
+  Created location: Integration Test Location - DELETE ME - 2025-06-03T20:21:58.905482 (ID: 1739586)
+✓ Location Creation passed
+  Cleaned up location 1739586
+
+Running Location Listing with Filter...
+  Found 7 test location(s) in filtered list
+✓ Location Listing with Filter passed
+  Cleaned up location 1739587
+
+Running Location Update...
+  Updated location 1739588 successfully
+✓ Location Update passed
+  Cleaned up location 1739588
+
+Running Location Retrieval...
+  Retrieved location 1739589 successfully
+✓ Location Retrieval passed
+  Cleaned up location 1739589
+
+Running Location Deletion...
+  Deleted location 1739590 successfully
+✓ Location Deletion passed
+
+============================================================
+Running Organisations Integration Tests
+============================================================
+
+Running Organisation Creation...
+  Created organisation: Integration Test Organisation - DELETE ME - 2025-06-03T20:22:08.181008 (ID: 368202)
+✓ Organisation Creation passed
+  Cleaned up organisation 368202
+
+Running Organisation Listing with Filter...
+  Found 6 test organisation(s) in filtered list
+✓ Organisation Listing with Filter passed
+  Cleaned up organisation 368203
+
+Running Organisation Update...
+  Updated organisation 368204 successfully
+✓ Organisation Update passed
+  Cleaned up organisation 368204
+
+Running Organisation Retrieval...
+  Retrieved organisation 368205 successfully
+✓ Organisation Retrieval passed
+  Cleaned up organisation 368205
+
+Running Organisation Deletion...
+  Deleted organisation 368206 successfully
+✓ Organisation Deletion passed
+
+============================================================
+Running Notes Integration Tests
+============================================================
+
+Running Note Creation...
+  Created note: Integration Test Note - DELETE ME - 2025-06-03T20:22:17.019183 (ID: 284818)
+✓ Note Creation passed
+  Cleaned up note 284818
+
+Running Note Listing with Filter...
+  Found 11 test note(s) in filtered list
+✓ Note Listing with Filter passed
+  Cleaned up note 284819
+
+Running Note Update...
+  Updated note 284820 successfully
+✓ Note Update passed
+  Cleaned up note 284820
+
+Running Note Retrieval...
+  Retrieved note 284821 successfully
+✓ Note Retrieval passed
+  Cleaned up note 284821
+
+Running Note Deletion...
+  Deleted note 284822 successfully
+✓ Note Deletion passed
+
+============================================================
+Running Posts Integration Tests
+============================================================
+
+Running Post Creation on Character...
+✗ Post Creation on Character failed: Resource not found: characters/1989335/posts
+  Cleaned up character 1989335
+
+Running Post Listing for Character...
+✗ Post Listing for Character failed: Resource not found: characters/1989336/posts
+  Cleaned up character 1989336
+
+Running Post Update...
+✗ Post Update failed: Resource not found: characters/1989337/posts
+  Cleaned up character 1989337
+
+Running Post Retrieval...
+✗ Post Retrieval failed: Resource not found: characters/1989338/posts
+  Cleaned up character 1989338
+
+Running Post Deletion...
+✗ Post Deletion failed: Resource not found: characters/1989339/posts
+  Cleaned up character 1989339
+
+============================================================
+INTEGRATION TEST SUMMARY
+============================================================
+
+Characters: 5/5 tests passed
+  ✓ Character Creation
+  ✓ Character Listing with Filter
+  ✓ Character Update
+  ✓ Character Retrieval
+  ✓ Character Deletion
+
+Locations: 5/5 tests passed
+  ✓ Location Creation
+  ✓ Location Listing with Filter
+  ✓ Location Update
+  ✓ Location Retrieval
+  ✓ Location Deletion
+
+Organisations: 5/5 tests passed
+  ✓ Organisation Creation
+  ✓ Organisation Listing with Filter
+  ✓ Organisation Update
+  ✓ Organisation Retrieval
+  ✓ Organisation Deletion
+
+Notes: 5/5 tests passed
+  ✓ Note Creation
+  ✓ Note Listing with Filter
+  ✓ Note Update
+  ✓ Note Retrieval
+  ✓ Note Deletion
+
+Posts: 0/5 tests passed
+  ✗ Post Creation on Character
+  ✗ Post Listing for Character
+  ✗ Post Update
+  ✗ Post Retrieval
+  ✗ Post Deletion
+
+============================================================
+OVERALL: 20/25 tests passed

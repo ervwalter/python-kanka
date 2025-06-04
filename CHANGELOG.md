@@ -21,10 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Related data loading (posts, attributes) with `related=True`
 - Direct access to generic `/entities` endpoint
 - Support for all major entity types:
-  - Characters, Locations, Organizations, Families
-  - Species, Calendars, Timelines, Races, Creatures
+  - Characters, Locations, Organisations, Families
+  - Calendars, Timelines, Races, Creatures
   - Events, Journals, Tags, Notes, Quests, Items
-  - Attributes, Maps, Entity Notes, Entity Events
+  - Maps, Abilities, Conversations, Relations
+  - DiceRolls, AttributeTemplates, Bookmarks
 - Development tools: black, isort, ruff, pytest
 - Comprehensive test suite with pytest
 - Pre-commit hooks for code quality

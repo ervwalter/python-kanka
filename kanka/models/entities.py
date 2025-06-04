@@ -28,7 +28,7 @@ Entity Types:
     - Bookmark: Quick access bookmarks
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from .base import Entity
 from .common import Post  # Import at top for forward reference
@@ -62,7 +62,7 @@ class Character(Entity):
     type: Optional[str] = None
     family_id: Optional[int] = None
     is_dead: bool = False
-    traits: Optional[str] = None
+    traits: Optional[Union[str, List]] = None
 
     # Related data (populated when ?related=1)
     posts: Optional[List["Post"]] = None

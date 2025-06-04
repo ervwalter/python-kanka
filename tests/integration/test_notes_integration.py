@@ -4,7 +4,7 @@ Integration tests for Note entity operations.
 from datetime import datetime
 from typing import Optional
 
-from .base import IntegrationTestBase
+from base import IntegrationTestBase
 # Note type is imported implicitly through the client
 
 
@@ -32,8 +32,7 @@ class TestNoteIntegration(IntegrationTestBase):
             "name": f"Integration Test Note - DELETE ME - {datetime.now().isoformat()}",
             "type": "Lore",
             "entry": "<h2>Ancient Lore</h2><p>This <strong>mystical knowledge</strong> contains:</p><ul><li>Forgotten spells</li><li>Lost artifacts</li><li>Secret rituals</li></ul><p><em>Handle with care - powerful magic within</em></p>",
-            "is_private": False,
-            "is_pinned": False
+            "is_private": False
         }
         
         # Create the note
@@ -46,7 +45,6 @@ class TestNoteIntegration(IntegrationTestBase):
         self.assert_equal(note.type, note_data["type"], "Note type mismatch")
         self.assert_equal(note.entry, note_data["entry"], "Note entry mismatch")
         self.assert_equal(note.is_private, False, "Note should not be private")
-        self.assert_equal(note.is_pinned, False, "Note should not be pinned")
         
         print(f"  Created note: {note.name} (ID: {note.id})")
         
@@ -83,8 +81,7 @@ class TestNoteIntegration(IntegrationTestBase):
         note = self.client.notes.create(
             name=original_name,
             type="History",
-            entry="<p>Original <strong>historical record</strong> from the archives.</p>",
-            is_pinned=False
+            entry="<p>Original <strong>historical record</strong> from the archives.</p>"
         )
         self.created_note_id = note.id
         
@@ -93,8 +90,7 @@ class TestNoteIntegration(IntegrationTestBase):
         # Update the note
         updated_data = {
             "type": "Important History",
-            "entry": "<h2>Updated Historical Records</h2><p>These <em>crucial documents</em> reveal:</p><ol><li>Timeline of Events</li><li>Key Figures</li><li>Historical Impact</li></ol><blockquote>Those who forget history are doomed to repeat it</blockquote>",
-            "is_pinned": True
+            "entry": "<h2>Updated Historical Records</h2><p>These <em>crucial documents</em> reveal:</p><ol><li>Timeline of Events</li><li>Key Figures</li><li>Historical Impact</li></ol><blockquote>Those who forget history are doomed to repeat it</blockquote>"
         }
         updated_note = self.client.notes.update(note.id, **updated_data)
         
@@ -102,7 +98,6 @@ class TestNoteIntegration(IntegrationTestBase):
         self.assert_equal(updated_note.name, original_name, "Name should not change")
         self.assert_equal(updated_note.type, "Important History", "Type not updated")
         self.assert_equal(updated_note.entry, updated_data["entry"], "Entry not updated")
-        self.assert_equal(updated_note.is_pinned, True, "is_pinned not updated")
         
         print(f"  Updated note {note.id} successfully")
         

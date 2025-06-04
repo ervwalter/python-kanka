@@ -9,10 +9,15 @@ import sys
 import time
 from typing import List, Tuple
 
-# Add the tests/integration directory to the Python path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add the project root to the Python path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+tests_dir = os.path.dirname(current_dir)
+project_dir = os.path.dirname(tests_dir)
+sys.path.insert(0, project_dir)
+sys.path.insert(0, current_dir)
 
 # Import all test modules
+from base import IntegrationTestBase
 from test_characters_integration import TestCharacterIntegration
 from test_locations_integration import TestLocationIntegration
 from test_organisations_integration import TestOrganisationIntegration
@@ -22,6 +27,30 @@ from test_posts_integration import TestPostIntegration
 
 def check_environment():
     """Check that required environment variables are set."""
+    # Try to load from .env file first
+    try:
+        from dotenv import load_dotenv
+        env_file = os.path.join(os.path.dirname(__file__), '.env')
+        if os.path.exists(env_file):
+            print(f"Loading credentials from {env_file}")
+            load_dotenv(env_file)
+        else:
+            # Try to load from current directory
+            load_dotenv()
+    except ImportError:
+        print("Warning: python-dotenv not installed. Trying to read .env manually...")
+        # Fallback to manual loading
+        env_file = os.path.join(os.path.dirname(__file__), '.env')
+        if os.path.exists(env_file):
+            with open(env_file, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        key, value = line.split('=', 1)
+                        # Remove quotes if present
+                        value = value.strip().strip('"').strip("'")
+                        os.environ[key] = value
+    
     token = os.environ.get('KANKA_TOKEN')
     campaign_id = os.environ.get('KANKA_CAMPAIGN_ID')
     

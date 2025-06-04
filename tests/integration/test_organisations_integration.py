@@ -4,7 +4,7 @@ Integration tests for Organisation entity operations.
 from datetime import datetime
 from typing import Optional
 
-from .base import IntegrationTestBase
+from base import IntegrationTestBase
 # Organisation type is imported implicitly through the client
 
 

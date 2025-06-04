@@ -81,10 +81,10 @@ Each entity type has its own manager:
 - `client.creatures` - Creature entities
 - `client.conversations` - Conversation entities
 - `client.timelines` - Timeline entities
-- `client.species` - Species entities
-- `client.attributes` - Attribute entities
-- `client.entity_notes` - Entity note entities
-- `client.entity_events` - Entity event entities
+- `client.dice_rolls` - DiceRoll entities
+- `client.attribute_templates` - AttributeTemplate entities
+- `client.bookmarks` - Bookmark entities
+- `client.relations` - Relation entities
 
 ## Entity Managers
 
@@ -200,23 +200,46 @@ Entity managers also provide methods for managing posts (entity notes).
 List posts for an entity.
 
 **Parameters:**
-- `entity_or_id`: The entity object or its ID
+- `entity_or_id`: The entity object or its entity_id (NOT the type-specific ID)
 - `page` (int, optional): Page number
 - `limit` (int, optional): Results per page
 
 **Returns:** List[Post]
 
+**Example:**
+```python
+# Preferred: Pass the entity object
+character = client.characters.get(123)
+posts = client.characters.list_posts(character)
+
+# Alternative: Pass the entity_id directly
+posts = client.characters.list_posts(character.entity_id)
+```
+
 #### create_post(entity_or_id, name, entry, is_private=False, **kwargs)
 Create a post for an entity.
 
+**IMPORTANT:** Posts use the entity_id, not the type-specific ID!
+
 **Parameters:**
-- `entity_or_id`: The entity object or its ID
+- `entity_or_id`: The entity object (preferred) or its entity_id (NOT the type-specific ID)
 - `name` (str): Post name
 - `entry` (str): Post content (supports HTML)
 - `is_private` (bool, optional): Privacy setting
 - `**kwargs`: Additional fields
 
 **Returns:** Post
+
+**Example:**
+```python
+# Preferred: Pass the entity object
+character = client.characters.get(123)
+post = client.characters.create_post(
+    character,  # Pass the full object
+    name="Session Notes",
+    entry="<p>The character discovered...</p>"
+)
+```
 
 #### get_post(entity_or_id, post_id)
 Get a specific post.
@@ -230,12 +253,24 @@ Get a specific post.
 #### update_post(entity_or_id, post_id, **kwargs)
 Update a post.
 
+**NOTE:** The Kanka API requires the 'name' field even when not changing it.
+
 **Parameters:**
-- `entity_or_id`: The entity object or its ID
+- `entity_or_id`: The entity object or its entity_id (NOT the type-specific ID)
 - `post_id` (int): The post ID
-- `**kwargs`: Fields to update
+- `**kwargs`: Fields to update (must include 'name' even if unchanged)
 
 **Returns:** Post
+
+**Example:**
+```python
+post = client.characters.update_post(
+    character,
+    post_id,
+    name=post.name,  # Required even if not changing!
+    entry="Updated content..."
+)
+```
 
 #### delete_post(entity_or_id, post_id)
 Delete a post.

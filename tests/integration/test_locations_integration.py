@@ -4,7 +4,7 @@ Integration tests for Location entity operations.
 from datetime import datetime
 from typing import Optional
 
-from .base import IntegrationTestBase
+from base import IntegrationTestBase
 # Location type is imported implicitly through the client
 
 
@@ -31,7 +31,7 @@ class TestLocationIntegration(IntegrationTestBase):
         location_data = {
             "name": f"Integration Test Location - DELETE ME - {datetime.now().isoformat()}",
             "type": "City",
-            "entry": "<h2>Test City</h2><p>This location has <a href='#'>links</a> and lists:</p><ul><li>Market Square</li><li>Temple District</li><li>Royal Palace</li></ul>",
+            "entry": "<h2>Test City</h2><p>This location has <a href=\"#\">links</a> and lists:</p><ul><li>Market Square</li><li>Temple District</li><li>Royal Palace</li></ul>",
             "is_private": False
         }
         

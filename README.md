@@ -4,7 +4,7 @@ A modern Python client for the [Kanka API](https://kanka.io/en-US/docs/1.0), the
 
 ## Features
 
-- **Full API Coverage**: Support for all Kanka entity types (characters, locations, organisations, etc.)
+- **Full API Coverage**: Support for all 20+ Kanka entity types (characters, locations, organisations, etc.)
 - **Type Safety**: Built with Pydantic v2 for robust data validation and type hints
 - **Modern Python**: Designed for Python 3.8+ with full typing support
 - **Intuitive API**: Clean, Pythonic interface with method chaining
@@ -76,18 +76,26 @@ client.characters.delete(gandalf)
 # Get a character with all related data
 character = client.characters.get(character_id, related=True)
 
-# Create a new post/note
+# Create a new post/note (pass the entity object, not just ID)
 post = client.characters.create_post(
-    character,
+    character,  # Pass the full entity object
     name="Background",
     entry="*Born in the ancient times...*",
     is_private=False
 )
 
 # List all posts for an entity
-posts = client.characters.posts(character)
+posts = client.characters.list_posts(character)
 for post in posts:
     print(f"{post.name}: {post.entry[:50]}...")
+
+# Update a post (name field is required even if not changing)
+update = client.characters.update_post(
+    character,
+    post.id,
+    name=post.name,  # Required by API
+    entry="Updated content..."
+)
 ```
 
 ### Advanced Filtering

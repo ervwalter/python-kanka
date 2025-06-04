@@ -4,7 +4,7 @@ Integration tests for Character entity operations.
 from datetime import datetime
 from typing import Optional
 
-from .base import IntegrationTestBase
+from base import IntegrationTestBase
 # Character type is imported implicitly through the client
 
 

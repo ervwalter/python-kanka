@@ -293,12 +293,12 @@ class TestEntityManager:
         mock_response = create_api_response(mock_posts)
         self.mock_client._request.return_value = mock_response
 
-        # List posts
-        posts = self.manager.list_posts(1)
+        # List posts - passing entity_id directly
+        posts = self.manager.list_posts(100)  # 100 is the entity_id
 
-        # Verify request
+        # Verify request uses entities endpoint
         self.mock_client._request.assert_called_with(
-            "GET", "characters/1/posts", params={"page": 1, "limit": 30}
+            "GET", "entities/100/posts", params={"page": 1, "limit": 30}
         )
 
         # Verify results
@@ -326,9 +326,9 @@ class TestEntityManager:
         # List posts
         self.manager.list_posts(entity, page=2, limit=10)
 
-        # Verify it used the entity's ID
+        # Verify it used the entity's entity_id with entities endpoint
         self.mock_client._request.assert_called_with(
-            "GET", "characters/5/posts", params={"page": 2, "limit": 10}
+            "GET", "entities/500/posts", params={"page": 2, "limit": 10}
         )
 
     def test_create_post(self):
@@ -339,15 +339,15 @@ class TestEntityManager:
         )
         self.mock_client._request.return_value = {"data": mock_post}
 
-        # Create post
+        # Create post - passing entity_id
         post = self.manager.create_post(
-            1, name="New Post", entry="<p>Content</p>", is_private=True
+            100, name="New Post", entry="<p>Content</p>", is_private=True
         )
 
-        # Verify request
+        # Verify request uses entities endpoint
         self.mock_client._request.assert_called_with(
             "POST",
-            "characters/1/posts",
+            "entities/100/posts",
             json={
                 "name": "New Post",
                 "entry": "<p>Content</p>",
@@ -365,11 +365,11 @@ class TestEntityManager:
         mock_post = create_mock_post(5, name="Specific Post")
         self.mock_client._request.return_value = {"data": mock_post}
 
-        # Get post
-        post = self.manager.get_post(1, 5)
+        # Get post - passing entity_id
+        post = self.manager.get_post(100, 5)
 
-        # Verify request
-        self.mock_client._request.assert_called_with("GET", "characters/1/posts/5")
+        # Verify request uses entities endpoint
+        self.mock_client._request.assert_called_with("GET", "entities/100/posts/5")
 
         # Verify result
         assert isinstance(post, Post)
@@ -382,15 +382,15 @@ class TestEntityManager:
         mock_post = create_mock_post(5, name="Updated Post", entry="Updated content")
         self.mock_client._request.return_value = {"data": mock_post}
 
-        # Update post
+        # Update post - passing entity_id
         post = self.manager.update_post(
-            1, 5, name="Updated Post", entry="Updated content", is_private=False
+            100, 5, name="Updated Post", entry="Updated content", is_private=False
         )
 
-        # Verify request
+        # Verify request uses entities endpoint
         self.mock_client._request.assert_called_with(
             "PATCH",
-            "characters/1/posts/5",
+            "entities/100/posts/5",
             json={
                 "name": "Updated Post",
                 "entry": "Updated content",
@@ -405,10 +405,53 @@ class TestEntityManager:
         """Test deleting a post."""
         self.mock_client._request.return_value = {}
 
-        # Delete post
-        result = self.manager.delete_post(1, 5)
+        # Delete post - passing entity_id
+        result = self.manager.delete_post(100, 5)
 
-        # Verify request
-        self.mock_client._request.assert_called_with("DELETE", "characters/1/posts/5")
+        # Verify request uses entities endpoint
+        self.mock_client._request.assert_called_with("DELETE", "entities/100/posts/5")
 
         assert result is True
+
+    def test_post_operations_with_entity_object(self):
+        """Test all post operations when passing an entity object."""
+        # Create an entity with both id and entity_id
+        entity = Character(
+            id=5,  # The character-specific ID
+            entity_id=500,  # The universal entity ID
+            name="Test Character",
+            created_at="2024-01-01T00:00:00.000000Z",
+            created_by=1,
+            updated_at="2024-01-01T00:00:00.000000Z",
+            updated_by=1,
+        )
+
+        # Test create_post with entity object
+        self.mock_client._request.return_value = {"data": create_mock_post(1)}
+        self.manager.create_post(entity, name="Test", entry="Content")
+        self.mock_client._request.assert_called_with(
+            "POST",
+            "entities/500/posts",  # Should use entity_id, not id
+            json={"name": "Test", "entry": "Content", "is_private": 0}
+        )
+
+        # Test get_post with entity object
+        self.mock_client._request.return_value = {"data": create_mock_post(1)}
+        self.manager.get_post(entity, 1)
+        self.mock_client._request.assert_called_with(
+            "GET", "entities/500/posts/1"  # Should use entity_id
+        )
+
+        # Test update_post with entity object
+        self.mock_client._request.return_value = {"data": create_mock_post(1)}
+        self.manager.update_post(entity, 1, name="Updated")
+        self.mock_client._request.assert_called_with(
+            "PATCH", "entities/500/posts/1", json={"name": "Updated"}
+        )
+
+        # Test delete_post with entity object
+        self.mock_client._request.return_value = {}
+        self.manager.delete_post(entity, 1)
+        self.mock_client._request.assert_called_with(
+            "DELETE", "entities/500/posts/1"  # Should use entity_id
+        )

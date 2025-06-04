@@ -30,9 +30,9 @@ export KANKA_TOKEN='your-api-token-here'
 export KANKA_CAMPAIGN_ID='your-campaign-id'
 ```
 
-### 2. Using a .env File (Optional)
+### 2. Using a .env File (Recommended)
 
-For convenience, you can create a `.env` file in the `tests/integration/` directory:
+For convenience, create a `.env` file in the `tests/integration/` directory:
 
 ```bash
 # tests/integration/.env
@@ -40,11 +40,7 @@ KANKA_TOKEN=your-api-token-here
 KANKA_CAMPAIGN_ID=12345
 ```
 
-Then load it before running tests:
-
-```bash
-source tests/integration/.env
-```
+The test runner automatically loads this file using `python-dotenv`, so you don't need to source it manually.
 
 **Note:** The `.env` file is ignored by git for security.
 

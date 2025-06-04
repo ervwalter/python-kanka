@@ -36,7 +36,8 @@ def main():
     # Get character with related data
     print("\n2. Getting character with related data...")
     character_with_posts = client.characters.get(character.id, related=True)
-    print(f"   Character has {len(character_with_posts.posts or [])} posts")
+    # Note: posts may not be included in the related data depending on API version
+    print(f"   Character retrieved with related data")
     
     # Create posts for the character
     print("\n3. Creating posts for the character...")
@@ -60,22 +61,22 @@ in a dark cave. Little did he know it was the One Ring of power.""",
     )
     print(f"   Created post: '{post2.name}' (Private)")
     
-    # Post with position (for ordering)
+    # Post with additional fields
     post3 = client.characters.create_post(
         character,
         name="Early Life",
         entry="Born in the Shire to Bungo Baggins and Belladonna Took",
-        position=1  # This will appear first
+        is_private=False
     )
-    print(f"   Created post: '{post3.name}' (Position: 1)")
+    print(f"   Created post: '{post3.name}'")
     
     # List all posts for the character
     print("\n4. Listing all posts for the character...")
-    posts = client.characters.posts(character)
+    posts = client.characters.list_posts(character)
     print(f"   Found {len(posts)} posts:")
     for post in posts:
         visibility = "Private" if post.is_private else "Public"
-        print(f"   - {post.name} ({visibility}, Position: {post.position})")
+        print(f"   - {post.name} ({visibility})")
     
     # Get a specific post
     print("\n5. Getting a specific post...")
@@ -87,8 +88,8 @@ in a dark cave. Little did he know it was the One Ring of power.""",
     print("\n6. Updating a post...")
     updated_post = client.characters.update_post(
         character,
-        post1,
-        name="Discovery of the One Ring",
+        post1.id,  # Pass the post ID, not the post object
+        name="Discovery of the One Ring",  # Name is required even if not changing
         entry="""While lost in the goblin tunnels, Bilbo stumbled upon Gollum's cave.
 There he found a golden ring that would change the fate of Middle-earth."""
     )
@@ -130,20 +131,17 @@ There he found a golden ring that would change the fate of Middle-earth."""
     
     # Delete a post
     print("\n8. Deleting a post...")
-    client.characters.delete_post(character, post2)
+    client.characters.delete_post(character, post2.id)  # Pass the post ID
     print(f"   Deleted post: '{post2.name}'")
     
     # Verify deletion
-    remaining_posts = client.characters.posts(character)
+    remaining_posts = client.characters.list_posts(character)
     print(f"   Remaining posts: {len(remaining_posts)}")
     
-    # Get character with posts included
-    print("\n9. Getting entity with posts included...")
-    full_character = client.characters.get(character.id, related=True)
-    if full_character.posts:
-        print(f"   Character has {len(full_character.posts)} posts attached")
-        for post in full_character.posts:
-            print(f"   - {post.name}")
+    # Note about posts and related data
+    print("\n9. Note about posts...")
+    print("   Posts are accessed via list_posts(), not through the entity object")
+    print("   Use client.characters.list_posts(character) to get all posts")
     
     # Cleanup
     print("\n\nCleaning up...")
@@ -158,8 +156,9 @@ There he found a golden ring that would change the fate of Middle-earth."""
     print("\nKey takeaways:")
     print("- Posts can be attached to any entity type")
     print("- Posts can be public or private (DM notes)")
-    print("- Posts can be ordered using the position field")
-    print("- Use related=True when getting an entity to include posts")
+    print("- Posts are accessed via entity_manager.list_posts(entity)")
+    print("- When updating posts, the 'name' field is required even if not changing")
+    print("- Pass the entity object (not just ID) to post methods")
 
 if __name__ == "__main__":
     main()

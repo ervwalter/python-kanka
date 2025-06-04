@@ -42,7 +42,7 @@ class Post(KankaModel):
     entry: str
     entity_id: int
     created_by: int
-    updated_by: int
+    updated_by: Optional[int] = None
     created_at: datetime
     updated_at: datetime
     is_private: bool = False
