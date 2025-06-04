@@ -6,7 +6,7 @@ import pytest
 
 from kanka.models.base import Entity, KankaModel
 from kanka.models.common import Post, Profile, SearchResult
-from kanka.models.entities import Calendar, Character, Location, Map
+from kanka.models.entities import Calendar, Character, Location
 
 
 class TestKankaModel:
@@ -247,37 +247,6 @@ class TestCalendar:
         assert calendar.weekdays is not None
         assert len(calendar.weekdays) == 3
         assert calendar.has_leap_year is True
-
-
-class TestMap:
-    """Test Map model."""
-
-    def test_map_with_measurements(self):
-        """Test map with distance measurements."""
-        map_entity = Map(
-            id=1,
-            entity_id=100,
-            name="World Map",
-            created_at="2024-01-01T00:00:00.000000Z",
-            created_by=1,
-            updated_at="2024-01-01T00:00:00.000000Z",
-            updated_by=1,
-            type="World",
-            map="worldmap.jpg",
-            map_url="https://example.com/worldmap.jpg",
-            grid=1,
-            is_real=True,
-            width=1920,
-            height=1080,
-            distance_name="miles",
-            distance_measure=10.5,
-        )
-
-        assert map_entity.name == "World Map"
-        assert map_entity.width == 1920
-        assert map_entity.height == 1080
-        assert map_entity.distance_name == "miles"
-        assert map_entity.distance_measure == 10.5
 
 
 class TestPost:

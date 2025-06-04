@@ -38,26 +38,18 @@ class TestKankaClient:
         client = KankaClient(token="test_token", campaign_id=123)
 
         # Check core entity managers
-        assert client.abilities is not None
-        assert client.attribute_templates is not None
-        assert client.bookmarks is not None
         assert client.calendars is not None
         assert client.characters is not None
-        assert client.conversations is not None
         assert client.creatures is not None
-        assert client.dice_rolls is not None
         assert client.events is not None
         assert client.families is not None
-        assert client.items is not None
         assert client.journals is not None
         assert client.locations is not None
-        assert client.maps is not None
         assert client.notes is not None
         assert client.organisations is not None
         assert client.quests is not None
         assert client.races is not None
         assert client.tags is not None
-        assert client.timelines is not None
 
         # Check manager types
         assert client.characters.endpoint == "characters"

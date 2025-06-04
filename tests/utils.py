@@ -90,20 +90,6 @@ def create_mock_entity(
                 "leap_year_start": kwargs.get("leap_year_start"),
             }
         )
-    elif entity_type == "map":
-        base_entity.update(
-            {
-                "type": kwargs.get("type"),
-                "map": kwargs.get("map"),
-                "map_url": kwargs.get("map_url"),
-                "grid": kwargs.get("grid"),
-                "is_real": kwargs.get("is_real"),
-                "width": kwargs.get("width"),
-                "height": kwargs.get("height"),
-                "distance_name": kwargs.get("distance_name"),
-                "distance_measure": kwargs.get("distance_measure"),
-            }
-        )
 
     # Allow additional custom fields
     for key, value in kwargs.items():

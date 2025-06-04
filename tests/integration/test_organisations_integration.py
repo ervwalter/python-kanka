@@ -2,7 +2,6 @@
 Integration tests for Organisation entity operations.
 """
 from datetime import datetime
-from typing import Optional
 
 # Handle both direct execution and import scenarios
 if __name__ == "__main__":
@@ -23,11 +22,14 @@ class TestOrganisationIntegration(IntegrationTestBase):
 
     def _register_organisation_cleanup(self, organisation_id: int, name: str):
         """Register a organisation for cleanup."""
+
         def cleanup():
             if self.client:
                 self.client.organisations.delete(organisation_id)
-        
-        self.register_cleanup(f"Delete organisation \'{name}\' (ID: {organisation_id})", cleanup)
+
+        self.register_cleanup(
+            f"Delete organisation '{name}' (ID: {organisation_id})", cleanup
+        )
 
     def test_create_organisation(self):
         """Test creating an organisation."""

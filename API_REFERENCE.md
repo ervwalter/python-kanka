@@ -1,5 +1,9 @@
 # Python-Kanka API Reference
 
+> **Note**: This reference is current as of v2.0.0 and reflects the implemented entity types.
+> Some entity types available in the Kanka API (Timeline, Item, Relation, DiceRoll, Conversation, AttributeTemplate, Bookmark)
+> are not yet implemented in this SDK.
+
 ## Table of Contents
 - [KankaClient](#kankaclient)
 - [Entity Managers](#entity-managers)
@@ -62,29 +66,21 @@ Get entities from the generic /entities endpoint with optional filtering.
 
 ### Properties
 
-Each entity type has its own manager:
+Each implemented entity type has its own manager. The SDK currently supports the following entity types:
 
-- `client.characters` - Character entities
-- `client.locations` - Location entities
-- `client.organisations` - Organisation entities
-- `client.families` - Family entities
-- `client.calendars` - Calendar entities
-- `client.events` - Event entities
-- `client.races` - Race entities
-- `client.maps` - Map entities
-- `client.notes` - Note entities
-- `client.journals` - Journal entities
-- `client.tags` - Tag entities
-- `client.quests` - Quest entities
-- `client.items` - Item entities
-- `client.abilities` - Ability entities
-- `client.creatures` - Creature entities
-- `client.conversations` - Conversation entities
-- `client.timelines` - Timeline entities
-- `client.dice_rolls` - DiceRoll entities
-- `client.attribute_templates` - AttributeTemplate entities
-- `client.bookmarks` - Bookmark entities
-- `client.relations` - Relation entities
+#### Implemented Entity Types
+- `client.calendars` - Calendar entities (for managing timelines and dates)
+- `client.characters` - Character entities (NPCs, PCs, and other personas)
+- `client.creatures` - Creature entities (monsters, animals, etc.)
+- `client.events` - Event entities (historical or campaign events)
+- `client.families` - Family entities (dynasties, houses, clans)
+- `client.journals` - Journal entities (session notes, logs)
+- `client.locations` - Location entities (places, regions, buildings)
+- `client.notes` - Note entities (general notes and documentation)
+- `client.organisations` - Organisation entities (groups, guilds, companies)
+- `client.quests` - Quest entities (missions, objectives)
+- `client.races` - Race entities (species, ethnicities)
+- `client.tags` - Tag entities (labels for organizing content)
 
 ## Entity Managers
 
@@ -194,7 +190,8 @@ client.characters.delete(123)
 
 ### Post Management
 
-Entity managers also provide methods for managing posts (entity notes).
+Entity managers provide methods for managing posts, which are comments or notes that can be attached to any entity.
+Posts are separate from the "Note" entity type - they are a feature available on all entity types.
 
 #### list_posts(entity_or_id, page=1, limit=30)
 List posts for an entity.
@@ -325,27 +322,18 @@ Base class for all entity types.
 
 All entity types inherit from Entity and add type-specific fields:
 
-- **Character**: `title`, `age`, `sex`, `location_id`, `race_id`, `family_id`, etc.
-- **Location**: `parent_location_id`, `map`, etc.
-- **Organisation**: `organisation_id` (parent), `members`, etc.
-- **Family**: `family_id` (parent), `members`, etc.
 - **Calendar**: `date`, `months`, `weekdays`, `years`, etc.
-- **Event**: `date`, `location_id`, etc.
-- **Race**: `race_id` (parent), etc.
-- **Map**: `map_id` (parent), `width`, `height`, `grid`, `layers`, etc.
-- **Note**: (no additional fields)
-- **Journal**: `journal_id` (parent), `date`, etc.
-- **Tag**: `tag_id` (parent), `colour`, etc.
-- **Quest**: `quest_id` (parent), `characters`, `locations`, etc.
-- **Item**: `item_id` (parent), `location_id`, `character_id`, `price`, `size`, etc.
-- **Ability**: `ability_id` (parent), `charges`, etc.
+- **Character**: `title`, `age`, `sex`, `location_id`, `race_id`, `family_id`, etc.
 - **Creature**: `creature_id` (parent), `locations`, etc.
-- **Conversation**: `target`, `participants`, etc.
-- **Timeline**: `timeline_id` (parent), `eras`, etc.
-- **Species**: `species_id` (parent), `locations`, etc.
-- **Attribute**: (no additional fields)
-- **EntityNote**: (no additional fields)
-- **EntityEvent**: `calendar_id`, `date`, etc.
+- **Event**: `date`, `location_id`, etc.
+- **Family**: `family_id` (parent), `members`, etc.
+- **Journal**: `journal_id` (parent), `date`, etc.
+- **Location**: `parent_location_id`, `map`, etc.
+- **Note**: (no additional fields)
+- **Organisation**: `organisation_id` (parent), `members`, etc.
+- **Quest**: `quest_id` (parent), `characters`, `locations`, etc.
+- **Race**: `race_id` (parent), etc.
+- **Tag**: `tag_id` (parent), `colour`, etc.
 
 ### Other Models
 

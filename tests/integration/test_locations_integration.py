@@ -2,7 +2,6 @@
 Integration tests for Location entity operations.
 """
 from datetime import datetime
-from typing import Optional
 
 # Handle both direct execution and import scenarios
 if __name__ == "__main__":
@@ -23,11 +22,12 @@ class TestLocationIntegration(IntegrationTestBase):
 
     def _register_location_cleanup(self, location_id: int, name: str):
         """Register a location for cleanup."""
+
         def cleanup():
             if self.client:
                 self.client.locations.delete(location_id)
-        
-        self.register_cleanup(f"Delete location \'{name}\' (ID: {location_id})", cleanup)
+
+        self.register_cleanup(f"Delete location '{name}' (ID: {location_id})", cleanup)
 
     def test_create_location(self):
         """Test creating a location."""

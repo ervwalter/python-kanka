@@ -123,20 +123,6 @@ def main():
         update_data={"type": "Noble House"},
     )
 
-    # Items
-    demonstrate_entity_crud(
-        client,
-        "item",
-        client.items,
-        create_data={
-            "name": "The One Ring",
-            "type": "Artifact",
-            "entry": "One Ring to rule them all",
-            "price": "Priceless",
-        },
-        update_data={"size": "Tiny", "weight": "Almost nothing"},
-    )
-
     # Journals
     demonstrate_entity_crud(
         client,
@@ -228,32 +214,6 @@ def main():
         update_data={"is_extinct": False},
     )
 
-    # Maps
-    demonstrate_entity_crud(
-        client,
-        "map",
-        client.maps,
-        create_data={
-            "name": "Middle-earth",
-            "type": "World Map",
-            "entry": "The lands of Arda",
-        },
-        update_data={"width": 2000, "height": 1500},
-    )
-
-    # Timelines
-    demonstrate_entity_crud(
-        client,
-        "timeline",
-        client.timelines,
-        create_data={
-            "name": "Third Age",
-            "type": "Historical Period",
-            "entry": "The age of the rings",
-        },
-        update_data={"type": "Epic Era"},
-    )
-
     # Calendars
     demonstrate_entity_crud(
         client,
@@ -265,44 +225,6 @@ def main():
             "entry": "The calendar of the Shire",
         },
         update_data={"type": "Regional Calendar"},
-    )
-
-    # DiceRolls
-    demonstrate_entity_crud(
-        client,
-        "dice_roll",
-        client.dice_rolls,
-        create_data={
-            "name": "Attack Roll",
-            "parameters": "1d20+5",
-            "entry": "Standard attack roll with +5 modifier",
-        },
-        update_data={"parameters": "1d20+7"},
-    )
-
-    # AttributeTemplates
-    demonstrate_entity_crud(
-        client,
-        "attribute_template",
-        client.attribute_templates,
-        create_data={
-            "name": "Character Stats",
-            "entry": "Standard character attributes template",
-        },
-        update_data={"name": "Character Stats v2"},
-    )
-
-    # Bookmarks
-    demonstrate_entity_crud(
-        client,
-        "bookmark",
-        client.bookmarks,
-        create_data={
-            "name": "Important NPCs",
-            "type": "Quick Access",
-            "entity_id": 1,  # Would need a real entity_id
-        },
-        update_data={"name": "Key NPCs"},
     )
 
     print("\n" + "=" * 50)

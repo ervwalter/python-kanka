@@ -6,13 +6,10 @@ All objects are now in kanka.models
 from ..models.common import Post
 from .base import Entity, KankaObject, Trait
 from .core import (
-    Ability,
     Character,
-    Conversation,
     Core,
     Event,
     Family,
-    Item,
     Journal,
     Location,
     Note,
@@ -35,8 +32,5 @@ __all__ = [
     "Quest",
     "Journal",
     "Family",
-    "Item",
     "Event",
-    "Ability",
-    "Conversation",
 ]

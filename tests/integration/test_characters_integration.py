@@ -2,7 +2,6 @@
 Integration tests for Character entity operations.
 """
 from datetime import datetime
-from typing import Optional
 
 # Handle both direct execution and import scenarios
 if __name__ == "__main__":
@@ -23,11 +22,14 @@ class TestCharacterIntegration(IntegrationTestBase):
 
     def _register_character_cleanup(self, character_id: int, name: str):
         """Register a character for cleanup."""
+
         def cleanup():
             if self.client:
                 self.client.characters.delete(character_id)
-        
-        self.register_cleanup(f"Delete character '{name}' (ID: {character_id})", cleanup)
+
+        self.register_cleanup(
+            f"Delete character '{name}' (ID: {character_id})", cleanup
+        )
 
     def test_create_character(self):
         """Test creating a character."""

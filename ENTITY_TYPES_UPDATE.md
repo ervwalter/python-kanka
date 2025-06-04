@@ -2,20 +2,21 @@
 
 ## Changes Made
 
+### Removed Entity Types (For SDK Simplification)
+- **Conversation** - Removed for simplification
+- **Bookmark** - Removed for simplification
+- **AttributeTemplate** - Removed for simplification  
+- **DiceRoll** - Removed for simplification
+- **Timeline** - Removed for simplification
+- **Map** - Removed for simplification
+- **Ability** - Removed for simplification
+- **Item** - Removed for simplification
+
 ### Removed Entity Types (Not Top-Level Entities)
 - **EntityNote** - This is a sub-resource, not a top-level entity
 - **EntityEvent** - This is a sub-resource, not a top-level entity  
 - **Attribute** - Attributes are sub-resources attached to entities
 - **Species** - This doesn't exist in the Kanka API routes
-
-### Added Entity Types (Missing from Implementation)
-- **DiceRoll** (dice_rolls) - For campaign dice roll configurations
-- **AttributeTemplate** (attribute_templates) - For reusable attribute sets
-- **Bookmark** (bookmarks) - For quick access to important entities
-
-### Added Missing Managers
-- **abilities** - Manager for Ability entities (was missing)
-- **conversations** - Manager for Conversation entities (was missing)
 
 ### Files Updated
 1. **kanka/models/entities.py**

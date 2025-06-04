@@ -2,7 +2,6 @@
 Integration tests for Post sub-resource operations.
 """
 from datetime import datetime
-from typing import Optional
 
 # Handle both direct execution and import scenarios
 if __name__ == "__main__":
@@ -20,32 +19,45 @@ class TestPostIntegration(IntegrationTestBase):
 
     def __init__(self):
         super().__init__()
-    
-    def _register_post_cleanup(self, entity_id: int, post_id: int, post_name: str, entity_type: str = "character"):
+
+    def _register_post_cleanup(
+        self,
+        entity_id: int,
+        post_id: int,
+        post_name: str,
+        entity_type: str = "character",
+    ):
         """Register a post for cleanup."""
+
         def cleanup():
             if self.client:
                 if entity_type == "character":
                     self.client.characters.delete_post(entity_id, post_id)
                 elif entity_type == "location":
                     self.client.locations.delete_post(entity_id, post_id)
-        
-        self.register_cleanup(f"Delete post '{post_name}' (ID: {post_id}) from {entity_type}", cleanup)
-    
+
+        self.register_cleanup(
+            f"Delete post '{post_name}' (ID: {post_id}) from {entity_type}", cleanup
+        )
+
     def _register_character_cleanup(self, character_id: int, name: str):
         """Register a character for cleanup."""
+
         def cleanup():
             if self.client:
                 self.client.characters.delete(character_id)
-        
-        self.register_cleanup(f"Delete character '{name}' (ID: {character_id})", cleanup)
-    
+
+        self.register_cleanup(
+            f"Delete character '{name}' (ID: {character_id})", cleanup
+        )
+
     def _register_location_cleanup(self, location_id: int, name: str):
         """Register a location for cleanup."""
+
         def cleanup():
             if self.client:
                 self.client.locations.delete(location_id)
-        
+
         self.register_cleanup(f"Delete location '{name}' (ID: {location_id})", cleanup)
 
     def test_create_post_on_character(self):

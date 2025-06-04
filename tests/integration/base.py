@@ -4,7 +4,7 @@ Base class for integration tests.
 import os
 import sys
 import time
-from typing import Any, Optional, List, Tuple, Callable
+from typing import Any, Callable, List, Optional, Tuple
 
 # We need to add the project root to Python path before importing kanka
 # This is required because this module is imported by test files
@@ -52,10 +52,14 @@ class IntegrationTestBase:
             ) from e
 
         self.client = KankaClient(self.token, self.campaign_id)
-        
+
         # Check environment variables for cleanup behavior
-        self._defer_cleanup = os.environ.get("KANKA_TEST_DEFER_CLEANUP", "").lower() == "true"
-        self._pause_before_cleanup = os.environ.get("KANKA_TEST_PAUSE_CLEANUP", "").lower() == "true"
+        self._defer_cleanup = (
+            os.environ.get("KANKA_TEST_DEFER_CLEANUP", "").lower() == "true"
+        )
+        self._pause_before_cleanup = (
+            os.environ.get("KANKA_TEST_PAUSE_CLEANUP", "").lower() == "true"
+        )
 
     def register_cleanup(self, description: str, cleanup_func: Callable):
         """Register a cleanup task to be executed later."""
@@ -70,7 +74,7 @@ class IntegrationTestBase:
         """Execute all registered cleanup tasks."""
         if not self._cleanup_tasks:
             return
-            
+
         print("\nExecuting cleanup tasks...")
         for description, cleanup_func in self._cleanup_tasks:
             try:

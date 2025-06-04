@@ -26,26 +26,18 @@ from .exceptions import (
 from .managers import EntityManager
 from .models.common import SearchResult
 from .models.entities import (
-    Ability,
-    AttributeTemplate,
-    Bookmark,
     Calendar,
     Character,
-    Conversation,
     Creature,
-    DiceRoll,
     Event,
     Family,
-    Item,
     Journal,
     Location,
-    Map,
     Note,
     Organisation,
     Quest,
     Race,
     Tag,
-    Timeline,
 )
 
 
@@ -63,26 +55,18 @@ class KankaClient:
         session: Configured requests.Session instance
 
     Entity Managers:
-        abilities: Access to Ability entities
-        attribute_templates: Access to AttributeTemplate entities
-        bookmarks: Access to Bookmark entities
         calendars: Access to Calendar entities
         characters: Access to Character entities
-        conversations: Access to Conversation entities
         creatures: Access to Creature entities
-        dice_rolls: Access to DiceRoll entities
         events: Access to Event entities
         families: Access to Family entities
-        items: Access to Item entities
         journals: Access to Journal entities
         locations: Access to Location entities
-        maps: Access to Map entities
         notes: Access to Note entities
         organisations: Access to Organisation entities
         quests: Access to Quest entities
         races: Access to Race entities
         tags: Access to Tag entities
-        timelines: Access to Timeline entities
 
     Example:
         >>> client = KankaClient("your-token", 12345)
@@ -125,55 +109,18 @@ class KankaClient:
     def _init_managers(self):
         """Initialize entity managers for each entity type."""
         # Core entities
-        self._abilities = EntityManager(self, "abilities", Ability)
-        self._attribute_templates = EntityManager(
-            self, "attribute_templates", AttributeTemplate
-        )
-        self._bookmarks = EntityManager(self, "bookmarks", Bookmark)
         self._calendars = EntityManager(self, "calendars", Calendar)
         self._characters = EntityManager(self, "characters", Character)
-        self._conversations = EntityManager(self, "conversations", Conversation)
         self._creatures = EntityManager(self, "creatures", Creature)
-        self._dice_rolls = EntityManager(self, "dice_rolls", DiceRoll)
         self._events = EntityManager(self, "events", Event)
         self._families = EntityManager(self, "families", Family)
-        self._items = EntityManager(self, "items", Item)
         self._journals = EntityManager(self, "journals", Journal)
         self._locations = EntityManager(self, "locations", Location)
-        self._maps = EntityManager(self, "maps", Map)
         self._notes = EntityManager(self, "notes", Note)
         self._organisations = EntityManager(self, "organisations", Organisation)
         self._quests = EntityManager(self, "quests", Quest)
         self._races = EntityManager(self, "races", Race)
         self._tags = EntityManager(self, "tags", Tag)
-        self._timelines = EntityManager(self, "timelines", Timeline)
-
-    @property
-    def abilities(self) -> EntityManager[Ability]:
-        """Access ability entities.
-
-        Returns:
-            EntityManager[Ability]: Manager for Ability entity operations
-        """
-        return self._abilities
-
-    @property
-    def attribute_templates(self) -> EntityManager[AttributeTemplate]:
-        """Access attribute template entities.
-
-        Returns:
-            EntityManager[AttributeTemplate]: Manager for AttributeTemplate entity operations
-        """
-        return self._attribute_templates
-
-    @property
-    def bookmarks(self) -> EntityManager[Bookmark]:
-        """Access bookmark entities.
-
-        Returns:
-            EntityManager[Bookmark]: Manager for Bookmark entity operations
-        """
-        return self._bookmarks
 
     @property
     def calendars(self) -> EntityManager[Calendar]:
@@ -194,15 +141,6 @@ class KankaClient:
         return self._characters
 
     @property
-    def conversations(self) -> EntityManager[Conversation]:
-        """Access conversation entities.
-
-        Returns:
-            EntityManager[Conversation]: Manager for Conversation entity operations
-        """
-        return self._conversations
-
-    @property
     def creatures(self) -> EntityManager[Creature]:
         """Access creature entities.
 
@@ -210,15 +148,6 @@ class KankaClient:
             EntityManager[Creature]: Manager for Creature entity operations
         """
         return self._creatures
-
-    @property
-    def dice_rolls(self) -> EntityManager[DiceRoll]:
-        """Access dice roll entities.
-
-        Returns:
-            EntityManager[DiceRoll]: Manager for DiceRoll entity operations
-        """
-        return self._dice_rolls
 
     @property
     def events(self) -> EntityManager[Event]:
@@ -239,15 +168,6 @@ class KankaClient:
         return self._families
 
     @property
-    def items(self) -> EntityManager[Item]:
-        """Access item entities.
-
-        Returns:
-            EntityManager[Item]: Manager for Item entity operations
-        """
-        return self._items
-
-    @property
     def journals(self) -> EntityManager[Journal]:
         """Access journal entities.
 
@@ -264,15 +184,6 @@ class KankaClient:
             EntityManager[Location]: Manager for Location entity operations
         """
         return self._locations
-
-    @property
-    def maps(self) -> EntityManager[Map]:
-        """Access map entities.
-
-        Returns:
-            EntityManager[Map]: Manager for Map entity operations
-        """
-        return self._maps
 
     @property
     def notes(self) -> EntityManager[Note]:
@@ -318,15 +229,6 @@ class KankaClient:
             EntityManager[Tag]: Manager for Tag entity operations
         """
         return self._tags
-
-    @property
-    def timelines(self) -> EntityManager[Timeline]:
-        """Access timeline entities.
-
-        Returns:
-            EntityManager[Timeline]: Manager for Timeline entity operations
-        """
-        return self._timelines
 
     def search(self, term: str, page: int = 1, limit: int = 30) -> List[SearchResult]:
         """Search across all entity types.

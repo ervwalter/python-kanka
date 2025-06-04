@@ -77,7 +77,7 @@ def run_all_tests(pause_before_cleanup=False):
     print("KANKA SDK INTEGRATION TESTS")
     print("=" * 60)
     print(f"Start time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
-    
+
     # Set environment variables based on arguments
     if pause_before_cleanup:
         os.environ["KANKA_TEST_DEFER_CLEANUP"] = "true"
@@ -112,11 +112,13 @@ def run_all_tests(pause_before_cleanup=False):
             results = tester.run_all_tests()
             all_results.extend(results)
             all_testers.append(tester)
-            
+
             # Collect cleanup tasks if in pause mode
             if pause_before_cleanup and tester._cleanup_tasks:
                 all_cleanup_tasks.extend(tester._cleanup_tasks)
-                tester._cleanup_tasks = []  # Clear so they won't be executed by individual testers
+                tester._cleanup_tasks = (
+                    []
+                )  # Clear so they won't be executed by individual testers
         except Exception as e:
             print(f"ERROR running {class_name}: {e}")
             import traceback
@@ -150,15 +152,15 @@ def run_all_tests(pause_before_cleanup=False):
 
     # Execute deferred cleanup if enabled
     if pause_before_cleanup and all_cleanup_tasks:
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("PAUSED BEFORE CLEANUP")
-        print("="*60)
+        print("=" * 60)
         print(f"About to clean up {len(all_cleanup_tasks)} entities:")
         for description, _ in all_cleanup_tasks:
             print(f"  - {description}")
         print("\nYou can now inspect these entities in the Kanka web app.")
         input("Press Enter to continue with cleanup...")
-        
+
         print("\nExecuting cleanup tasks...")
         for description, cleanup_func in all_cleanup_tasks:
             try:
@@ -181,23 +183,24 @@ def main():
 Examples:
   # Run tests normally (cleanup immediately after each test)
   python run_integration_tests.py
-  
+
   # Run tests with pause before cleanup to inspect entities in Kanka
   python run_integration_tests.py --pause
-  
+
   # Short form
   python run_integration_tests.py -p
-"""
+""",
     )
-    
+
     parser.add_argument(
-        "-p", "--pause",
+        "-p",
+        "--pause",
         action="store_true",
-        help="Defer cleanup to end and pause before cleanup to allow manual inspection in Kanka web app"
+        help="Defer cleanup to end and pause before cleanup to allow manual inspection in Kanka web app",
     )
-    
+
     args = parser.parse_args()
-    
+
     success = run_all_tests(pause_before_cleanup=args.pause)
     sys.exit(0 if success else 1)
 

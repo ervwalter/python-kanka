@@ -11,21 +11,13 @@ Entity Types:
     - Organisation: Groups, guilds, governments, etc.
     - Family: Family groups and lineages
     - Event: Historical or campaign events
-    - Item: Objects, artifacts, equipment
     - Note: Campaign notes and documentation
     - Quest: Quests and objectives
     - Journal: Journal entries and logs
     - Race: Character races/species templates
     - Creature: Creature and monster templates
     - Calendar: Campaign calendars
-    - Timeline: Campaign timelines
-    - Map: Maps with markers and layers
     - Tag: Organizational tags
-    - Ability: Spells, skills, and abilities
-    - Conversation: Dialog and conversations
-    - DiceRoll: Dice roll configurations
-    - AttributeTemplate: Reusable attribute templates
-    - Bookmark: Quick access bookmarks
 """
 
 from typing import Dict, List, Optional, Union
@@ -226,29 +218,6 @@ class Family(Entity):
     attributes: Optional[List[Dict]] = None
 
 
-class Item(Entity):
-    """Item entity representing objects and equipment.
-
-    Items can be weapons, armor, artifacts, mundane objects,
-    or any other physical item in your campaign.
-
-    Attributes:
-        type: Item type/category
-        location_id: Current location of item
-        character_id: Character who owns/carries item
-        posts: Related posts (when ?related=1)
-        attributes: Custom attributes (when ?related=1)
-    """
-
-    type: Optional[str] = None
-    location_id: Optional[int] = None
-    character_id: Optional[int] = None
-
-    # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
-
-
 class Event(Entity):
     """Event entity representing historical or campaign events.
 
@@ -266,50 +235,6 @@ class Event(Entity):
     type: Optional[str] = None
     date: Optional[str] = None
     location_id: Optional[int] = None
-
-    # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
-
-
-class Ability(Entity):
-    """Ability entity representing spells, skills, and powers.
-
-    Abilities define spells, skills, feats, or other special
-    powers that characters can possess.
-
-    Attributes:
-        type: Ability type (e.g., 'Spell', 'Skill', 'Feat')
-        ability_id: Parent ability for hierarchies
-        charges: Number of uses/charges
-        posts: Related posts (when ?related=1)
-        attributes: Custom attributes (when ?related=1)
-    """
-
-    type: Optional[str] = None
-    ability_id: Optional[int] = None
-    charges: Optional[int] = None
-
-    # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
-
-
-class Conversation(Entity):
-    """Conversation entity for dialog and discussions.
-
-    Conversations store important dialogs, negotiations,
-    or other verbal exchanges in your campaign.
-
-    Attributes:
-        type: Conversation type
-        target: Conversation participants or subject
-        posts: Related posts (when ?related=1)
-        attributes: Custom attributes (when ?related=1)
-    """
-
-    type: Optional[str] = None
-    target: Optional[str] = None
 
     # Related data
     posts: Optional[List["Post"]] = None
@@ -360,34 +285,6 @@ class Tag(Entity):
     attributes: Optional[List[Dict]] = None
 
 
-class DiceRoll(Entity):
-    """Dice roll entity for campaign dice rolls.
-
-    Dice rolls allow tracking and sharing dice roll configurations
-    and results within your campaign.
-
-    Attributes:
-        character_id: Character associated with the roll
-        parameters: Dice roll parameters
-        system: Game system for the roll
-        posts: Related posts (when ?related=1)
-        attributes: Custom attributes (when ?related=1)
-    """
-
-    character_id: Optional[int] = None
-    parameters: Optional[str] = None
-    system: Optional[str] = None
-
-    # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
-
-    @property
-    def entity_type(self) -> str:
-        """Return the entity type name."""
-        return "dice_roll"
-
-
 class Calendar(Entity):
     """Calendar entity for campaign time tracking.
 
@@ -433,112 +330,6 @@ class Calendar(Entity):
     attributes: Optional[List[Dict]] = None
 
 
-class Timeline(Entity):
-    """Timeline entity for organizing events chronologically.
-
-    Timelines provide a visual way to organize and display
-    events in chronological order.
-
-    Attributes:
-        type: Timeline type
-        calendar_id: Associated calendar for dates
-        posts: Related posts (when ?related=1)
-        attributes: Custom attributes (when ?related=1)
-    """
-
-    type: Optional[str] = None
-    calendar_id: Optional[int] = None
-
-    # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
-
-
-class Map(Entity):
-    """Map entity for visual campaign geography.
-
-    Maps store images with markers, allowing visual representation
-    of your campaign world's geography.
-
-    Attributes:
-        type: Map type
-        map: Map image filename
-        map_url: Full URL to map image
-        grid: Grid overlay setting
-        is_real: Whether to use real coordinates
-        width: Map width in pixels
-        height: Map height in pixels
-        distance_name: Unit name for distances
-        distance_measure: Distance per grid unit
-        posts: Related posts (when ?related=1)
-        attributes: Custom attributes (when ?related=1)
-    """
-
-    type: Optional[str] = None
-    map: Optional[str] = None
-    map_url: Optional[str] = None
-    grid: Optional[int] = None
-    is_real: Optional[bool] = None
-    width: Optional[int] = None
-    height: Optional[int] = None
-    distance_name: Optional[str] = None
-    distance_measure: Optional[float] = None
-
-    # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
-
-
-class AttributeTemplate(Entity):
-    """Attribute template entity for reusable attribute sets.
-
-    Attribute templates define reusable sets of attributes that
-    can be applied to entities for consistent data structures.
-
-    Attributes:
-        entity_type_id: Entity type this template applies to
-        posts: Related posts (when ?related=1)
-        attributes: Custom attributes (when ?related=1)
-    """
-
-    entity_type_id: Optional[int] = None
-
-    # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
-
-    @property
-    def entity_type(self) -> str:
-        """Return the entity type name."""
-        return "attribute_template"
-
-
-class Bookmark(Entity):
-    """Bookmark entity for quick access to important entities.
-
-    Bookmarks provide quick access to frequently used entities
-    within your campaign.
-
-    Attributes:
-        entity_id: Entity being bookmarked
-        type: Bookmark type
-        menu: Menu location for the bookmark
-        random_entity_type: For random entity bookmarks
-        is_private: Privacy setting
-        posts: Related posts (when ?related=1)
-        attributes: Custom attributes (when ?related=1)
-    """
-
-    type: Optional[str] = None
-    menu: Optional[str] = None
-    random_entity_type: Optional[str] = None
-    is_private: bool = True
-
-    # Related data
-    posts: Optional[List["Post"]] = None
-    attributes: Optional[List[Dict]] = None
-
-
 # Forward reference updates
 Character.model_rebuild()
 Location.model_rebuild()
@@ -548,15 +339,7 @@ Race.model_rebuild()
 Quest.model_rebuild()
 Journal.model_rebuild()
 Family.model_rebuild()
-Item.model_rebuild()
 Event.model_rebuild()
-Ability.model_rebuild()
-Conversation.model_rebuild()
 Creature.model_rebuild()
 Tag.model_rebuild()
-DiceRoll.model_rebuild()
 Calendar.model_rebuild()
-Timeline.model_rebuild()
-Map.model_rebuild()
-AttributeTemplate.model_rebuild()
-Bookmark.model_rebuild()

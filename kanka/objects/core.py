@@ -7,12 +7,9 @@ from ..models.base import Entity as Core
 
 # Re-export from new models location for backward compatibility
 from ..models.entities import (
-    Ability,
     Character,
-    Conversation,
     Event,
     Family,
-    Item,
     Journal,
     Location,
     Note,
@@ -31,8 +28,5 @@ __all__ = [
     "Quest",
     "Journal",
     "Family",
-    "Item",
     "Event",
-    "Ability",
-    "Conversation",
 ]

@@ -20,26 +20,18 @@ All models provide:
 from .base import Entity, KankaModel
 from .common import Post, SearchResult, Trait
 from .entities import (
-    Ability,
-    AttributeTemplate,
-    Bookmark,
     Calendar,
     Character,
-    Conversation,
     Creature,
-    DiceRoll,
     Event,
     Family,
-    Item,
     Journal,
     Location,
-    Map,
     Note,
     Organisation,
     Quest,
     Race,
     Tag,
-    Timeline,
 )
 
 __all__ = [
@@ -47,26 +39,18 @@ __all__ = [
     "KankaModel",
     "Entity",
     # Entity models
-    "Ability",
-    "AttributeTemplate",
-    "Bookmark",
     "Calendar",
     "Character",
-    "Conversation",
     "Creature",
-    "DiceRoll",
     "Event",
     "Family",
-    "Item",
     "Journal",
     "Location",
-    "Map",
     "Note",
     "Organisation",
     "Quest",
     "Race",
     "Tag",
-    "Timeline",
     # Common models
     "Post",
     "SearchResult",

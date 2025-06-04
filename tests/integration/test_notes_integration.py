@@ -2,7 +2,6 @@
 Integration tests for Note entity operations.
 """
 from datetime import datetime
-from typing import Optional
 
 # Handle both direct execution and import scenarios
 if __name__ == "__main__":
@@ -23,11 +22,12 @@ class TestNoteIntegration(IntegrationTestBase):
 
     def _register_note_cleanup(self, note_id: int, name: str):
         """Register a note for cleanup."""
+
         def cleanup():
             if self.client:
                 self.client.notes.delete(note_id)
-        
-        self.register_cleanup(f"Delete note \'{name}\' (ID: {note_id})", cleanup)
+
+        self.register_cleanup(f"Delete note '{name}' (ID: {note_id})", cleanup)
 
     def test_create_note(self):
         """Test creating a note."""

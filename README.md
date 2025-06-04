@@ -1,15 +1,18 @@
 # python-kanka ![](https://github.com/rbtnx/python-kanka/workflows/build/badge.svg)
 
-A modern Python client for the [Kanka API](https://kanka.io/en-US/docs/1.0), the collaborative worldbuilding and campaign management platform.
+A modern Python client for the [Kanka API](https://app.kanka.io/api-docs/1.0), the collaborative worldbuilding and campaign management platform.
 
 ## Features
 
-- **Full API Coverage**: Support for all 20+ Kanka entity types (characters, locations, organisations, etc.)
+- **Extensive Entity Support**: Support for 12 core Kanka entity types:
+  - Characters, Locations, Organisations, Families
+  - Calendars, Events, Quests, Journals
+  - Notes, Tags, Races, Creatures
 - **Type Safety**: Built with Pydantic v2 for robust data validation and type hints
 - **Modern Python**: Designed for Python 3.8+ with full typing support
-- **Intuitive API**: Clean, Pythonic interface with method chaining
+- **Intuitive API**: Clean, Pythonic interface with consistent patterns
 - **Comprehensive Error Handling**: Detailed exceptions for API errors
-- **Entity Posts**: Full support for entity posts/notes management
+- **Entity Posts**: Full support for entity posts/comments management
 - **Advanced Filtering**: Powerful filtering and search capabilities
 - **Pagination Support**: Built-in pagination handling
 
@@ -34,7 +37,7 @@ from kanka import KankaClient
 
 # Initialize the client
 client = KankaClient(
-    token="your-api-token",      # Get from https://kanka.io/en-US/settings/api
+    token="your-api-token",      # Get from https://app.kanka.io/settings/api
     campaign_id=12345            # Your campaign ID
 )
 
@@ -73,8 +76,8 @@ client.characters.delete(gandalf)
 ### Working with Entity Posts
 
 ```python
-# Get a character with all related data
-character = client.characters.get(character_id, related=True)
+# Get a character
+character = client.characters.get(character_id)
 
 # Create a new post/note (pass the entity object, not just ID)
 post = client.characters.create_post(
@@ -107,15 +110,16 @@ results = client.characters.list(
     type="Wizard",           # Exact type match
     is_private=False,        # Only public entities
     tags=[15, 23],          # Has specific tags
-    order_by="name",        # Sort by name
-    desc=True              # Descending order
+    page=1,                 # Pagination
+    limit=30                # Results per page
 )
 
 # Access the generic entities endpoint
 entities = client.entities(
-    types=["character", "creature"],  # Multiple entity types
-    is_private=False,
-    updated_by=user_id
+    types=["character", "location"],  # Multiple entity types
+    name="Dragon",                    # Name filter
+    tags=[15, 23],                   # Tag filter
+    is_private=False
 )
 ```
 
@@ -283,6 +287,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Links
 
 - [Kanka.io](https://kanka.io) - The Kanka platform
-- [Kanka API Documentation](https://kanka.io/en-US/docs/1.0) - Official API docs
+- [Kanka API Documentation](https://app.kanka.io/api-docs/1.0) - Official API docs
 - [GitHub Repository](https://github.com/rbtnx/python-kanka) - Source code
 - [Issue Tracker](https://github.com/rbtnx/python-kanka/issues) - Report bugs or request features

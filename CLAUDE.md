@@ -74,11 +74,10 @@ Integration tests are NOT pytest tests - they have custom runners:
    - Post updates require `name` field even if unchanged
    - HTML content is normalized by API (quotes converted)
 
-3. **Entity Types**: Current valid types are:
-   - Core: Character, Location, Organisation, Family, Calendar, Timeline, Race
-   - Items: Item, Note, Event, Quest, Journal, Tag, Relation
-   - Extra: DiceRoll, Conversation, AttributeTemplate, Bookmark
-   - Removed: EntityNote, EntityEvent, Attribute, Species (don't exist in API)
+3. **Entity Types**: 
+   - **Implemented in SDK (12 types)**: Calendar, Character, Creature, Event, Family, Journal, Location, Note, Organisation, Quest, Race, Tag
+   - **Available in Kanka API but not yet implemented**: Timeline, Item, Relation, DiceRoll, Conversation, AttributeTemplate, Bookmark, Ability, Map, Inventory
+   - **Never existed/removed**: EntityNote, EntityEvent, Attribute, Species
 
 ## Development Preferences
 
