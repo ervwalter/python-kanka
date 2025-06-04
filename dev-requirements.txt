@@ -14,7 +14,7 @@ mypy==1.8.0
 types-requests
 
 # Pre-commit hooks
-pre-commit==3.6.0
+pre-commit==4.2.0
 
 # Environment variable management
 python-dotenv>=1.0.0
