@@ -37,9 +37,9 @@ setup(
     ],
     python_requires=">=3.9",
     install_requires=[
-        "requests>=2.23.0",
+        "requests==2.32.3",
         "requests_toolbelt>=0.9.1",
-        "pydantic>=2.0.0",
+        "pydantic==2.11.5",
     ],
     extras_require={
         "dev": [
