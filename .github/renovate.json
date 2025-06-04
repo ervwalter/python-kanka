@@ -46,8 +46,5 @@
       "matchPackageNames": ["pydantic", "requests"],
       "rangeStrategy": "pin"
     }
-  ],
-  "python": {
-    "ignorePythonConstraint": false
-  }
+  ]
 }
