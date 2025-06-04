@@ -37,6 +37,7 @@ class Character(Entity):
         title: Character's title or role
         age: Character's age
         sex: Character's sex/gender
+        pronouns: Character's pronouns
         race_id: Link to Race entity
         type: Character type/class
         family_id: Link to Family entity
@@ -50,6 +51,7 @@ class Character(Entity):
     title: Optional[str] = None
     age: Optional[str] = None
     sex: Optional[str] = None
+    pronouns: Optional[str] = None
     race_id: Optional[int] = None
     type: Optional[str] = None
     family_id: Optional[int] = None
@@ -124,6 +126,7 @@ class Note(Entity):
     """
 
     type: Optional[str] = None
+    location_id: Optional[int] = None
 
     # Related data
     posts: Optional[List["Post"]] = None
@@ -270,7 +273,10 @@ class Tag(Entity):
 
     Attributes:
         type: Tag type/category
-        colour: Tag color for visual organization
+        colour: Tag color for visual organization. Valid values are:
+                'aqua', 'black', 'brown', 'grey', 'green', 'light-blue',
+                'maroon', 'navy', 'orange', 'pink', 'purple', 'red',
+                'teal', 'yellow', or None/empty string for no color
         tag_id: Parent tag for tag hierarchies
         posts: Related posts (when ?related=1)
         attributes: Custom attributes (when ?related=1)
@@ -315,7 +321,7 @@ class Calendar(Entity):
     parameters: Optional[str] = None
     months: Optional[List[Dict]] = None
     weekdays: Optional[List[str]] = None
-    years: Optional[Dict] = None
+    years: Optional[Union[Dict, List]] = None
     seasons: Optional[List[Dict]] = None
     moons: Optional[List[Dict]] = None
     suffix: Optional[str] = None

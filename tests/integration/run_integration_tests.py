@@ -57,6 +57,15 @@ def load_test_classes():
         ("test_notes_integration", "TestNoteIntegration"),
         ("test_organisations_integration", "TestOrganisationIntegration"),
         ("test_posts_integration", "TestPostIntegration"),
+        ("test_calendars_integration", "TestCalendarIntegration"),
+        ("test_creatures_integration", "TestCreatureIntegration"),
+        ("test_events_integration", "TestEventIntegration"),
+        ("test_families_integration", "TestFamilyIntegration"),
+        ("test_journals_integration", "TestJournalIntegration"),
+        ("test_quests_integration", "TestQuestIntegration"),
+        ("test_races_integration", "TestRaceIntegration"),
+        ("test_tags_integration", "TestTagIntegration"),
+        ("test_entity_tags_integration", "TestEntityTagsIntegration"),
     ]
 
     test_classes = []

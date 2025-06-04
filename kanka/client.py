@@ -13,7 +13,8 @@ Example:
     >>> dragon = client.search("dragon")
 """
 
-from typing import Any, Dict, List, Union
+import time
+from typing import Any, Dict, List, Optional, Union
 
 from .exceptions import (
     AuthenticationError,
@@ -42,17 +43,28 @@ from .models.entities import (
 
 
 class KankaClient:
-    """Main client for Kanka API interaction.
+    """Main client for Kanka API interaction with automatic rate limit handling.
 
     This client provides a unified interface to access all Kanka entities
     within a specific campaign. It handles authentication, request management,
-    and provides entity-specific managers for CRUD operations.
+    automatic retry on rate limits, and provides entity-specific managers 
+    for CRUD operations.
+
+    The client automatically handles rate limiting by:
+    - Retrying requests that receive 429 (Rate Limit) responses
+    - Using exponential backoff between retries
+    - Parsing rate limit headers to determine optimal retry delays
+    - Respecting the API's rate limit reset times
 
     Attributes:
         BASE_URL (str): The base URL for the Kanka API
         token (str): Authentication token for API access
         campaign_id (int): ID of the campaign to work with
         session: Configured requests.Session instance
+        enable_rate_limit_retry (bool): Whether to automatically retry on rate limits
+        max_retries (int): Maximum number of retries for rate limited requests
+        retry_delay (float): Initial delay between retries in seconds
+        max_retry_delay (float): Maximum delay between retries in seconds
 
     Entity Managers:
         calendars: Access to Calendar entities
@@ -69,26 +81,49 @@ class KankaClient:
         tags: Access to Tag entities
 
     Example:
+        >>> # Basic usage with automatic rate limit handling
         >>> client = KankaClient("your-token", 12345)
-        >>> # List all characters
-        >>> chars = client.characters.list()
-        >>> # Get a specific location
-        >>> loc = client.locations.get(123)
-        >>> # Search across all entities
-        >>> results = client.search("dragon")
+        >>> 
+        >>> # Disable automatic retry for rate limits
+        >>> client = KankaClient("your-token", 12345, enable_rate_limit_retry=False)
+        >>> 
+        >>> # Customize retry behavior
+        >>> client = KankaClient(
+        ...     "your-token", 12345,
+        ...     max_retries=5,
+        ...     retry_delay=2.0,
+        ...     max_retry_delay=120.0
+        ... )
     """
 
     BASE_URL = "https://api.kanka.io/1.0"
 
-    def __init__(self, token: str, campaign_id: int):
+    def __init__(
+        self,
+        token: str,
+        campaign_id: int,
+        *,
+        enable_rate_limit_retry: bool = True,
+        max_retries: int = 8,
+        retry_delay: float = 1.0,
+        max_retry_delay: float =15.0,
+    ):
         """Initialize the Kanka client.
 
         Args:
             token: API authentication token
             campaign_id: Campaign ID to work with
+            enable_rate_limit_retry: Whether to automatically retry on rate limits
+            max_retries: Maximum number of retries for rate limited requests
+            retry_delay: Initial delay between retries in seconds
+            max_retry_delay: Maximum delay between retries in seconds
         """
         self.token = token
         self.campaign_id = campaign_id
+        self.enable_rate_limit_retry = enable_rate_limit_retry
+        self.max_retries = max_retries
+        self.retry_delay = retry_delay
+        self.max_retry_delay = max_retry_delay
 
         # Set up session with default headers
         # Import requests here to avoid import issues
@@ -290,8 +325,45 @@ class KankaClient:
         response = self._request("GET", "entities", params=params)
         return response["data"]  # type: ignore[no-any-return]
 
+    def _parse_rate_limit_headers(self, response) -> Optional[float]:
+        """Parse rate limit headers from response.
+
+        Returns:
+            Suggested retry delay in seconds, or None if not available
+        """
+        # Common rate limit headers
+        retry_after = response.headers.get("Retry-After")
+        if retry_after:
+            try:
+                # Could be seconds or a date
+                return float(retry_after)
+            except ValueError:
+                # Try parsing as date
+                from email.utils import parsedate_to_datetime
+                try:
+                    retry_date = parsedate_to_datetime(retry_after)
+                    return (retry_date - parsedate_to_datetime(response.headers.get("Date", ""))).total_seconds()
+                except:
+                    pass
+        
+        # Check X-RateLimit headers
+        remaining = response.headers.get("X-RateLimit-Remaining")
+        reset = response.headers.get("X-RateLimit-Reset")
+        
+        if remaining and reset:
+            try:
+                if int(remaining) == 0:
+                    # Calculate seconds until reset
+                    reset_time = int(reset)
+                    current_time = int(time.time())
+                    return max(0, reset_time - current_time)
+            except (ValueError, TypeError):
+                pass
+        
+        return None
+
     def _request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
-        """Make HTTP request to Kanka API.
+        """Make HTTP request to Kanka API with automatic retry on rate limits.
 
         Args:
             method: HTTP method (GET, POST, etc.)
@@ -306,30 +378,61 @@ class KankaClient:
         """
         # Build full URL
         url = f"{self.BASE_URL}/campaigns/{self.campaign_id}/{endpoint}"
-
-        # Make request
-        response = self.session.request(method, url, **kwargs)
-
-        # Handle errors
-        if response.status_code == 401:
-            raise AuthenticationError("Invalid authentication token")
-        elif response.status_code == 403:
-            raise ForbiddenError("Access forbidden")
-        elif response.status_code == 404:
-            raise NotFoundError(f"Resource not found: {endpoint}")
-        elif response.status_code == 422:
-            error_data = response.json() if response.text else {}
-            raise ValidationError(f"Validation error: {error_data}")
-        elif response.status_code == 429:
-            raise RateLimitError("Rate limit exceeded")
-        elif response.status_code >= 400:
-            raise KankaException(f"API error {response.status_code}: {response.text}")
-
-        # Return empty dict for DELETE requests
-        if method == "DELETE":
-            return {}
-
-        return response.json()  # type: ignore[no-any-return]
+        
+        attempts = 0
+        delay = self.retry_delay
+        last_exception = None
+        
+        while attempts <= self.max_retries:
+            try:
+                # Make request
+                response = self.session.request(method, url, **kwargs)
+                
+                # Handle errors
+                if response.status_code == 401:
+                    raise AuthenticationError("Invalid authentication token")
+                elif response.status_code == 403:
+                    raise ForbiddenError("Access forbidden")
+                elif response.status_code == 404:
+                    raise NotFoundError(f"Resource not found: {endpoint}")
+                elif response.status_code == 422:
+                    error_data = response.json() if response.text else {}
+                    raise ValidationError(f"Validation error: {error_data}")
+                elif response.status_code == 429:
+                    # Rate limit exceeded
+                    attempts += 1
+                    if not self.enable_rate_limit_retry or attempts > self.max_retries:
+                        raise RateLimitError(f"Rate limit exceeded after {attempts-1} retries")
+                    
+                    # Parse rate limit headers for smart retry
+                    suggested_delay = self._parse_rate_limit_headers(response)
+                    if suggested_delay is not None:
+                        delay = min(suggested_delay, self.max_retry_delay)
+                    
+                    time.sleep(delay)
+                    # Exponential backoff for next attempt
+                    delay = min(delay * 2, self.max_retry_delay)
+                    continue
+                        
+                elif response.status_code >= 400:
+                    raise KankaException(f"API error {response.status_code}: {response.text}")
+                
+                # Success - return response
+                # Return empty dict for DELETE requests
+                if method == "DELETE":
+                    return {}
+                
+                return response.json()  # type: ignore[no-any-return]
+                
+            except RateLimitError as e:
+                last_exception = e
+                if attempts >= self.max_retries:
+                    raise
+                    
+        # Should not reach here, but just in case
+        if last_exception:
+            raise last_exception
+        raise KankaException("Unexpected error in request retry logic")
 
     @property
     def last_search_meta(self) -> Dict[str, Any]:

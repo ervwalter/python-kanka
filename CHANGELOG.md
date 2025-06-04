@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Automatic rate limit handling with configurable retry logic
+  - Exponential backoff for retries
+  - Smart retry delays based on rate limit headers
+  - Configurable retry behavior (can be disabled)
+- Added `pronouns` field to Character model
+- Comprehensive integration tests for all entity types
+- Integration tests for tag functionality
+
+### Fixed
+
+- Tag `colour` field now properly documented with valid color names
+- Fixed Creature model missing `location_id` field
+
+### Changed
+
+- Updated Tag model documentation to list valid color values
+
 ## [2.0.0] - 2025-01-06
 
 ### Added

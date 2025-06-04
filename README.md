@@ -12,6 +12,7 @@ A modern Python client for the [Kanka API](https://app.kanka.io/api-docs/1.0), t
 - **Modern Python**: Designed for Python 3.8+ with full typing support
 - **Intuitive API**: Clean, Pythonic interface with consistent patterns
 - **Comprehensive Error Handling**: Detailed exceptions for API errors
+- **Automatic Rate Limit Handling**: Smart retry logic with exponential backoff
 - **Entity Posts**: Full support for entity posts/comments management
 - **Advanced Filtering**: Powerful filtering and search capabilities
 - **Pagination Support**: Built-in pagination handling
@@ -182,6 +183,33 @@ except ValidationError as e:
 except AuthenticationError:
     print("Invalid API token")
 ```
+
+## Rate Limiting
+
+The client automatically handles API rate limits by retrying requests with exponential backoff:
+
+```python
+# Default behavior - automatic retry on rate limits
+client = KankaClient(token, campaign_id)
+
+# Disable automatic retry
+client = KankaClient(
+    token, 
+    campaign_id,
+    enable_rate_limit_retry=False
+)
+
+# Customize retry behavior
+client = KankaClient(
+    token,
+    campaign_id,
+    max_retries=5,              # Try up to 5 times (default: 3)
+    retry_delay=2.0,            # Initial delay in seconds (default: 1.0)
+    max_retry_delay=120.0       # Maximum delay between retries (default: 60.0)
+)
+```
+
+The client intelligently parses rate limit headers from the API to determine optimal retry delays, ensuring your requests succeed while respecting the API's limits.
 
 ## Migration Guide
 

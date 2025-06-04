@@ -31,10 +31,14 @@ class TestPostIntegration(IntegrationTestBase):
 
         def cleanup():
             if self.client:
-                if entity_type == "character":
-                    self.client.characters.delete_post(entity_id, post_id)
-                elif entity_type == "location":
-                    self.client.locations.delete_post(entity_id, post_id)
+                try:
+                    if entity_type == "character":
+                        self.client.characters.delete_post(entity_id, post_id)
+                    elif entity_type == "location":
+                        self.client.locations.delete_post(entity_id, post_id)
+                except Exception:
+                    # Post may already be deleted if parent entity was deleted
+                    pass
 
         self.register_cleanup(
             f"Delete post '{post_name}' (ID: {post_id}) from {entity_type}", cleanup

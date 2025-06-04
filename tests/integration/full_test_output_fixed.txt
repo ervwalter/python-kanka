@@ -1,0 +1,442 @@
+============================================================
+KANKA SDK INTEGRATION TESTS
+============================================================
+Start time: 2025-06-03 23:43:19
+
+Loaded environment from /home/erv/kanka/python-kanka/tests/integration/.env
+
+==================================================
+Running Character Tests
+==================================================
+
+Running Character Creation...
+  Created character: Integration Test Character - DELETE ME - 2025-06-03T23:43:19.532726 (ID: 1989697)
+✓ Character Creation passed
+
+Executing cleanup tasks...
+  ✓ Delete character 'Integration Test Character - DELETE ME - 2025-06-03T23:43:19.532726' (ID: 1989697)
+
+Running Character Listing with Filter...
+  Found 1 test character(s) in filtered list
+✓ Character Listing with Filter passed
+
+Executing cleanup tasks...
+  ✓ Delete character 'Integration Test Character - DELETE ME - 2025-06-03T23:43:20.429379' (ID: 1989698)
+
+Running Character Update...
+  Updated character 1989699 successfully
+✓ Character Update passed
+
+Executing cleanup tasks...
+  ✓ Delete character 'Integration Test Character - DELETE ME - 2025-06-03T23:43:22.077447' (ID: 1989699)
+
+Running Character Retrieval...
+  Retrieved character 1989700 successfully
+✓ Character Retrieval passed
+
+Executing cleanup tasks...
+  ✓ Delete character 'Integration Test Character - DELETE ME - 2025-06-03T23:43:23.825758' (ID: 1989700)
+
+Running Character Deletion...
+  Deleted character 1989701 successfully
+✓ Character Deletion passed
+
+==================================================
+Running Location Tests
+==================================================
+
+Running Location Creation...
+  Created location: Integration Test Location - DELETE ME - 2025-06-03T23:43:27.508824 (ID: 1739831)
+✓ Location Creation passed
+
+Executing cleanup tasks...
+  ✓ Delete location 'Integration Test Location - DELETE ME - 2025-06-03T23:43:27.508824' (ID: 1739831)
+
+Running Location Listing with Filter...
+  Found 2 test location(s) in filtered list
+✓ Location Listing with Filter passed
+
+Executing cleanup tasks...
+  ✓ Delete location 'Integration Test Location - DELETE ME - 2025-06-03T23:43:28.841957' (ID: 1739832)
+
+Running Location Update...
+  Updated location 1739833 successfully
+✓ Location Update passed
+
+Executing cleanup tasks...
+  ✓ Delete location 'Integration Test Location - DELETE ME - 2025-06-03T23:43:30.581681' (ID: 1739833)
+
+Running Location Retrieval...
+  Retrieved location 1739834 successfully
+✓ Location Retrieval passed
+
+Executing cleanup tasks...
+  ✓ Delete location 'Integration Test Location - DELETE ME - 2025-06-03T23:43:32.366782' (ID: 1739834)
+
+Running Location Deletion...
+  Deleted location 1739835 successfully
+✓ Location Deletion passed
+
+==================================================
+Running Note Tests
+==================================================
+
+Running Note Creation...
+  Created note: Integration Test Note - DELETE ME - 2025-06-03T23:43:36.083931 (ID: 284890)
+✓ Note Creation passed
+
+Executing cleanup tasks...
+  ✓ Delete note 'Integration Test Note - DELETE ME - 2025-06-03T23:43:36.083931' (ID: 284890)
+
+Running Note Listing with Filter...
+  Found 2 test note(s) in filtered list
+✓ Note Listing with Filter passed
+
+Executing cleanup tasks...
+  ✓ Delete note 'Integration Test Note - DELETE ME - 2025-06-03T23:43:37.046730' (ID: 284891)
+
+Running Note Update...
+  Updated note 284892 successfully
+✓ Note Update passed
+
+Executing cleanup tasks...
+  ✓ Delete note 'Integration Test Note - DELETE ME - 2025-06-03T23:43:38.642764' (ID: 284892)
+
+Running Note Retrieval...
+  Retrieved note 284893 successfully
+✓ Note Retrieval passed
+
+Executing cleanup tasks...
+  ✓ Delete note 'Integration Test Note - DELETE ME - 2025-06-03T23:43:40.509738' (ID: 284893)
+
+Running Note Deletion...
+  Deleted note 284894 successfully
+✓ Note Deletion passed
+
+==================================================
+Running Organisation Tests
+==================================================
+
+Running Organisation Creation...
+  Created organisation: Integration Test Organisation - DELETE ME - 2025-06-03T23:43:44.160025 (ID: 368312)
+✓ Organisation Creation passed
+
+Executing cleanup tasks...
+  ✓ Delete organisation 'Integration Test Organisation - DELETE ME - 2025-06-03T23:43:44.160025' (ID: 368312)
+
+Running Organisation Listing with Filter...
+  Found 1 test organisation(s) in filtered list
+✓ Organisation Listing with Filter passed
+
+Executing cleanup tasks...
+  ✓ Delete organisation 'Integration Test Organisation - DELETE ME - 2025-06-03T23:43:45.157525' (ID: 368313)
+
+Running Organisation Update...
+  Updated organisation 368314 successfully
+✓ Organisation Update passed
+
+Executing cleanup tasks...
+  ✓ Delete organisation 'Integration Test Organisation - DELETE ME - 2025-06-03T23:43:46.802870' (ID: 368314)
+
+Running Organisation Retrieval...
+  Retrieved organisation 368315 successfully
+✓ Organisation Retrieval passed
+
+Executing cleanup tasks...
+  ✓ Delete organisation 'Integration Test Organisation - DELETE ME - 2025-06-03T23:43:48.594731' (ID: 368315)
+
+Running Organisation Deletion...
+  Deleted organisation 368316 successfully
+✓ Organisation Deletion passed
+
+==================================================
+Running Post Tests
+==================================================
+
+Running Post Creation on Character...
+  Created post: Integration Test Post - DELETE ME - 2025-06-03T23:43:53.429753 (ID: 927932) on character 1989703
+✓ Post Creation on Character passed
+
+Executing cleanup tasks...
+  ✓ Delete character 'Integration Test Character for Posts - DELETE ME - 2025-06-03T23:43:52.252745' (ID: 1989703)
+  ✓ Delete post 'Integration Test Post - DELETE ME - 2025-06-03T23:43:53.429753' (ID: 927932) from character
+
+Running Post Listing for Character...
+  Found 1 post(s) for character 1989704
+✓ Post Listing for Character passed
+
+Executing cleanup tasks...
+  ✓ Delete character 'Integration Test Character for Posts - DELETE ME - 2025-06-03T23:43:54.303526' (ID: 1989704)
+  ✓ Delete post 'Integration Test Post - DELETE ME - 2025-06-03T23:43:55.530880' (ID: 927933) from character
+
+Running Post Update...
+  Updated post 927934 successfully
+✓ Post Update passed
+
+Executing cleanup tasks...
+  ✓ Delete character 'Integration Test Character for Posts - DELETE ME - 2025-06-03T23:43:57.000158' (ID: 1989706)
+  ✓ Delete post 'Integration Test Post - DELETE ME - 2025-06-03T23:43:57.958511' (ID: 927934) from character
+
+Running Post Retrieval...
+  Retrieved post 927935 successfully
+✓ Post Retrieval passed
+
+Executing cleanup tasks...
+  ✓ Delete character 'Integration Test Character for Posts - DELETE ME - 2025-06-03T23:43:59.664623' (ID: 1989707)
+  ✓ Delete post 'Integration Test Post - DELETE ME - 2025-06-03T23:44:00.800654' (ID: 927935) from character
+
+Running Post Deletion...
+  Deleted post 927936 successfully
+✓ Post Deletion passed
+
+Executing cleanup tasks...
+  ✓ Delete character 'Integration Test Character for Posts - DELETE ME - 2025-06-03T23:44:02.348666' (ID: 1989708)
+
+==================================================
+Running Calendar Tests
+==================================================
+
+Running Calendar Creation...
+  Created calendar: Integration Test Calendar - DELETE ME - 2025-06-03T23:44:05.602632 (ID: 28431)
+✓ Calendar Creation passed
+
+Executing cleanup tasks...
+  ✓ Delete calendar 'Integration Test Calendar - DELETE ME - 2025-06-03T23:44:05.602632' (ID: 28431)
+
+Running Calendar with Configuration...
+  Created calendar with custom configuration: Complex Calendar - DELETE ME - 2025-06-03T23:44:06.467833
+✓ Calendar with Configuration passed
+
+Executing cleanup tasks...
+  ✓ Delete calendar 'Complex Calendar - DELETE ME - 2025-06-03T23:44:06.467833' (ID: 28432)
+
+Running Calendar Listing with Filter...
+  Found 6 test calendar(s) in filtered list
+✓ Calendar Listing with Filter passed
+
+Executing cleanup tasks...
+  ✓ Delete calendar 'Integration Test Calendar - DELETE ME - 2025-06-03T23:44:07.302324' (ID: 28433)
+
+Running Calendar Update...
+  Updated calendar 28434 successfully
+✓ Calendar Update passed
+
+Executing cleanup tasks...
+  ✓ Delete calendar 'Integration Test Calendar - DELETE ME - 2025-06-03T23:44:08.993575' (ID: 28434)
+
+Running Calendar Retrieval...
+  Retrieved calendar 28435 successfully
+✓ Calendar Retrieval passed
+
+Executing cleanup tasks...
+  ✓ Delete calendar 'Integration Test Calendar - DELETE ME - 2025-06-03T23:44:10.783827' (ID: 28435)
+
+Running Calendar Deletion...
+  Deleted calendar 28436 successfully
+✓ Calendar Deletion passed
+
+==================================================
+Running Creature Tests
+==================================================
+
+Running Creature Creation...
+  Created creature: Integration Test Creature - DELETE ME - 2025-06-03T23:44:30.203761 (ID: 149653)
+✓ Creature Creation passed
+
+Executing cleanup tasks...
+  ✓ Delete creature 'Integration Test Creature - DELETE ME - 2025-06-03T23:44:30.203761' (ID: 149653)
+
+Running Creature with Location...
+  Created creature 'Cave Dragon - DELETE ME - 2025-06-03T23:44:32.184281' (ID: 149654) at location 'Dragon Lair - DELETE ME - 2025-06-03T23:44:30.904274'
+✓ Creature with Location passed
+
+Executing cleanup tasks...
+  ✓ Delete location 'Dragon Lair - DELETE ME - 2025-06-03T23:44:30.904274' (ID: 1739836)
+  ✓ Delete creature 'Cave Dragon - DELETE ME - 2025-06-03T23:44:32.184281' (ID: 149654)
+
+Running Creature Listing with Filter...
+  Found 1 test creature(s) in filtered list
+✓ Creature Listing with Filter passed
+
+Executing cleanup tasks...
+  ✓ Delete creature 'Integration Test Creature - DELETE ME - 2025-06-03T23:44:33.079247' (ID: 149655)
+
+Running Creature Update...
+  Updated creature 149656 successfully
+✓ Creature Update passed
+
+Executing cleanup tasks...
+  ✓ Delete creature 'Integration Test Creature - DELETE ME - 2025-06-03T23:44:34.804771' (ID: 149656)
+
+Running Creature Retrieval...
+  Retrieved creature 149657 successfully
+✓ Creature Retrieval passed
+
+Executing cleanup tasks...
+  ✓ Delete creature 'Integration Test Creature - DELETE ME - 2025-06-03T23:44:36.761135' (ID: 149657)
+
+Running Creature Deletion...
+  Deleted creature 149658 successfully
+✓ Creature Deletion passed
+
+==================================================
+Running Event Tests
+==================================================
+
+Running Event Creation...
+  Created event: Integration Test Event - DELETE ME - 2025-06-03T23:44:40.388593 (ID: 188582)
+✓ Event Creation passed
+
+Executing cleanup tasks...
+  ✓ Delete event 'Integration Test Event - DELETE ME - 2025-06-03T23:44:40.388593' (ID: 188582)
+
+Running Event with Location...
+  Created event 'Battle Event - DELETE ME - 2025-06-03T23:44:42.542939' (ID: 188583) at location 'Battle Site - DELETE ME - 2025-06-03T23:44:41.326770'
+✓ Event with Location passed
+
+Executing cleanup tasks...
+  ✓ Delete location 'Battle Site - DELETE ME - 2025-06-03T23:44:41.326770' (ID: 1739837)
+  ✓ Delete event 'Battle Event - DELETE ME - 2025-06-03T23:44:42.542939' (ID: 188583)
+
+Running Event Listing with Filter...
+  Found 2 test event(s) in filtered list
+✓ Event Listing with Filter passed
+
+Executing cleanup tasks...
+  ✓ Delete event 'Integration Test Event - DELETE ME - 2025-06-03T23:44:43.426143' (ID: 188584)
+
+Running Event Update...
+  Updated event 188585 successfully
+✓ Event Update passed
+
+Executing cleanup tasks...
+  ✓ Delete event 'Integration Test Event - DELETE ME - 2025-06-03T23:44:45.149642' (ID: 188585)
+
+Running Event Retrieval...
+  Retrieved event 188586 successfully
+✓ Event Retrieval passed
+
+Executing cleanup tasks...
+  ✓ Delete event 'Integration Test Event - DELETE ME - 2025-06-03T23:44:46.871541' (ID: 188586)
+
+Running Event Deletion...
+  Deleted event 188587 successfully
+✓ Event Deletion passed
+
+==================================================
+Running Family Tests
+==================================================
+
+Running Family Creation...
+  Created family: Integration Test Family - DELETE ME - 2025-06-03T23:44:50.668359 (ID: 210094)
+✓ Family Creation passed
+
+Executing cleanup tasks...
+  ✓ Delete family 'Integration Test Family - DELETE ME - 2025-06-03T23:44:50.668359' (ID: 210094)
+
+Running Family with Location...
+  Created family 'Noble House - DELETE ME - 2025-06-03T23:44:52.817089' (ID: 210095) at location 'Family Castle - DELETE ME - 2025-06-03T23:44:51.656778'
+✓ Family with Location passed
+
+Executing cleanup tasks...
+  ✓ Delete location 'Family Castle - DELETE ME - 2025-06-03T23:44:51.656778' (ID: 1739838)
+  ✓ Delete family 'Noble House - DELETE ME - 2025-06-03T23:44:52.817089' (ID: 210095)
+
+Running Family Tree...
+  Created family tree: Parent Family - DELETE ME - 2025-06-03T23:44:53.628249 (ID: 210096) -> Cadet Branch - DELETE ME - 2025-06-03T23:44:54.833038 (ID: 210097)
+✓ Family Tree passed
+
+Executing cleanup tasks...
+  ✓ Delete family 'Parent Family - DELETE ME - 2025-06-03T23:44:53.628249' (ID: 210096)
+  ✓ Delete family 'Cadet Branch - DELETE ME - 2025-06-03T23:44:54.833038' (ID: 210097)
+
+Running Family Listing with Filter...
+  Found 1 test family(ies) in filtered list
+✓ Family Listing with Filter passed
+
+Executing cleanup tasks...
+  ✓ Delete family 'Integration Test Family - DELETE ME - 2025-06-03T23:44:55.710297' (ID: 210098)
+
+Running Family Update...
+  Updated family 210099 successfully
+✓ Family Update passed
+
+Executing cleanup tasks...
+  ✓ Delete family 'Integration Test Family - DELETE ME - 2025-06-03T23:44:57.459853' (ID: 210099)
+
+Running Family Retrieval...
+  Retrieved family 210100 successfully
+✓ Family Retrieval passed
+
+Executing cleanup tasks...
+  ✓ Delete family 'Integration Test Family - DELETE ME - 2025-06-03T23:44:59.251873' (ID: 210100)
+
+Running Family Deletion...
+  Deleted family 210101 successfully
+✓ Family Deletion passed
+
+==================================================
+Running Journal Tests
+==================================================
+
+Running Journal Creation...
+  Created journal: Integration Test Journal - DELETE ME - 2025-06-03T23:45:03.000484 (ID: 145119)
+✓ Journal Creation passed
+
+Executing cleanup tasks...
+  ✓ Delete journal 'Integration Test Journal - DELETE ME - 2025-06-03T23:45:03.000484' (ID: 145119)
+
+Running Journal with Character...
+  Created journal 'Character Journal - DELETE ME - 2025-06-03T23:45:04.983559' (ID: 145120) for character 'Test Author - DELETE ME - 2025-06-03T23:45:03.706670'
+✓ Journal with Character passed
+
+Executing cleanup tasks...
+  ✓ Delete character 'Test Author - DELETE ME - 2025-06-03T23:45:03.706670' (ID: 1989709)
+  ✓ Delete journal 'Character Journal - DELETE ME - 2025-06-03T23:45:04.983559' (ID: 145120)
+
+Running Journal Listing with Filter...
+  Found 1 test journal(s) in filtered list
+✓ Journal Listing with Filter passed
+
+Executing cleanup tasks...
+  ✓ Delete journal 'Integration Test Journal - DELETE ME - 2025-06-03T23:45:05.858799' (ID: 145121)
+
+Running Journal Update...
+  Updated journal 145122 successfully
+✓ Journal Update passed
+
+Executing cleanup tasks...
+  ✓ Delete journal 'Integration Test Journal - DELETE ME - 2025-06-03T23:45:07.475904' (ID: 145122)
+
+Running Journal Retrieval...
+  Retrieved journal 145123 successfully
+✓ Journal Retrieval passed
+
+Executing cleanup tasks...
+  ✓ Delete journal 'Integration Test Journal - DELETE ME - 2025-06-03T23:45:09.306232' (ID: 145123)
+
+Running Journal Deletion...
+  Deleted journal 145124 successfully
+✓ Journal Deletion passed
+
+==================================================
+Running Quest Tests
+==================================================
+
+Running Quest Creation...
+  Created quest: Integration Test Quest - DELETE ME - 2025-06-03T23:45:13.030726 (ID: 129009)
+✓ Quest Creation passed
+
+Executing cleanup tasks...
+  ✓ Delete quest 'Integration Test Quest - DELETE ME - 2025-06-03T23:45:13.030726' (ID: 129009)
+
+Running Quest with Character...
+  Created quest 'Character Quest - DELETE ME - 2025-06-03T23:45:15.169800' (ID: 129010) from character 'Quest Giver - DELETE ME - 2025-06-03T23:45:13.942712'
+✓ Quest with Character passed
+
+Executing cleanup tasks...
+  ✓ Delete character 'Quest Giver - DELETE ME - 2025-06-03T23:45:13.942712' (ID: 1989710)
+  ✓ Delete quest 'Character Quest - DELETE ME - 2025-06-03T23:45:15.169800' (ID: 129010)
+
+Running Subquest Creation...
+  Created quest hierarchy: Parent Quest - DELETE ME - 2025-06-03T23:45:15.978673 (ID: 129011) -> Subquest - DELETE ME - 2025-06-03T23:45:17.161467 (ID: 129012)
