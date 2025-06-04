@@ -5,8 +5,6 @@ import pytest
 from kanka.exceptions import (
     AuthenticationError,
     ForbiddenError,
-    KankaAPIError,
-    KankaError,
     KankaException,
     NotFoundError,
     RateLimitError,
@@ -22,18 +20,6 @@ class TestExceptions:
         exc = KankaException("Test error")
         assert str(exc) == "Test error"
         assert isinstance(exc, Exception)
-
-    def test_legacy_exceptions(self):
-        """Test legacy exception names for backward compatibility."""
-        # KankaError should be same as KankaException
-        exc1 = KankaError("Legacy error")
-        assert isinstance(exc1, KankaException)
-        assert str(exc1) == "Legacy error"
-
-        # KankaAPIError should also be same as KankaException
-        exc2 = KankaAPIError("API error")
-        assert isinstance(exc2, KankaException)
-        assert str(exc2) == "API error"
 
     def test_specific_exceptions(self):
         """Test specific exception types."""

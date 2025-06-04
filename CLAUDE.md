@@ -110,3 +110,30 @@ When testing against the real API:
 2. Clean up created entities in teardown methods
 3. Use wait_for_api() between operations to avoid rate limits
 4. Integration tests track created IDs for cleanup
+
+## Documentation Maintenance
+
+**CRITICAL**: When making ANY changes to the API, models, exceptions, or client behavior:
+
+1. **Always update API_REFERENCE.md** to reflect:
+   - New/changed model fields and their types
+   - New/changed method signatures
+   - New/changed exception types
+   - New/changed client constructor parameters
+   - Any breaking changes or deprecations
+
+2. **Always update README.md** when changes affect:
+   - Installation instructions
+   - Basic usage examples
+   - Key features or capabilities
+   - Version compatibility
+
+3. **Documentation must be 100% accurate** - inconsistencies between docs and implementation cause significant user confusion
+
+4. **Remove deprecated features** - don't just mark as deprecated, actively remove outdated documentation when legacy code is removed
+
+**Example workflow:**
+- Add new model field → Update API_REFERENCE.md model documentation
+- Change method signature → Update API_REFERENCE.md method documentation
+- Remove deprecated exception → Remove from API_REFERENCE.md exceptions section
+- Add new client feature → Update both README.md and API_REFERENCE.md

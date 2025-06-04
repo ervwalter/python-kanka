@@ -12,10 +12,6 @@ Exception Hierarchy:
     ├── AuthenticationError: Invalid authentication (401)
     └── ForbiddenError: Access forbidden (403)
 
-Legacy exceptions (for backward compatibility):
-    - KankaError: Alias for KankaException
-    - KankaAPIError: Alias for KankaException
-
 Example:
     >>> try:
     ...     character = client.characters.get(999999)
@@ -37,32 +33,6 @@ class KankaException(Exception):
         ...     result = client.search("dragon")
         ... except KankaException as e:
         ...     print(f"Kanka API error: {e}")
-    """
-
-    pass
-
-
-class KankaError(KankaException):
-    """Legacy exception name for backward compatibility.
-
-    This exception is deprecated. Use KankaException instead.
-    Maintained only for backward compatibility with older code.
-
-    .. deprecated:: 2.0
-        Use :class:`KankaException` instead.
-    """
-
-    pass
-
-
-class KankaAPIError(KankaException):
-    """Legacy exception name for backward compatibility.
-
-    This exception is deprecated. Use KankaException instead.
-    Maintained only for backward compatibility with older code.
-
-    .. deprecated:: 2.0
-        Use :class:`KankaException` instead.
     """
 
     pass

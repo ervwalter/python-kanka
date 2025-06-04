@@ -547,15 +547,6 @@ except RateLimitError:
 
 **Note:** The client automatically retries rate-limited requests by default.
 
-### Legacy Exceptions (Deprecated)
-
-These exceptions are available for backward compatibility but are deprecated:
-
-#### KankaError
-**Deprecated in v2.0** - Use KankaException instead.
-
-#### KankaAPIError  
-**Deprecated in v2.0** - Use KankaException instead.
 
 ### Comprehensive Error Handling
 

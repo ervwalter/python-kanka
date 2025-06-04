@@ -10,7 +10,6 @@ Key Features:
     - Comprehensive error handling
     - Filtering and search capabilities
     - Post/comment management
-    - Backward compatibility with legacy API
 
 Quick Start:
     >>> from kanka import KankaClient
@@ -24,14 +23,11 @@ Main Classes:
     - Exceptions: KankaException and specific error types
 """
 
-# Import the new client
-# Keep backward compatibility imports
-from .api import KankaClient as LegacyKankaClient
+# Import the client
 from .client import KankaClient
 from .exceptions import (
     AuthenticationError,
     ForbiddenError,
-    KankaError,
     KankaException,
     NotFoundError,
     RateLimitError,
@@ -61,8 +57,6 @@ from .models import (  # Base models; Entity models; Common models
 
 __all__ = [
     "KankaClient",
-    "LegacyKankaClient",
-    "KankaError",
     "KankaException",
     "NotFoundError",
     "ValidationError",

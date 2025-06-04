@@ -42,7 +42,6 @@ class Character(Entity):
         type: Character type/class
         family_id: Link to Family entity
         is_dead: Whether character is deceased
-        traits: Character traits (deprecated, use attributes)
         posts: Related posts (when ?related=1)
         attributes: Custom attributes (when ?related=1)
     """
@@ -56,7 +55,6 @@ class Character(Entity):
     type: Optional[str] = None
     family_id: Optional[int] = None
     is_dead: bool = False
-    traits: Optional[Union[str, List]] = None
 
     # Related data (populated when ?related=1)
     posts: Optional[List["Post"]] = None
