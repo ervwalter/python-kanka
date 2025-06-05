@@ -71,7 +71,7 @@ class SearchResult(KankaModel):
     id: int
     entity_id: int
     name: str
-    type: str
+    type: Optional[str] = None
     url: str
     image: Optional[str] = None
     is_private: bool = False

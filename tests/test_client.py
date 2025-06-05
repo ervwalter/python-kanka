@@ -83,7 +83,7 @@ class TestKankaClient:
         mock_session.request.assert_called_with(
             "GET",
             "https://api.kanka.io/1.0/campaigns/123/search/dragon",
-            params={"page": 1, "limit": 30},
+            params={"page": 1},
         )
 
         # Verify results
@@ -110,13 +110,13 @@ class TestKankaClient:
 
         # Create client and search
         client = KankaClient(token="test_token", campaign_id=123)
-        client.search("test", page=3, limit=50)
+        client.search("test", page=3)
 
         # Verify request
         mock_session.request.assert_called_with(
             "GET",
             "https://api.kanka.io/1.0/campaigns/123/search/test",
-            params={"page": 3, "limit": 50},
+            params={"page": 3},
         )
 
     @patch("requests.Session")

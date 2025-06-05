@@ -119,3 +119,8 @@ warn_required_dynamic_aliases = true
 [[tool.mypy.overrides]]
 module = "tests.*"
 disable_error_code = ["arg-type", "list-item"]
+
+# Ignore unused ignores and attr-defined for advanced model tests
+[[tool.mypy.overrides]]
+module = "tests.test_models_advanced"
+disable_error_code = ["unused-ignore", "attr-defined", "call-arg"]

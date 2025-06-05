@@ -7,6 +7,7 @@ This script checks for required environment variables and runs all integration t
 import argparse
 import importlib
 import os
+import shutil
 import sys
 import time
 
@@ -65,6 +66,9 @@ def load_test_classes():
         ("test_races_integration", "TestRaceIntegration"),
         ("test_tags_integration", "TestTagIntegration"),
         ("test_entity_tags_integration", "TestEntityTagsIntegration"),
+        ("test_mentions_integration", "TestMentionsIntegration"),
+        ("test_entities_api_integration", "TestEntitiesApiIntegration"),
+        ("test_search_integration", "TestSearchIntegration"),
     ]
 
     test_classes = []
@@ -79,7 +83,7 @@ def load_test_classes():
     return test_classes
 
 
-def run_all_tests(pause_before_cleanup=False):
+def run_all_tests(pause_before_cleanup=False, debug_mode=False):
     """Run all integration tests and report results."""
     print("=" * 60)
     print("KANKA SDK INTEGRATION TESTS")
@@ -91,6 +95,15 @@ def run_all_tests(pause_before_cleanup=False):
         os.environ["KANKA_TEST_DEFER_CLEANUP"] = "true"
         os.environ["KANKA_TEST_PAUSE_CLEANUP"] = "true"
         print("\nCleanup Mode: DEFERRED with PAUSE")
+
+    # Set debug mode if requested
+    debug_dir = None
+    if debug_mode:
+        os.environ["KANKA_DEBUG_MODE"] = "true"
+        debug_dir = os.path.join(current_dir, "kanka_debug")
+        os.environ["KANKA_DEBUG_DIR"] = debug_dir
+        print(f"\nDebug Mode: ENABLED (logs will be saved to {debug_dir})")
+
     print()
 
     # Check environment first
@@ -179,6 +192,15 @@ def run_all_tests(pause_before_cleanup=False):
 
     print(f"\nEnd time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
+    # Clean up debug files if they were created
+    if debug_mode and debug_dir and os.path.exists(debug_dir):
+        print(f"\nCleaning up debug directory: {debug_dir}")
+        try:
+            shutil.rmtree(debug_dir)
+            print("  ✓ Debug files cleaned up")
+        except Exception as e:
+            print(f"  ✗ Failed to clean up debug files: {e}")
+
     return failed_tests == 0
 
 
@@ -195,8 +217,11 @@ Examples:
   # Run tests with pause before cleanup to inspect entities in Kanka
   python run_integration_tests.py --pause
 
-  # Short form
-  python run_integration_tests.py -p
+  # Run tests with debug mode enabled (logs all HTTP requests/responses)
+  python run_integration_tests.py --debug
+
+  # Combine options
+  python run_integration_tests.py -p -d
 """,
     )
 
@@ -207,9 +232,16 @@ Examples:
         help="Defer cleanup to end and pause before cleanup to allow manual inspection in Kanka web app",
     )
 
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help="Enable debug mode to log all HTTP requests and responses to files",
+    )
+
     args = parser.parse_args()
 
-    success = run_all_tests(pause_before_cleanup=args.pause)
+    success = run_all_tests(pause_before_cleanup=args.pause, debug_mode=args.debug)
     sys.exit(0 if success else 1)
 
 

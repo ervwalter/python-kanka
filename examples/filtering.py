@@ -144,7 +144,7 @@ def main():
 
     # 9. Search with pagination
     print("\n9. Search with pagination:")
-    page1_search = client.search("the", page=1, limit=3)
+    page1_search = client.search("the", page=1)
     print(f"   Search page 1: {len(page1_search)} results")
 
     # 10. Entity endpoint with type filtering

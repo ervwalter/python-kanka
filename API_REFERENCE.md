@@ -18,8 +18,8 @@ The main client for interacting with the Kanka API.
 
 ```python
 KankaClient(
-    token: str, 
-    campaign_id: int, 
+    token: str,
+    campaign_id: int,
     *,
     enable_rate_limit_retry: bool = True,
     max_retries: int = 8,
@@ -45,13 +45,14 @@ client = KankaClient(token="your-token", campaign_id=12345)
 
 ### Methods
 
-#### search(term, page=1, limit=30)
+#### search(term, page=1)
 Search across all entities in the campaign.
+
+**Note:** The Kanka API search endpoint does not respect limit parameters, so pagination control is limited to page selection only.
 
 **Parameters:**
 - `term` (str): The search term
 - `page` (int, optional): Page number for pagination (default: 1)
-- `limit` (int, optional): Number of results per page (default: 30)
 
 **Returns:** List[SearchResult]
 
@@ -552,7 +553,7 @@ except RateLimitError:
 
 ```python
 from kanka.exceptions import (
-    KankaException, NotFoundError, ValidationError, 
+    KankaException, NotFoundError, ValidationError,
     RateLimitError, AuthenticationError, ForbiddenError
 )
 
@@ -600,7 +601,7 @@ client = KankaClient(token="your-token", campaign_id=12345)
 
 # Disable automatic retry
 client = KankaClient(
-    token="your-token", 
+    token="your-token",
     campaign_id=12345,
     enable_rate_limit_retry=False
 )
@@ -654,15 +655,34 @@ except KankaException as e:
 
 ### Working with Extra Fields
 
-Pydantic models preserve unknown fields:
+**Note on Additional Fields:**
+
+The Kanka API accepts entity-specific fields that may not be documented in the SDK models. For example, the Character entity accepts a `sex` field even though it's not in the model definition. However, completely custom fields (not recognized by Kanka) are silently ignored by the API.
 
 ```python
-# API returns custom fields
-character = client.characters.get(123)
-print(character.model_extra)  # Access extra fields
+# Entity-specific fields are accepted
+character = client.characters.create(
+    name="Test Character",
+    sex="Female",  # Accepted by API even if not in our model
+    custom_field="value"  # Silently ignored by API
+)
 
-# Include extra fields in updates
-data = character.model_dump()
-data['custom_field'] = 'value'
-updated = client.characters.update(character, **data)
+# The 'sex' field will be saved, but 'custom_field' will not
 ```
+
+## Known API Limitations
+
+The following are known limitations of the Kanka API (not the SDK):
+
+### Search Endpoint
+- The `limit` parameter is not respected - the API returns a fixed number of results regardless of the limit specified
+- Pagination is available but only through the `page` parameter
+
+### Custom Fields
+- The API silently ignores unknown fields when creating or updating entities
+- Each entity type has specific additional fields that may be accepted but are not documented
+- True custom fields are handled through the Kanka "attributes" system, not as direct fields
+
+### Rate Limiting
+- The API has rate limits that vary based on your subscription level
+- The SDK automatically handles rate limit retries by default

@@ -13,7 +13,11 @@ Example:
     >>> dragon = client.search("dragon")
 """
 
+import json
+import os
 import time
+from datetime import datetime
+from pathlib import Path
 from typing import Any, Optional, Union
 
 from .exceptions import (
@@ -124,6 +128,15 @@ class KankaClient:
         self.max_retries = max_retries
         self.retry_delay = retry_delay
         self.max_retry_delay = max_retry_delay
+
+        # Debug mode configuration
+        self._debug_mode = os.environ.get("KANKA_DEBUG_MODE", "").lower() == "true"
+        self._debug_dir = Path(os.environ.get("KANKA_DEBUG_DIR", "kanka_debug"))
+        self._request_counter = 0
+
+        # Create debug directory if in debug mode
+        if self._debug_mode:
+            self._debug_dir.mkdir(exist_ok=True)
 
         # Set up session with default headers
         # Import requests here to avoid import issues
@@ -265,22 +278,24 @@ class KankaClient:
         """
         return self._tags
 
-    def search(self, term: str, page: int = 1, limit: int = 30) -> list[SearchResult]:
+    def search(self, term: str, page: int = 1) -> list[SearchResult]:
         """Search across all entity types.
+
+        Note: The Kanka API search endpoint does not respect limit parameters,
+        so pagination control is limited to page selection only.
 
         Args:
             term: Search term
             page: Page number (default: 1)
-            limit: Number of results per page (default: 30)
 
         Returns:
             List of search results
 
         Example:
             results = client.search("dragon")
-            results = client.search("dragon", page=2, limit=50)
+            results = client.search("dragon", page=2)
         """
-        params: dict[str, Union[int, str]] = {"page": page, "limit": limit}
+        params: dict[str, Union[int, str]] = {"page": page}
         response = self._request("GET", f"search/{term}", params=params)
 
         # Store pagination metadata for access if needed
@@ -366,6 +381,60 @@ class KankaClient:
 
         return None
 
+    def _log_debug_request(
+        self, method: str, url: str, request_data: dict, response, response_time: float
+    ):
+        """Log request and response to debug file."""
+        if not self._debug_mode:
+            return
+
+        self._request_counter += 1
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        # Extract endpoint info from URL for filename
+        endpoint_parts = url.replace(self.BASE_URL, "").strip("/").split("/")
+        endpoint_name = "_".join(endpoint_parts[2:])  # Skip 'campaigns/{id}/'
+        if not endpoint_name:
+            endpoint_name = "root"
+
+        # Create descriptive filename
+        filename = (
+            f"{self._request_counter:04d}_{timestamp}_{method}_{endpoint_name}.json"
+        )
+        filepath = self._debug_dir / filename
+
+        # Prepare debug data
+        debug_data = {
+            "timestamp": datetime.now().isoformat(),
+            "request_number": self._request_counter,
+            "request": {
+                "method": method,
+                "url": url,
+                "headers": dict(self.session.headers),
+                "params": request_data.get("params", {}),
+                "json": request_data.get("json", {}),
+            },
+            "response": {
+                "status_code": response.status_code,
+                "headers": dict(response.headers),
+                "time_seconds": response_time,
+                "body": None,
+            },
+        }
+
+        # Try to parse response body
+        try:
+            response_body = response.json()
+            if "response" in debug_data and isinstance(debug_data["response"], dict):
+                debug_data["response"]["body"] = response_body
+        except Exception:
+            if "response" in debug_data and isinstance(debug_data["response"], dict):
+                debug_data["response"]["body"] = response.text
+
+        # Write to file
+        with open(filepath, "w") as f:
+            json.dump(debug_data, f, indent=2, default=str)
+
     def _request(self, method: str, endpoint: str, **kwargs) -> dict[str, Any]:
         """Make HTTP request to Kanka API with automatic retry on rate limits.
 
@@ -389,8 +458,17 @@ class KankaClient:
 
         while attempts <= self.max_retries:
             try:
+                # Track request time
+                start_time = time.time()
+
                 # Make request
                 response = self.session.request(method, url, **kwargs)
+
+                # Calculate response time
+                response_time = time.time() - start_time
+
+                # Log to debug file if enabled
+                self._log_debug_request(method, url, kwargs, response, response_time)
 
                 # Handle errors
                 if response.status_code == 401:
