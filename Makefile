@@ -30,7 +30,7 @@ lint:
 
 # Run type checking
 typecheck:
-	mypy kanka tests examples --ignore-missing-imports
+	mypy src/kanka tests examples --ignore-missing-imports
 
 # Format code
 format:
@@ -58,4 +58,4 @@ clean:
 
 # Run tests with coverage
 coverage:
-	pytest tests/ -v --cov=kanka --cov-report=html --cov-report=term
+	pytest tests/ -v --cov=src/kanka --cov-report=html --cov-report=term

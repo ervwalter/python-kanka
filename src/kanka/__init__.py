@@ -23,6 +23,9 @@ Main Classes:
     - Exceptions: KankaException and specific error types
 """
 
+# Version
+from ._version import __version__
+
 # Import the client
 from .client import KankaClient
 from .exceptions import (
@@ -83,4 +86,5 @@ __all__ = [
     "Post",
     "SearchResult",
     "Trait",
+    "__version__",
 ]

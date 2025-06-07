@@ -30,6 +30,9 @@ make typecheck
 # Run everything (lint + typecheck + tests)
 make check
 
+# Build the package
+python -m build
+
 # Generate coverage report
 make coverage
 ```
@@ -74,7 +77,7 @@ Integration tests are NOT pytest tests - they have custom runners:
    - Post updates require `name` field even if unchanged
    - HTML content is normalized by API (quotes converted)
 
-3. **Entity Types**: 
+3. **Entity Types**:
    - **Implemented in SDK (12 types)**: Calendar, Character, Creature, Event, Family, Journal, Location, Note, Organisation, Quest, Race, Tag
    - **Available in Kanka API but not yet implemented**: Timeline, Item, Relation, DiceRoll, Conversation, AttributeTemplate, Bookmark, Ability, Map, Inventory
    - **Never existed/removed**: EntityNote, EntityEvent, Attribute, Species
@@ -97,7 +100,7 @@ Integration tests are NOT pytest tests - they have custom runners:
 
 This ensures:
 - Code is properly formatted (black/isort)
-- No linting violations (ruff) 
+- No linting violations (ruff)
 - Type checking passes (mypy)
 - All unit tests pass (pytest)
 

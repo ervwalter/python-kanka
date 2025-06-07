@@ -1,4 +1,13 @@
+import os
+
 from setuptools import find_packages, setup
+
+# Read version from _version.py
+version_file = os.path.join("src", "kanka", "_version.py")
+version_dict = {}
+with open(version_file) as f:
+    exec(f.read(), version_dict)
+__version__ = version_dict["__version__"]
 
 # Read the README for long description
 with open("README.md", encoding="utf-8") as fh:
@@ -6,8 +15,9 @@ with open("README.md", encoding="utf-8") as fh:
 
 setup(
     name="python-kanka",
-    version="2.0.0",
-    packages=find_packages(),
+    version=__version__,
+    package_dir={"": "src"},
+    packages=find_packages(where="src"),
     license="MIT",
     author="Erv Walter",
     author_email="erv@ewal.net",
@@ -53,5 +63,10 @@ setup(
             "pre-commit>=3.0.0",
         ],
     },
-    keywords="kanka api client worldbuilding rpg campaign tabletop",
+    keywords="kanka api client worldbuilding rpg campaign tabletop ttrpg dnd pathfinder",
+    package_data={
+        "kanka": ["py.typed"],
+    },
+    include_package_data=True,
+    zip_safe=False,  # Required for py.typed
 )

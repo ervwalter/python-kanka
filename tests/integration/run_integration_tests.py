@@ -15,7 +15,8 @@ import time
 current_dir = os.path.dirname(os.path.abspath(__file__))
 tests_dir = os.path.dirname(current_dir)
 project_dir = os.path.dirname(tests_dir)
-sys.path.insert(0, project_dir)
+src_dir = os.path.join(project_dir, "src")
+sys.path.insert(0, src_dir)
 sys.path.insert(0, current_dir)
 
 

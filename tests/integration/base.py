@@ -7,12 +7,13 @@ import sys
 import time
 from typing import Any, Callable, Optional
 
-# We need to add the project root to Python path before importing kanka
+# We need to add the project src to Python path before importing kanka
 # This is required because this module is imported by test files
 _current_dir = os.path.dirname(os.path.abspath(__file__))
 _project_root = os.path.abspath(os.path.join(_current_dir, "../.."))
-if _project_root not in sys.path:
-    sys.path.insert(0, _project_root)
+_src_dir = os.path.join(_project_root, "src")
+if _src_dir not in sys.path:
+    sys.path.insert(0, _src_dir)
 
 from kanka import KankaClient  # noqa: E402 - Must be after path setup
 
