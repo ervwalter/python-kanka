@@ -149,6 +149,7 @@ List entities with optional filtering.
   - `updated_at` (str): Filter by update date
   - `created_by` (int): Filter by creator ID
   - `updated_by` (int): Filter by updater ID
+  - `lastSync` (str): Get only entities modified after this ISO 8601 timestamp (Kanka's native sync feature)
 
 **Returns:** List of entities
 
@@ -159,6 +160,11 @@ npcs = client.characters.list(type="NPC", is_private=False)
 
 # Get entities with specific tags
 tagged = client.locations.list(tags=[1, 2, 3])
+
+# Get entities modified since last sync (using Kanka's native sync feature)
+from datetime import datetime, timedelta, timezone
+last_sync = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+updated_chars = client.characters.list(lastSync=last_sync)
 ```
 
 #### create(**kwargs)
