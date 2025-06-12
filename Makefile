@@ -38,6 +38,10 @@ format:
 	isort .
 	ruff check --fix .
 
+# Run pre-commit hooks on all files
+pre-commit:
+	pre-commit run --all-files
+
 # Run all checks
 check: lint typecheck test
 

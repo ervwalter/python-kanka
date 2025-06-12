@@ -196,7 +196,7 @@ client = KankaClient(token, campaign_id)
 
 # Disable automatic retry
 client = KankaClient(
-    token, 
+    token,
     campaign_id,
     enable_rate_limit_retry=False
 )
