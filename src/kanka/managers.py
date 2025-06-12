@@ -2,8 +2,7 @@
 
 from typing import TYPE_CHECKING, Any, Generic, List, TypeVar, Union  # noqa: UP035
 
-from .models.base import Entity
-from .models.common import Post
+from .models.base import Entity, Post
 
 if TYPE_CHECKING:
     from .client import KankaClient
@@ -48,12 +47,15 @@ class EntityManager(Generic[T]):
         response = self.client._request("GET", url, params=params)
         return self.model(**response["data"])
 
-    def list(self, page: int = 1, limit: int = 30, **filters) -> list[T]:
+    def list(
+        self, page: int = 1, limit: int = 30, related: bool = False, **filters
+    ) -> list[T]:
         """List entities with optional filters.
 
         Args:
             page: Page number (default: 1)
             limit: Number of results per page (default: 30)
+            related: Include related data (posts, attributes, etc.)
             **filters: Additional filters supported by the API
 
         Supported filters:
@@ -79,16 +81,24 @@ class EntityManager(Generic[T]):
             # Filter by name
             dragons = client.creatures.list(name="dragon")
 
+            # Get characters with posts included
+            chars_with_posts = client.characters.list(related=True)
+
             # Combine filters
             results = client.characters.list(
                 name="John",
                 tags=[1, 2],
                 is_private=False,
+                related=True,
                 page=2
             )
         """
         # Build parameters
         params: dict[str, Union[int, str]] = {"page": page, "limit": limit}
+
+        # Add related parameter if requested
+        if related:
+            params["related"] = 1
 
         # Add filters
         for key, value in filters.items():

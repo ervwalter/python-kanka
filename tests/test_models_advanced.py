@@ -4,8 +4,8 @@ from datetime import datetime
 
 import pytest
 
-from kanka.models.base import Entity
-from kanka.models.common import Post, Trait
+from kanka.models.base import Entity, Post
+from kanka.models.common import Trait
 from kanka.models.entities import Character, Location, Tag
 
 

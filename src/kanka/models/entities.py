@@ -23,7 +23,6 @@ Entity Types:
 from typing import Optional, Union
 
 from .base import Entity
-from .common import Post  # Import at top for forward reference
 
 
 class Character(Entity):
@@ -42,8 +41,6 @@ class Character(Entity):
         type: Character type/class
         family_id: Link to Family entity
         is_dead: Whether character is deceased
-        posts: Related posts (when ?related=1)
-        attributes: Custom attributes (when ?related=1)
     """
 
     location_id: Optional[int] = None
@@ -55,10 +52,6 @@ class Character(Entity):
     type: Optional[str] = None
     family_id: Optional[int] = None
     is_dead: bool = False
-
-    # Related data (populated when ?related=1)
-    posts: Optional[list["Post"]] = None
-    attributes: Optional[list[dict]] = None
 
 
 class Location(Entity):
@@ -83,10 +76,6 @@ class Location(Entity):
     is_map_private: Optional[int] = None
     parent_location_id: Optional[int] = None
 
-    # Related data
-    posts: Optional[list["Post"]] = None
-    attributes: Optional[list[dict]] = None
-
 
 class Organisation(Entity):
     """Organisation entity representing groups in the campaign.
@@ -106,10 +95,6 @@ class Organisation(Entity):
     type: Optional[str] = None
     organisation_id: Optional[int] = None
 
-    # Related data
-    posts: Optional[list["Post"]] = None
-    attributes: Optional[list[dict]] = None
-
 
 class Note(Entity):
     """Note entity for campaign documentation.
@@ -125,10 +110,6 @@ class Note(Entity):
 
     type: Optional[str] = None
     location_id: Optional[int] = None
-
-    # Related data
-    posts: Optional[list["Post"]] = None
-    attributes: Optional[list[dict]] = None
 
 
 class Race(Entity):
@@ -146,10 +127,6 @@ class Race(Entity):
 
     type: Optional[str] = None
     race_id: Optional[int] = None
-
-    # Related data
-    posts: Optional[list["Post"]] = None
-    attributes: Optional[list[dict]] = None
 
 
 class Quest(Entity):
@@ -170,10 +147,6 @@ class Quest(Entity):
     quest_id: Optional[int] = None
     character_id: Optional[int] = None
 
-    # Related data
-    posts: Optional[list["Post"]] = None
-    attributes: Optional[list[dict]] = None
-
 
 class Journal(Entity):
     """Journal entity for session logs and chronicles.
@@ -193,10 +166,6 @@ class Journal(Entity):
     date: Optional[str] = None
     character_id: Optional[int] = None
 
-    # Related data
-    posts: Optional[list["Post"]] = None
-    attributes: Optional[list[dict]] = None
-
 
 class Family(Entity):
     """Family entity representing family groups and lineages.
@@ -213,10 +182,6 @@ class Family(Entity):
 
     location_id: Optional[int] = None
     family_id: Optional[int] = None
-
-    # Related data
-    posts: Optional[list["Post"]] = None
-    attributes: Optional[list[dict]] = None
 
 
 class Event(Entity):
@@ -237,10 +202,6 @@ class Event(Entity):
     date: Optional[str] = None
     location_id: Optional[int] = None
 
-    # Related data
-    posts: Optional[list["Post"]] = None
-    attributes: Optional[list[dict]] = None
-
 
 class Creature(Entity):
     """Creature entity representing monsters and beasts.
@@ -257,10 +218,6 @@ class Creature(Entity):
 
     type: Optional[str] = None
     location_id: Optional[int] = None
-
-    # Related data
-    posts: Optional[list["Post"]] = None
-    attributes: Optional[list[dict]] = None
 
 
 class Tag(Entity):
@@ -283,10 +240,6 @@ class Tag(Entity):
     type: Optional[str] = None
     colour: Optional[str] = None
     tag_id: Optional[int] = None  # Parent tag
-
-    # Related data
-    posts: Optional[list["Post"]] = None
-    attributes: Optional[list[dict]] = None
 
 
 class Calendar(Entity):
@@ -328,10 +281,6 @@ class Calendar(Entity):
     leap_year_month: Optional[int] = None
     leap_year_offset: Optional[int] = None
     leap_year_start: Optional[int] = None
-
-    # Related data
-    posts: Optional[list["Post"]] = None
-    attributes: Optional[list[dict]] = None
 
 
 # Forward reference updates

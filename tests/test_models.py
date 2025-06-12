@@ -4,8 +4,8 @@ from datetime import datetime
 
 import pytest
 
-from kanka.models.base import Entity, KankaModel
-from kanka.models.common import Post, Profile, SearchResult
+from kanka.models.base import Entity, KankaModel, Post
+from kanka.models.common import Profile, SearchResult
 from kanka.models.entities import Calendar, Character, Location
 
 

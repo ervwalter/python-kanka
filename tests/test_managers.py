@@ -3,7 +3,7 @@
 from unittest.mock import Mock
 
 from kanka.managers import EntityManager
-from kanka.models.common import Post
+from kanka.models.base import Post
 from kanka.models.entities import Character
 
 from .utils import create_api_response, create_mock_entity, create_mock_post

@@ -17,8 +17,8 @@ All models provide:
     - Extra field handling for API flexibility
 """
 
-from .base import Entity, KankaModel
-from .common import Post, SearchResult, Trait
+from .base import Entity, KankaModel, Post
+from .common import SearchResult, Trait
 from .entities import (
     Calendar,
     Character,

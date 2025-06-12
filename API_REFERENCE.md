@@ -133,12 +133,13 @@ character = client.characters.get(123)
 print(character.name)
 ```
 
-#### list(page=1, limit=30, **filters)
+#### list(page=1, limit=30, related=False, **filters)
 List entities with optional filtering.
 
 **Parameters:**
 - `page` (int, optional): Page number (default: 1)
 - `limit` (int, optional): Results per page (default: 30)
+- `related` (bool, optional): Include related data (posts, attributes, etc.) (default: False)
 - `**filters`: Filter parameters
   - `name` (str): Filter by name (partial match)
   - `tags` (List[int]): Filter by tag IDs
@@ -161,10 +162,13 @@ npcs = client.characters.list(type="NPC", is_private=False)
 # Get entities with specific tags
 tagged = client.locations.list(tags=[1, 2, 3])
 
+# Get entities with posts included
+characters_with_posts = client.characters.list(related=True)
+
 # Get entities modified since last sync (using Kanka's native sync feature)
 from datetime import datetime, timedelta, timezone
 last_sync = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
-updated_chars = client.characters.list(lastSync=last_sync)
+updated_chars = client.characters.list(lastSync=last_sync, related=True)
 ```
 
 #### create(**kwargs)

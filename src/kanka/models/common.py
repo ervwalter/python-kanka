@@ -5,7 +5,6 @@ This module contains models that are used across multiple entity types
 or represent common data structures in the Kanka API.
 
 Classes:
-    Post: Represents posts/comments attached to entities
     SearchResult: Represents search result items from global search
     Profile: User profile information
     Trait: Entity traits/attributes
@@ -16,36 +15,7 @@ Classes:
 from datetime import datetime
 from typing import Any, Generic, Optional, TypeVar
 
-from .base import KankaModel
-
-
-class Post(KankaModel):
-    """Post/comment attached to entities.
-
-    Posts are text entries that can be attached to any entity type in Kanka,
-    functioning as notes, comments, or additional narrative content.
-
-    Attributes:
-        id: Unique post identifier
-        name: Post title/name
-        entry: Post content (supports HTML)
-        entity_id: ID of the parent entity
-        created_by: User ID who created the post
-        updated_by: User ID who last updated the post
-        created_at: Creation timestamp
-        updated_at: Last update timestamp
-        is_private: Whether post is private
-    """
-
-    id: int
-    name: str
-    entry: str
-    entity_id: int
-    created_by: int
-    updated_by: Optional[int] = None
-    created_at: datetime
-    updated_at: datetime
-    is_private: bool = False
+from .base import KankaModel  # Import Post from base module
 
 
 class SearchResult(KankaModel):
