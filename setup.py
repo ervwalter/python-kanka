@@ -47,7 +47,7 @@ setup(
     ],
     python_requires=">=3.9",
     install_requires=[
-        "requests==2.32.3",
+        "requests==2.32.4",
         "requests_toolbelt>=0.9.1",
         "pydantic==2.11.5",
     ],
