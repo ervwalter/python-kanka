@@ -53,7 +53,7 @@ class Post(KankaModel):
         updated_by: User ID who last updated the post
         created_at: Creation timestamp
         updated_at: Last update timestamp
-        is_private: Whether post is private
+        visibility_id: Visibility setting (1=all, 2=admin, 3=admin-self, 4=self, 5=members)
     """
 
     id: int
@@ -64,7 +64,7 @@ class Post(KankaModel):
     updated_by: Optional[int] = None
     created_at: datetime
     updated_at: datetime
-    is_private: bool = False
+    visibility_id: Optional[int] = None
 
 
 class Entity(KankaModel):

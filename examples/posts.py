@@ -80,7 +80,7 @@ in a dark cave. Little did he know it was the One Ring of power.""",
     posts = client.characters.list_posts(character)
     print(f"   Found {len(posts)} posts:")
     for post in posts:
-        visibility = "Private" if post.is_private else "Public"
+        visibility = f"Visibility: {post.visibility_id or 'Default'}"
         print(f"   - {post.name} ({visibility})")
 
     # Get a specific post

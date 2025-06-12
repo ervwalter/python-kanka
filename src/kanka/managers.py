@@ -1,6 +1,14 @@
 """Entity managers for Kanka API."""
 
-from typing import TYPE_CHECKING, Any, Generic, List, TypeVar, Union  # noqa: UP035
+from typing import (  # noqa: UP035
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    List,
+    Optional,
+    TypeVar,
+    Union,
+)
 
 from .models.base import Entity, Post
 
@@ -316,7 +324,7 @@ class EntityManager(Generic[T]):
         entity_or_id: Union[T, int],
         name: str,
         entry: str,
-        is_private: bool = False,
+        visibility_id: Optional[int] = None,
         **kwargs,
     ) -> Post:
         """Create a post for an entity.
@@ -329,7 +337,8 @@ class EntityManager(Generic[T]):
             entity_or_id: The entity object OR its entity_id (NOT the type-specific ID!)
             name: Post name/title
             entry: Post content (supports HTML)
-            is_private: Whether the post is private (default: False)
+            visibility_id: Control who can see the post (1=all, 2=admin, 3=admin-self, 4=self, 5=members)
+                          None defaults to campaign's default post visibility
             **kwargs: Additional post fields
 
         Returns:
@@ -342,14 +351,15 @@ class EntityManager(Generic[T]):
                 character,  # Pass the full object
                 name="Session Notes",
                 entry="The character discovered a hidden treasure...",
-                is_private=True
+                visibility_id=2  # Admin-only visibility
             )
 
-            # Alternative: Pass the entity_id directly (NOT character.id!)
+            # Public post (visible to all)
             post = client.characters.create_post(
-                character.entity_id,  # Must use entity_id, not id!
-                name="Session Notes",
-                entry="Content here..."
+                character,
+                name="Public Notice",
+                entry="This information is public knowledge.",
+                visibility_id=1
             )
         """
         # Extract entity_id from entity object or use the provided entity_id directly
@@ -359,7 +369,9 @@ class EntityManager(Generic[T]):
             else entity_or_id
         )
 
-        data = {"name": name, "entry": entry, "is_private": int(is_private), **kwargs}
+        data = {"name": name, "entry": entry, **kwargs}
+        if visibility_id is not None:
+            data["visibility_id"] = visibility_id
 
         url = f"entities/{entity_id}/posts"
         response = self.client._request("POST", url, json=data)
@@ -386,7 +398,13 @@ class EntityManager(Generic[T]):
         response = self.client._request("GET", url)
         return Post(**response["data"])
 
-    def update_post(self, entity_or_id: Union[T, int], post_id: int, **kwargs) -> Post:
+    def update_post(
+        self,
+        entity_or_id: Union[T, int],
+        post_id: int,
+        visibility_id: Optional[int] = None,
+        **kwargs,
+    ) -> Post:
         """Update a post for an entity.
 
         IMPORTANT: Posts use the entity_id, not the type-specific ID!
@@ -395,17 +413,20 @@ class EntityManager(Generic[T]):
         Args:
             entity_or_id: The entity object OR its entity_id (NOT the type-specific ID!)
             post_id: The post ID
+            visibility_id: Update post visibility (1=all, 2=admin, 3=admin-self, 4=self, 5=members)
+                          None keeps existing visibility
             **kwargs: Fields to update (must include 'name' even if unchanged)
 
         Returns:
             The updated Post instance
 
         Example:
-            # Pass the entity object (preferred) or entity_id
+            # Update post to admin-only visibility
             updated = client.characters.update_post(
                 character,  # or character.entity_id
                 post_id,
                 name="Post Title",  # Required even if not changing!
+                visibility_id=2  # Admin-only
                 entry="New content..."
             )
         """
@@ -416,9 +437,9 @@ class EntityManager(Generic[T]):
             else entity_or_id
         )
 
-        # Convert boolean is_private to int if present
-        if "is_private" in kwargs and isinstance(kwargs["is_private"], bool):
-            kwargs["is_private"] = int(kwargs["is_private"])
+        # Add visibility_id to kwargs if provided
+        if visibility_id is not None:
+            kwargs["visibility_id"] = visibility_id
 
         url = f"entities/{entity_id}/posts/{post_id}"
         response = self.client._request("PATCH", url, json=kwargs)

@@ -263,12 +263,11 @@ class TestPost:
             created_by=1,
             updated_at="2024-01-01T00:00:00.000000Z",
             updated_by=1,
-            is_private=False,
         )
 
         assert post.name == "Character Background"
         assert post.entry == "<p>Long ago...</p>"
-        assert post.is_private is False
+        assert post.visibility_id is None
 
 
 class TestSearchResult:

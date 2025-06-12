@@ -253,7 +253,7 @@ posts = client.characters.list_posts(character)
 posts = client.characters.list_posts(character.entity_id)
 ```
 
-#### create_post(entity_or_id, name, entry, is_private=False, **kwargs)
+#### create_post(entity_or_id, name, entry, visibility_id=None, **kwargs)
 Create a post for an entity.
 
 **IMPORTANT:** Posts use the entity_id, not the type-specific ID!
@@ -262,7 +262,7 @@ Create a post for an entity.
 - `entity_or_id`: The entity object (preferred) or its entity_id (NOT the type-specific ID)
 - `name` (str): Post name
 - `entry` (str): Post content (supports HTML)
-- `is_private` (bool, optional): Privacy setting
+- `visibility_id` (int, optional): Control who can see the post (1=all, 2=admin, 3=admin-self, 4=self, 5=members). None defaults to campaign's default post visibility
 - `**kwargs`: Additional fields
 
 **Returns:** Post
@@ -274,7 +274,8 @@ character = client.characters.get(123)
 post = client.characters.create_post(
     character,  # Pass the full object
     name="Session Notes",
-    entry="<p>The character discovered...</p>"
+    entry="<p>The character discovered...</p>",
+    visibility_id=2  # Admin-only visibility
 )
 ```
 
@@ -287,7 +288,7 @@ Get a specific post.
 
 **Returns:** Post
 
-#### update_post(entity_or_id, post_id, **kwargs)
+#### update_post(entity_or_id, post_id, visibility_id=None, **kwargs)
 Update a post.
 
 **NOTE:** The Kanka API requires the 'name' field even when not changing it.
@@ -295,17 +296,20 @@ Update a post.
 **Parameters:**
 - `entity_or_id`: The entity object or its entity_id (NOT the type-specific ID)
 - `post_id` (int): The post ID
+- `visibility_id` (int, optional): Update post visibility (1=all, 2=admin, 3=admin-self, 4=self, 5=members). None keeps existing visibility
 - `**kwargs`: Fields to update (must include 'name' even if unchanged)
 
 **Returns:** Post
 
 **Example:**
 ```python
+# Update post to admin-only visibility
 post = client.characters.update_post(
     character,
     post_id,
     name=post.name,  # Required even if not changing!
-    entry="Updated content..."
+    entry="Updated content...",
+    visibility_id=2  # Admin-only
 )
 ```
 
@@ -452,13 +456,12 @@ Represents an entity post/note.
 - `entity_id` (int): Parent entity ID
 - `name` (str): Post title
 - `entry` (str): Post content (HTML)
-- `is_private` (bool): Privacy setting (default: False)
+- `visibility_id` (int, optional): Control who can see the post (1=all, 2=admin, 3=admin-self, 4=self, 5=members)
 - `is_pinned` (bool, optional): Whether post is pinned
 - `position` (int, optional): Post position/order
-- `visibility` (str, optional): Post visibility setting
-- `created_at` (datetime, optional): Creation timestamp
-- `created_by` (int, optional): Creator user ID
-- `updated_at` (datetime, optional): Update timestamp
+- `created_at` (datetime): Creation timestamp
+- `created_by` (int): Creator user ID
+- `updated_at` (datetime): Update timestamp
 - `updated_by` (int, optional): Updater user ID
 
 #### SearchResult

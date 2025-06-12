@@ -430,11 +430,11 @@ class TestEntityManager:
 
         # Test create_post with entity object
         self.mock_client._request.return_value = {"data": create_mock_post(1)}
-        self.manager.create_post(entity, name="Test", entry="Content")
+        self.manager.create_post(entity, name="Test", entry="Content", visibility_id=1)
         self.mock_client._request.assert_called_with(
             "POST",
             "entities/500/posts",  # Should use entity_id, not id
-            json={"name": "Test", "entry": "Content", "is_private": 0},
+            json={"name": "Test", "entry": "Content", "visibility_id": 1},
         )
 
         # Test get_post with entity object

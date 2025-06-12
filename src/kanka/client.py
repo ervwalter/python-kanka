@@ -304,6 +304,23 @@ class KankaClient:
 
         return [SearchResult(**item) for item in response["data"]]
 
+    def entity(self, entity_id: int) -> dict[str, Any]:
+        """Get a single entity by entity_id.
+
+        This endpoint provides direct access to any entity regardless of type.
+
+        Args:
+            entity_id: The entity ID
+
+        Returns:
+            Entity data dictionary
+
+        Raises:
+            NotFoundError: If entity doesn't exist
+        """
+        response = self._request("GET", f"entities/{entity_id}")
+        return response["data"]  # type: ignore[no-any-return]
+
     def entities(self, **filters) -> list[dict[str, Any]]:
         """Access the /entities endpoint with filters.
 
