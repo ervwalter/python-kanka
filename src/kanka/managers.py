@@ -55,6 +55,29 @@ class EntityManager(Generic[T]):
         response = self.client._request("GET", url, params=params)
         return self.model(**response["data"])
 
+    @property
+    def pagination_meta(self) -> dict[str, Any]:
+        """Get pagination metadata from the last list() call.
+
+        Returns:
+            Dictionary containing pagination info like total, per_page, current_page, etc.
+        """
+        return getattr(self, "_last_meta", {})
+
+    @property
+    def pagination_links(self) -> dict[str, Optional[str]]:
+        """Get pagination links from the last list() call.
+
+        Returns:
+            Dictionary containing pagination URLs: first, last, prev, next
+        """
+        return getattr(self, "_last_links", {})
+
+    @property
+    def has_next_page(self) -> bool:
+        """Check if there's a next page available."""
+        return bool(self.pagination_links.get("next"))
+
     def list(
         self, page: int = 1, limit: int = 30, related: bool = False, **filters
     ) -> list[T]:
@@ -79,6 +102,12 @@ class EntityManager(Generic[T]):
         Returns:
             List of entity instances
 
+        Note:
+            Pagination information is available after calling list():
+            - manager.pagination_meta: Contains total count, current page, etc.
+            - manager.pagination_links: Contains URLs for first, last, prev, next
+            - manager.has_next_page: True if more pages are available
+
         Examples:
             # Get all public characters
             characters = client.characters.list(is_private=False)
@@ -91,6 +120,22 @@ class EntityManager(Generic[T]):
 
             # Get characters with posts included
             chars_with_posts = client.characters.list(related=True)
+
+            # Handle pagination manually
+            page = 1
+            all_characters = []
+            while True:
+                chars = client.characters.list(page=page)
+                all_characters.extend(chars)
+                if not client.characters.has_next_page:
+                    break
+                page += 1
+
+            # Check pagination info
+            chars = client.characters.list(page=1)
+            print(f"Total characters: {client.characters.pagination_meta['total']}")
+            print(f"Current page: {client.characters.pagination_meta['current_page']}")
+            print(f"Last page: {client.characters.pagination_meta['last_page']}")
 
             # Combine filters
             results = client.characters.list(
