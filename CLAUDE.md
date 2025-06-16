@@ -4,9 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Key Development Commands
 
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management. All commands are wrapped in the Makefile for convenience:
+
 ```bash
-# Install development environment
+# Install development environment (uses uv sync)
 make install
+
+# Sync dependencies without updating lock file
+make sync
 
 # Run unit tests only (no integration tests)
 make test
@@ -31,10 +36,65 @@ make typecheck
 make check
 
 # Build the package
-python -m build
+make build
 
 # Generate coverage report
 make coverage
+```
+
+### Direct uv commands
+
+```bash
+# Install dependencies
+uv sync --all-groups
+
+# Run a command in the environment
+uv run pytest
+
+# Add a new dependency
+uv add package-name
+
+# Add a dev dependency
+uv add --group dev package-name
+
+# Update dependencies
+uv lock --upgrade
+
+# Build the package
+uv build
+```
+
+## Git Commit Message Format
+
+This project uses conventional commits format:
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation only changes
+- `style`: Code style changes (formatting, missing semicolons, etc)
+- `refactor`: Code change that neither fixes a bug nor adds a feature
+- `test`: Adding missing tests or correcting existing tests
+- `chore`: Changes to build process, dependencies, or auxiliary tools
+
+**Examples:**
+- `feat: add pagination properties to EntityManager`
+- `fix: replace is_private with visibility_id parameter for posts`
+- `chore(deps): update dependency ruff to v0.11.13`
+- `refactor: reorganize package structure for PyPI publishing`
+
+**Note:** When Claude generates commits, they should include the attribution at the end of the commit body:
+```
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 ## Architecture Overview

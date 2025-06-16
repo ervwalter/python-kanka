@@ -26,10 +26,20 @@ Install from PyPI:
 pip install python-kanka
 ```
 
-Or install from source:
+### From Source (using uv)
 ```bash
 git clone https://github.com/ervwalter/python-kanka.git
 cd python-kanka
+uv sync --all-groups
+uv pip install -e .
+```
+
+### From Source (using pip)
+```bash
+git clone https://github.com/ervwalter/python-kanka.git
+cd python-kanka
+pip install -r requirements.txt
+pip install -r dev-requirements.txt
 pip install -e .
 ```
 
