@@ -30,7 +30,7 @@ classifiers = [
 dependencies = [
     "requests==2.32.4",
     "requests-toolbelt==1.0.0",
-    "pydantic==2.11.5",
+    "pydantic==2.11.7",
 ]
 
 [project.urls]
@@ -41,14 +41,14 @@ Issues = "https://github.com/ervwalter/python-kanka/issues"
 
 [dependency-groups]
 dev = [
-    "pytest==8.4.0",
+    "pytest==8.4.1",
     "pytest-asyncio==1.0.0",
     "pytest-cov==6.2.1",
     "pytest-mock==3.14.1",
-    "mypy==1.16.0",
+    "mypy==1.16.1",
     "black==25.1.0",
     "isort==6.0.1",
-    "ruff==0.11.13",
+    "ruff==0.12.0",
     "types-requests",
     "bump2version==1.0.1",
     "build==1.2.2.post1",
