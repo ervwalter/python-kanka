@@ -48,7 +48,7 @@ dev = [
     "mypy==1.17.0",
     "black==25.1.0",
     "isort==6.0.1",
-    "ruff==0.12.3",
+    "ruff==0.12.4",
     "types-requests",
     "bump2version==1.0.1",
     "build==1.2.2.post1",
