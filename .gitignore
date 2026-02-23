@@ -171,8 +171,7 @@ Thumbs.db
 tests/integration/.env
 tests/integration/*.log
 
-# Test output files
-*_test_output.txt
-*_output.txt
+# Test and debug output files
+*_output*.txt
 test_api_response.py
 claude-notes
