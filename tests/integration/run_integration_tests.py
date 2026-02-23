@@ -71,6 +71,9 @@ def load_test_classes():
         ("test_mentions_integration", "TestMentionsIntegration"),
         ("test_entities_api_integration", "TestEntitiesApiIntegration"),
         ("test_search_integration", "TestSearchIntegration"),
+        ("test_gallery_integration", "TestGalleryIntegration"),
+        ("test_entity_assets_integration", "TestEntityAssetIntegration"),
+        ("test_entity_images_integration", "TestEntityImageIntegration"),
     ]
 
     test_classes = []

@@ -784,8 +784,7 @@ class EntityManager[T: Entity]:
         }
         if visibility_id is not None:
             data["visibility_id"] = visibility_id
-        if is_pinned:
-            data["is_pinned"] = 1
+        data["is_pinned"] = 1 if is_pinned else 0
 
         url = f"entities/{entity_id}/entity_assets"
         with open(file_path, "rb") as f:

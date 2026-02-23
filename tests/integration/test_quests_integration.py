@@ -263,22 +263,4 @@ class TestQuestIntegration(IntegrationTestBase):
 
 
 if __name__ == "__main__":
-    # When run directly, execute all tests
-    tester = TestQuestIntegration()
-    results = tester.run_all_tests()
-
-    print("\n" + "=" * 50)
-    print("QUEST INTEGRATION TEST RESULTS")
-    print("=" * 50)
-
-    passed = sum(1 for _, result in results if result)
-    total = len(results)
-
-    for test_name, result in results:
-        status = "PASSED" if result else "FAILED"
-        print(f"{test_name}: {status}")
-
-    print(f"\nTotal: {passed}/{total} tests passed")
-
-    if passed < total:
-        exit(1)
+    TestQuestIntegration.run_standalone("QUEST INTEGRATION TEST")

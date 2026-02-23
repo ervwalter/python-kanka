@@ -605,7 +605,7 @@ class KankaClient:
             List of GalleryImage instances
         """
         params: dict[str, int | str] = {"page": page, "limit": limit}
-        response = self._request("GET", "gallery", params=params)
+        response = self._request("GET", "images", params=params)
         self._last_gallery_meta = response.get("meta", {})
         self._last_gallery_links = response.get("links", {})
         return [GalleryImage(**item) for item in response["data"]]
@@ -619,7 +619,7 @@ class KankaClient:
         Returns:
             GalleryImage instance
         """
-        response = self._request("GET", f"gallery/{image_id}")
+        response = self._request("GET", f"images/{image_id}")
         return GalleryImage(**response["data"])
 
     def gallery_upload(
@@ -647,7 +647,7 @@ class KankaClient:
 
         with open(file_path, "rb") as f:
             files = {"file[]": (file_path.name, f)}
-            response = self._upload_request("POST", "gallery", files=files, data=data)
+            response = self._upload_request("POST", "images", files=files, data=data)
 
         # API returns data as a list even for single uploads
         return GalleryImage(**response["data"][0])
@@ -661,7 +661,7 @@ class KankaClient:
         Returns:
             True if successful
         """
-        self._request("DELETE", f"gallery/{image_id}")
+        self._request("DELETE", f"images/{image_id}")
         return True
 
     @property

@@ -2,6 +2,7 @@
 Base class for integration tests.
 """
 
+import argparse
 import os
 import sys
 import time
@@ -127,3 +128,59 @@ class IntegrationTestBase:
     def wait_for_api(self, seconds: float = 0.5):
         """Wait a bit to avoid rate limiting."""
         time.sleep(seconds)
+
+    def run_all_tests(self) -> list[tuple[str, bool]]:
+        """Run all tests. Subclasses must override this."""
+        raise NotImplementedError
+
+    @classmethod
+    def run_standalone(cls, title: str = "INTEGRATION TEST"):
+        """Run this test class standalone with --pause support.
+
+        Call from ``if __name__ == "__main__"`` blocks::
+
+            TestFooIntegration.run_standalone("FOO INTEGRATION TEST")
+        """
+        parser = argparse.ArgumentParser()
+        parser.add_argument(
+            "-p",
+            "--pause",
+            action="store_true",
+            help="Defer cleanup and pause before cleanup for manual inspection",
+        )
+        args = parser.parse_args()
+
+        if args.pause:
+            os.environ["KANKA_TEST_DEFER_CLEANUP"] = "true"
+            os.environ["KANKA_TEST_PAUSE_CLEANUP"] = "true"
+
+        tester = cls()
+        results = tester.run_all_tests()
+
+        # Handle deferred cleanup
+        if args.pause and tester._cleanup_tasks:
+            print(f"\n{'=' * 50}")
+            print("PAUSED BEFORE CLEANUP")
+            print("=" * 50)
+            print(f"About to clean up {len(tester._cleanup_tasks)} items:")
+            for description, _ in tester._cleanup_tasks:
+                print(f"  - {description}")
+            print("\nYou can now inspect these entities in the Kanka web app.")
+            input("Press Enter to continue with cleanup...")
+            tester._execute_cleanup_tasks()
+
+        print(f"\n{'=' * 50}")
+        print(f"{title} RESULTS")
+        print("=" * 50)
+
+        passed = sum(1 for _, result in results if result)
+        total = len(results)
+
+        for test_name, result in results:
+            status = "PASSED" if result else "FAILED"
+            print(f"{test_name}: {status}")
+
+        print(f"\nTotal: {passed}/{total} tests passed")
+
+        if passed < total:
+            sys.exit(1)

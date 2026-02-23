@@ -351,7 +351,7 @@ class TestGalleryMethods:
 
         mock_session.request.assert_called_with(
             "GET",
-            "https://api.kanka.io/1.0/campaigns/123/gallery",
+            "https://api.kanka.io/1.0/campaigns/123/images",
             params={"page": 1, "limit": 30},
         )
 
@@ -412,6 +412,6 @@ class TestGalleryMethods:
 
         mock_session.request.assert_called_with(
             "DELETE",
-            "https://api.kanka.io/1.0/campaigns/123/gallery/uuid-1",
+            "https://api.kanka.io/1.0/campaigns/123/images/uuid-1",
         )
         assert result is True
