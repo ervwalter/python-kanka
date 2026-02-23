@@ -86,6 +86,9 @@ asset = client.characters.create_alias_asset(
 
 ```python
 client.characters.delete_asset(character, asset.id)
+
+# Also delete the underlying gallery image to prevent orphans:
+client.characters.delete_asset(character, asset.id, delete_gallery_image=True)
 ```
 
 ### EntityAsset Model Fields
@@ -204,8 +207,8 @@ The SDK uses a naming convention for assets it manages: `{name}:{sha256_first12}
 When you call `update()` or `update_post()` with `images`, the SDK compares file hashes:
 
 - **Unchanged files** (same SHA-256 hash) — reused without re-uploading
-- **Changed files** (different hash) — old asset deleted, new one uploaded
-- **Orphaned managed assets** (no longer referenced in `images` dict) — automatically cleaned up
+- **Changed files** (different hash) — old asset deleted (along with its gallery image), new one uploaded
+- **Orphaned managed assets** (no longer referenced in `images` dict) — automatically cleaned up (both entity asset and gallery image)
 - **Non-managed assets** (user-created assets without the hash suffix) — never touched
 
 ### Full Lifecycle Example

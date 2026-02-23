@@ -928,11 +928,17 @@ class TestConvenienceImagesUpdate:
 
     @patch("builtins.open", mock_open(read_data=b"new image data"))
     def test_update_with_images_replaces_changed(self):
-        """Test update replaces asset when file hash differs."""
+        """Test update replaces asset when file hash differs and cleans gallery."""
         old_hash = "aaaaaaaaaaaa"
         managed_name = f"portrait.png:{old_hash}"
+        gallery_uuid = "a1257cff-cfea-4cf6-9664-a8cf3407226a"
 
-        existing_asset = create_mock_entity_asset(10, name=managed_name, type_id=1)
+        existing_asset = create_mock_entity_asset(
+            10,
+            name=managed_name,
+            type_id=1,
+            _url=f"https://cdn-ugc.kanka.io/campaigns/123/{gallery_uuid}.webp",
+        )
 
         entity = Character(
             id=5,
@@ -956,7 +962,8 @@ class TestConvenienceImagesUpdate:
 
         self.mock_client._request.side_effect = [
             create_api_response([existing_asset]),  # list_assets
-            {},  # delete old asset
+            {"data": existing_asset},  # get_asset (for gallery cleanup)
+            {},  # delete old entity asset
             {"data": create_mock_entity("character", 5)},  # PATCH update
         ]
         self.mock_client._upload_request.return_value = {"data": new_asset}
@@ -970,13 +977,20 @@ class TestConvenienceImagesUpdate:
         # Should have uploaded new file and deleted old
         self.mock_client._upload_request.assert_called_once()
 
+        # Should have deleted the gallery image
+        self.mock_client.gallery_delete.assert_called_once_with(gallery_uuid)
+
     @patch("builtins.open", mock_open(read_data=b"fake image"))
     def test_update_with_images_cleans_orphans(self):
-        """Test update cleans up orphaned managed assets."""
+        """Test update cleans up orphaned managed assets and gallery images."""
         file_hash = hashlib.sha256(b"fake image").hexdigest()[:12]
+        orphan_uuid = "b2368dff-dfeb-5df7-a775-b9df4508337b"
 
         orphan_asset = create_mock_entity_asset(
-            10, name=f"old_image.png:{file_hash}", type_id=1
+            10,
+            name=f"old_image.png:{file_hash}",
+            type_id=1,
+            _url=f"https://cdn-ugc.kanka.io/campaigns/123/{orphan_uuid}.webp",
         )
         new_asset = create_mock_entity_asset(
             11,
@@ -998,7 +1012,8 @@ class TestConvenienceImagesUpdate:
 
         self.mock_client._request.side_effect = [
             create_api_response([orphan_asset]),  # list_assets
-            {},  # delete orphan
+            {"data": orphan_asset},  # get_asset (for gallery cleanup)
+            {},  # delete orphan entity asset
             {"data": create_mock_entity("character", 5)},  # PATCH update
         ]
         self.mock_client._upload_request.return_value = {"data": new_asset}
@@ -1009,11 +1024,12 @@ class TestConvenienceImagesUpdate:
             images={"new_image.png": "/path/to/new_image.png"},
         )
 
-        # Orphan should have been deleted
+        # Orphan entity asset and gallery image should both have been deleted
         delete_calls = [
             c for c in self.mock_client._request.call_args_list if c[0][0] == "DELETE"
         ]
         assert len(delete_calls) == 1
+        self.mock_client.gallery_delete.assert_called_once_with(orphan_uuid)
 
 
 class TestConvenienceImagesPost:
@@ -1114,3 +1130,156 @@ class TestConvenienceImagesPost:
         # Should have fetched the post to get entry
         first_call = self.mock_client._request.call_args_list[0]
         assert first_call[0] == ("GET", "entities/100/posts/5")
+
+
+class TestExtractGalleryUuid:
+    """Test _extract_gallery_uuid static method."""
+
+    def test_extracts_uuid_from_cdn_url(self):
+        url = "https://cdn-ugc.kanka.io/campaigns/123456/a1257cff-cfea-4cf6-9664-a8cf3407226a.webp"
+        result = EntityManager._extract_gallery_uuid(url)
+        assert result == "a1257cff-cfea-4cf6-9664-a8cf3407226a"
+
+    def test_extracts_uuid_with_png_extension(self):
+        url = "https://cdn-ugc.kanka.io/campaigns/99/deadbeef-1234-5678-9abc-def012345678.png"
+        result = EntityManager._extract_gallery_uuid(url)
+        assert result == "deadbeef-1234-5678-9abc-def012345678"
+
+    def test_returns_none_for_url_without_uuid(self):
+        url = "https://cdn.example.com/some-image.png"
+        result = EntityManager._extract_gallery_uuid(url)
+        assert result is None
+
+    def test_returns_none_for_none(self):
+        result = EntityManager._extract_gallery_uuid(None)
+        assert result is None
+
+    def test_returns_none_for_empty_string(self):
+        result = EntityManager._extract_gallery_uuid("")
+        assert result is None
+
+
+class TestDeleteAssetWithGalleryCleanup:
+    """Test delete_asset with delete_gallery_image parameter."""
+
+    def setup_method(self):
+        self.mock_client = Mock()
+        self.mock_client._request = Mock()
+        self.manager = EntityManager(self.mock_client, "characters", Character)
+
+    def test_delete_asset_default_no_gallery_cleanup(self):
+        """delete_asset without flag should not fetch asset or delete gallery image."""
+        self.mock_client._request.return_value = {}
+
+        self.manager.delete_asset(500, 10)
+
+        # Only one DELETE call, no GET
+        assert self.mock_client._request.call_count == 1
+        call = self.mock_client._request.call_args_list[0]
+        assert call[0] == ("DELETE", "entities/500/entity_assets/10")
+
+    def test_delete_asset_with_gallery_cleanup(self):
+        """delete_asset with flag should fetch asset and delete gallery image."""
+        gallery_uuid = "a1257cff-cfea-4cf6-9664-a8cf3407226a"
+        asset_data = create_mock_entity_asset(
+            10,
+            _url=f"https://cdn-ugc.kanka.io/campaigns/123/{gallery_uuid}.webp",
+        )
+
+        self.mock_client._request.side_effect = [
+            {"data": asset_data},  # get_asset
+            {},  # delete entity asset
+        ]
+
+        self.manager.delete_asset(500, 10, delete_gallery_image=True)
+
+        calls = self.mock_client._request.call_args_list
+        assert calls[0][0] == ("GET", "entities/500/entity_assets/10")
+        assert calls[1][0] == ("DELETE", "entities/500/entity_assets/10")
+        self.mock_client.gallery_delete.assert_called_once_with(gallery_uuid)
+
+    def test_delete_asset_gallery_already_gone(self):
+        """delete_asset should handle NotFoundError on gallery delete gracefully."""
+        from kanka.exceptions import NotFoundError
+
+        gallery_uuid = "a1257cff-cfea-4cf6-9664-a8cf3407226a"
+        asset_data = create_mock_entity_asset(
+            10,
+            _url=f"https://cdn-ugc.kanka.io/campaigns/123/{gallery_uuid}.webp",
+        )
+
+        self.mock_client._request.side_effect = [
+            {"data": asset_data},  # get_asset
+            {},  # delete entity asset
+        ]
+        self.mock_client.gallery_delete.side_effect = NotFoundError("Not found", 404)
+
+        # Should not raise
+        self.manager.delete_asset(500, 10, delete_gallery_image=True)
+
+    def test_delete_asset_no_uuid_in_url(self):
+        """delete_asset with flag but no UUID in URL should skip gallery delete."""
+        asset_data = create_mock_entity_asset(
+            10,
+            _url="https://cdn.example.com/simple-image.png",
+        )
+
+        self.mock_client._request.side_effect = [
+            {"data": asset_data},  # get_asset
+            {},  # delete entity asset
+        ]
+
+        self.manager.delete_asset(500, 10, delete_gallery_image=True)
+
+        # Only GET + DELETE for entity asset, no gallery delete
+        assert self.mock_client._request.call_count == 2
+
+
+class TestLongPlaceholderTruncation:
+    """Test that long placeholder names are truncated for matching."""
+
+    def setup_method(self):
+        self.mock_client = Mock()
+        self.mock_client._request = Mock()
+        self.mock_client._upload_request = Mock()
+        self.manager = EntityManager(self.mock_client, "characters", Character)
+
+    @patch("builtins.open", mock_open(read_data=b"fake image"))
+    def test_long_placeholder_matches_existing_asset(self):
+        """Placeholder longer than 32 chars should still match truncated asset name."""
+        long_placeholder = "this-is-a-very-long-placeholder-name-for-an-image.png"
+        truncated = long_placeholder[:32]
+        file_hash = hashlib.sha256(b"fake image").hexdigest()[:12]
+        managed_name = f"{truncated}:{file_hash}"
+
+        existing_asset = create_mock_entity_asset(
+            10,
+            name=managed_name,
+            type_id=1,
+            _url="https://cdn.example.com/existing.png",
+        )
+
+        entity = Character(
+            id=5,
+            entity_id=500,
+            name="Hero",
+            entry=f'<p><img src="{long_placeholder}" /></p>',
+            created_at="2024-01-01T00:00:00.000000Z",
+            created_by=1,
+            updated_at="2024-01-01T00:00:00.000000Z",
+            updated_by=1,
+        )
+
+        self.mock_client._request.side_effect = [
+            create_api_response([existing_asset]),  # list_assets
+            {"data": create_mock_entity("character", 5)},  # PATCH update
+        ]
+
+        self.manager.update(
+            entity,
+            entry=f'<p><img src="{long_placeholder}" /></p>',
+            images={long_placeholder: "/path/to/image.png"},
+        )
+
+        # Should NOT have uploaded a new file (reused existing)
+        self.mock_client._upload_request.assert_not_called()

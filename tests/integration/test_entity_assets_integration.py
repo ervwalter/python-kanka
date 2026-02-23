@@ -55,6 +55,22 @@ class TestEntityAssetIntegration(IntegrationTestBase):
             f"Delete character '{name}' (ID: {character_id})", cleanup
         )
 
+    def _register_gallery_cleanup(self, asset_url: str | None):
+        """Register gallery image cleanup from an asset's CDN URL."""
+        from kanka.exceptions import NotFoundError
+        from kanka.managers import EntityManager
+
+        gallery_uuid = EntityManager._extract_gallery_uuid(asset_url)
+        if not gallery_uuid:
+            return
+
+        def cleanup():
+            if self.client:
+                with contextlib.suppress(NotFoundError):
+                    self.client.gallery_delete(gallery_uuid)
+
+        self.register_cleanup(f"Delete gallery image '{gallery_uuid}'", cleanup)
+
     def test_create_file_asset(self):
         """Test creating a file asset on an entity."""
         character = self.client.characters.create(
@@ -68,6 +84,7 @@ class TestEntityAssetIntegration(IntegrationTestBase):
         asset = self.client.characters.create_file_asset(
             character, image_path, name="test-file-asset"
         )
+        self._register_gallery_cleanup(asset.url)
 
         self.assert_not_none(asset.id, "Asset ID should not be None")
         self.assert_equal(asset.type_id, 1, "File asset type_id should be 1")
@@ -131,6 +148,7 @@ class TestEntityAssetIntegration(IntegrationTestBase):
         file_asset = self.client.characters.create_file_asset(
             character, image_path, name="list-test-file"
         )
+        self._register_gallery_cleanup(file_asset.url)
 
         self.wait_for_api()
 
@@ -177,6 +195,7 @@ class TestEntityAssetIntegration(IntegrationTestBase):
         created = self.client.characters.create_file_asset(
             character, image_path, name="get-test-asset"
         )
+        self._register_gallery_cleanup(created.url)
 
         self.wait_for_api()
 
@@ -202,6 +221,7 @@ class TestEntityAssetIntegration(IntegrationTestBase):
             character, image_path, name="delete-test-asset"
         )
         asset_id = asset.id
+        self._register_gallery_cleanup(asset.url)
 
         self.wait_for_api()
 
@@ -220,6 +240,134 @@ class TestEntityAssetIntegration(IntegrationTestBase):
 
         print(f"  Deleted asset {asset_id}")
 
+    def test_delete_asset_with_gallery_cleanup(self):
+        """Test deleting an asset also deletes the gallery image."""
+        from kanka.managers import EntityManager
+
+        character = self.client.characters.create(
+            name=f"Integration Test Assets - DELETE ME - {datetime.now().isoformat()}"
+        )
+        self._register_character_cleanup(character.id, character.name)
+
+        self.wait_for_api()
+
+        image_path = self._create_test_image()
+        asset = self.client.characters.create_file_asset(
+            character, image_path, name="gallery-cleanup-test"
+        )
+        asset_id = asset.id
+        asset_url = asset.url
+        self.assert_not_none(asset_url, "Asset should have a CDN URL")
+
+        # Extract gallery UUID from the URL
+        gallery_uuid = EntityManager._extract_gallery_uuid(asset_url)
+        print(f"  Created asset {asset_id} with gallery UUID: {gallery_uuid}")
+
+        if gallery_uuid:
+            # Verify gallery image exists before deletion
+            self.wait_for_api()
+            gallery_image = self.client.gallery_get(gallery_uuid)
+            self.assert_not_none(
+                gallery_image, "Gallery image should exist before delete"
+            )
+            print(f"  Gallery image confirmed: {gallery_image.id}")
+
+        self.wait_for_api()
+
+        # Delete with gallery cleanup
+        result = self.client.characters.delete_asset(
+            character, asset_id, delete_gallery_image=True
+        )
+        self.assert_true(result, "delete_asset should return True")
+
+        self.wait_for_api()
+
+        # Verify the entity asset is gone
+        assets = self.client.characters.list_assets(character)
+        asset_ids = {a.id for a in assets}
+        self.assert_true(
+            asset_id not in asset_ids,
+            f"Deleted asset {asset_id} should not appear in list",
+        )
+
+        # Verify gallery image is also gone
+        if gallery_uuid:
+            from kanka.exceptions import NotFoundError
+
+            try:
+                self.client.gallery_get(gallery_uuid)
+                self.assert_true(False, "Gallery image should have been deleted")
+            except NotFoundError:
+                pass  # Expected
+
+        print(f"  Deleted asset {asset_id} and gallery image {gallery_uuid}")
+
+    def test_managed_image_update_cleans_gallery(self):
+        """Test that updating managed images cleans up gallery orphans."""
+        from kanka.managers import EntityManager
+
+        character = self.client.characters.create(
+            name=f"Integration Test Assets - DELETE ME - {datetime.now().isoformat()}"
+        )
+        self._register_character_cleanup(character.id, character.name)
+
+        self.wait_for_api()
+
+        # Create with an image
+        image_path_1 = self._create_test_image(prefix="managed_v1")
+        character = self.client.characters.update(
+            character,
+            entry='<p><img src="test.png" /> Hello</p>',
+            images={"test.png": image_path_1},
+        )
+
+        self.wait_for_api()
+
+        # Find the managed asset and its gallery UUID
+        assets = self.client.characters.list_assets(character)
+        managed = [a for a in assets if EntityManager._parse_managed_asset_name(a.name)]
+        self.assert_equal(len(managed), 1, "Should have 1 managed asset")
+        old_uuid = EntityManager._extract_gallery_uuid(managed[0].url)
+        print(f"  First image gallery UUID: {old_uuid}")
+
+        self.wait_for_api()
+
+        # Update with a different image (write different bytes)
+        image_path_2 = self._create_test_image(prefix="managed_v2")
+        # Write different content to ensure different hash
+        with open(image_path_2, "ab") as f:
+            f.write(b"extra bytes to change hash")
+
+        character = self.client.characters.update(
+            character,
+            entry='<p><img src="test.png" /> Updated</p>',
+            images={"test.png": image_path_2},
+        )
+
+        self.wait_for_api()
+
+        # Verify old gallery image is cleaned up
+        if old_uuid:
+            from kanka.exceptions import NotFoundError
+
+            try:
+                self.client.gallery_get(old_uuid)
+                self.assert_true(False, "Old gallery image should have been deleted")
+            except NotFoundError:
+                pass  # Expected
+
+        # Verify new asset exists
+        assets = self.client.characters.list_assets(character)
+        managed = [a for a in assets if EntityManager._parse_managed_asset_name(a.name)]
+        self.assert_equal(len(managed), 1, "Should still have 1 managed asset")
+        new_uuid = EntityManager._extract_gallery_uuid(managed[0].url)
+        self.assert_true(
+            new_uuid != old_uuid, "New gallery UUID should differ from old"
+        )
+
+        print(f"  New image gallery UUID: {new_uuid}")
+        print("  Old gallery image was properly cleaned up")
+
     def run_all_tests(self):
         """Run all entity asset integration tests."""
         tests = [
@@ -229,6 +377,14 @@ class TestEntityAssetIntegration(IntegrationTestBase):
             ("Entity Asset - List", self.test_list_assets),
             ("Entity Asset - Get", self.test_get_asset),
             ("Entity Asset - Delete", self.test_delete_asset),
+            (
+                "Entity Asset - Delete with Gallery Cleanup",
+                self.test_delete_asset_with_gallery_cleanup,
+            ),
+            (
+                "Entity Asset - Managed Image Update Cleans Gallery",
+                self.test_managed_image_update_cleans_gallery,
+            ),
         ]
 
         results = []

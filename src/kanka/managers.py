@@ -1,10 +1,12 @@
 """Entity managers for Kanka API."""
 
+import contextlib
 import hashlib
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, TypeVar  # noqa: UP035
 
+from .exceptions import NotFoundError
 from .models.base import Entity, Post
 from .models.common import EntityAsset, EntityImageInfo
 
@@ -421,6 +423,22 @@ class EntityManager[T: Entity]:
         return None
 
     @staticmethod
+    def _extract_gallery_uuid(url: str | None) -> str | None:
+        """Extract gallery image UUID from a CDN URL.
+
+        The UUID is the filename stem in the URL path, e.g.
+        ``https://cdn-ugc.kanka.io/campaigns/123/a1b2-...-c3d4.webp``
+        yields ``a1b2-...-c3d4``.
+        """
+        if not url:
+            return None
+        m = re.search(
+            r"/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.\w+",
+            url,
+        )
+        return m.group(1) if m else None
+
+    @staticmethod
     def _rewrite_image_srcs(html: str, url_map: dict[str, str]) -> str:
         """Rewrite <img src="key"> tags, replacing keys with CDN URLs."""
         for placeholder, cdn_url in url_map.items():
@@ -480,18 +498,22 @@ class EntityManager[T: Entity]:
         for placeholder, file_path in images.items():
             file_path = Path(file_path)
             file_hash = self._compute_file_hash(file_path)
-            used_names.add(placeholder)
+            # Truncate to match what _format_managed_asset_name stores
+            lookup_name = placeholder[:32]
+            used_names.add(lookup_name)
 
-            if placeholder in managed:
-                old_hash, old_asset = managed[placeholder]
+            if lookup_name in managed:
+                old_hash, old_asset = managed[lookup_name]
                 if old_hash == file_hash:
                     # Same file, reuse URL
                     if old_asset.url:
                         url_map[placeholder] = old_asset.url
                     continue
                 else:
-                    # Changed file, delete old and upload new
-                    self.delete_asset(entity_id, old_asset.id)
+                    # Changed file, delete old asset and its gallery image
+                    self.delete_asset(
+                        entity_id, old_asset.id, delete_gallery_image=True
+                    )
 
             managed_name = self._format_managed_asset_name(placeholder, file_hash)
             asset = self.create_file_asset(entity_id, file_path, name=managed_name)
@@ -501,7 +523,7 @@ class EntityManager[T: Entity]:
         # Orphan cleanup: delete managed assets not in current images dict
         for name_part, (_, old_asset) in managed.items():
             if name_part not in used_names:
-                self.delete_asset(entity_id, old_asset.id)
+                self.delete_asset(entity_id, old_asset.id, delete_gallery_image=True)
 
         if url_map:
             return self._rewrite_image_srcs(entry, url_map)
@@ -860,19 +882,39 @@ class EntityManager[T: Entity]:
         response = self.client._request("POST", endpoint, json=data)
         return EntityAsset(**response["data"])
 
-    def delete_asset(self, entity_or_id: T | int, asset_id: int) -> bool:
+    def delete_asset(
+        self,
+        entity_or_id: T | int,
+        asset_id: int,
+        *,
+        delete_gallery_image: bool = False,
+    ) -> bool:
         """Delete an asset from an entity.
 
         Args:
             entity_or_id: The entity or its entity_id
             asset_id: The asset ID
+            delete_gallery_image: If True, also delete the underlying gallery
+                image. This prevents orphaned images from accumulating in the
+                campaign gallery.
 
         Returns:
             True if successful
         """
         entity_id = self._extract_entity_id(entity_or_id)
+
+        gallery_uuid: str | None = None
+        if delete_gallery_image:
+            asset = self.get_asset(entity_id, asset_id)
+            gallery_uuid = self._extract_gallery_uuid(asset.url)
+
         url = f"entities/{entity_id}/entity_assets/{asset_id}"
         self.client._request("DELETE", url)
+
+        if gallery_uuid:
+            with contextlib.suppress(NotFoundError):
+                self.client.gallery_delete(gallery_uuid)
+
         return True
 
     @property

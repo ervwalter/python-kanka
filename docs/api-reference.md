@@ -388,8 +388,10 @@ create_alias_asset(
 #### delete_asset
 
 ```python
-delete_asset(entity_or_id: T | int, asset_id: int) → bool
+delete_asset(entity_or_id: T | int, asset_id: int, *, delete_gallery_image: bool = False) → bool
 ```
+
+When `delete_gallery_image=True`, also deletes the underlying campaign gallery image to prevent orphaned images from accumulating. The gallery image UUID is extracted from the asset's CDN URL.
 
 ### Image Methods
 
