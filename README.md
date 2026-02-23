@@ -16,6 +16,8 @@ A modern Python client for the [Kanka API](https://app.kanka.io/api-docs/1.0), t
 - **Error Handling**: Specific exception types for different API errors
 - **Rate Limit Handling**: Automatic retry with exponential backoff
 - **Entity Posts**: Support for entity posts/comments management
+- **Image & Asset Management**: Campaign gallery, entity images/headers, and file/link/alias assets
+- **Automatic Image Handling**: Upload local images and rewrite HTML `<img>` tags to CDN URLs
 - **Filtering and Search**: Filter entities by various criteria and search across types
 - **Pagination**: Built-in pagination support for large result sets
 

@@ -223,6 +223,70 @@ def create_error_response(
     return response
 
 
+def create_mock_gallery_image(image_id: str = "abc-123", **kwargs) -> dict[str, Any]:
+    """Create a mock gallery image response."""
+    return {
+        "id": image_id,
+        "name": kwargs.get("name", "test_image.png"),
+        "is_folder": kwargs.get("is_folder", False),
+        "folder_id": kwargs.get("folder_id"),
+        "path": kwargs.get(
+            "path", "https://kanka-user-assets.s3.eu-central-1.amazonaws.com/test.png"
+        ),
+        "ext": kwargs.get("ext", "png"),
+        "size": kwargs.get("size", 12345),
+        "created_at": kwargs.get("created_at", "2024-01-01T00:00:00.000000Z"),
+        "created_by": kwargs.get("created_by", 1),
+        "updated_at": kwargs.get("updated_at", "2024-01-01T00:00:00.000000Z"),
+        "visibility_id": kwargs.get("visibility_id"),
+        "focus_x": kwargs.get("focus_x"),
+        "focus_y": kwargs.get("focus_y"),
+    }
+
+
+def create_mock_entity_asset(asset_id: int = 1, **kwargs) -> dict[str, Any]:
+    """Create a mock entity asset response."""
+    return {
+        "id": asset_id,
+        "entity_id": kwargs.get("entity_id", 100),
+        "name": kwargs.get("name", "test_asset"),
+        "type_id": kwargs.get("type_id", 1),
+        "visibility_id": kwargs.get("visibility_id"),
+        "is_pinned": kwargs.get("is_pinned", False),
+        "is_private": kwargs.get("is_private", False),
+        "metadata": kwargs.get("metadata"),
+        "created_at": kwargs.get("created_at", "2024-01-01T00:00:00.000000Z"),
+        "created_by": kwargs.get("created_by", 1),
+        "updated_at": kwargs.get("updated_at", "2024-01-01T00:00:00.000000Z"),
+        "updated_by": kwargs.get("updated_by", 1),
+        "_url": kwargs.get(
+            "_url", "https://kanka-user-assets.s3.eu-central-1.amazonaws.com/asset.png"
+        ),
+    }
+
+
+def create_mock_entity_image_info(**kwargs) -> dict[str, Any]:
+    """Create a mock entity image info response."""
+    return {
+        "image": kwargs.get(
+            "image",
+            {
+                "uuid": "img-uuid-123",
+                "full": "https://example.com/image_full.png",
+                "thumbnail": "https://example.com/image_thumb.png",
+            },
+        ),
+        "header": kwargs.get(
+            "header",
+            {
+                "uuid": "hdr-uuid-456",
+                "full": "https://example.com/header_full.png",
+                "thumbnail": "https://example.com/header_thumb.png",
+            },
+        ),
+    }
+
+
 class MockResponse:
     """Mock HTTP response for testing."""
 

@@ -8,12 +8,18 @@ Classes:
     SearchResult: Represents search result items from global search
     Profile: User profile information
     Trait: Entity traits/attributes
+    GalleryImage: Campaign gallery image
+    EntityAsset: Entity file/link/alias asset
+    EntityImageData: Image URL data (uuid, full, thumbnail)
+    EntityImageInfo: Entity image and header info
     EntityResponse: Single entity API response wrapper
     ListResponse: List API response wrapper with pagination
 """
 
 from datetime import datetime
 from typing import Any, TypeVar
+
+from pydantic import Field
 
 from .base import KankaModel  # Import Post from base module
 
@@ -104,6 +110,100 @@ class Trait(KankaModel):
     section: str
     is_private: bool = False
     default_order: int = 0
+
+
+class GalleryImage(KankaModel):
+    """Campaign gallery image.
+
+    Attributes:
+        id: UUID identifier
+        name: Image name
+        is_folder: Whether this is a folder
+        folder_id: Parent folder UUID
+        path: Thumbnail URL
+        ext: File extension
+        size: File size in bytes
+        created_at: Creation timestamp
+        created_by: User ID who uploaded
+        updated_at: Last update timestamp
+        visibility_id: Visibility setting
+        focus_x: Image focus X coordinate
+        focus_y: Image focus Y coordinate
+    """
+
+    id: str
+    name: str | None = None
+    is_folder: bool = False
+    folder_id: str | None = None
+    path: str | None = None
+    ext: str | None = None
+    size: int | None = None
+    created_at: datetime | None = None
+    created_by: int | None = None
+    updated_at: datetime | None = None
+    visibility_id: int | None = None
+    focus_x: int | None = None
+    focus_y: int | None = None
+
+
+class EntityAsset(KankaModel):
+    """Entity file, link, or alias asset.
+
+    Attributes:
+        id: Asset ID
+        entity_id: Parent entity ID
+        name: Asset name
+        type_id: Asset type (1=file, 2=link, 3=alias)
+        visibility_id: Visibility setting
+        is_pinned: Whether asset is pinned
+        is_private: Whether asset is private
+        metadata: Additional metadata
+        created_at: Creation timestamp
+        created_by: User ID who created
+        updated_at: Last update timestamp
+        updated_by: User ID who last updated
+        url: CDN URL for file assets (aliased from _url)
+    """
+
+    id: int
+    entity_id: int
+    name: str
+    type_id: int
+    visibility_id: int | None = None
+    is_pinned: bool = False
+    is_private: bool = False
+    metadata: dict[str, Any] | None = None
+    created_at: datetime | None = None
+    created_by: int | None = None
+    updated_at: datetime | None = None
+    updated_by: int | None = None
+    url: str | None = Field(default=None, alias="_url")
+
+
+class EntityImageData(KankaModel):
+    """Image URL data for an entity.
+
+    Attributes:
+        uuid: Image UUID in gallery
+        full: Full-size image URL
+        thumbnail: Thumbnail image URL
+    """
+
+    uuid: str | None = None
+    full: str | None = None
+    thumbnail: str | None = None
+
+
+class EntityImageInfo(KankaModel):
+    """Entity image and header information.
+
+    Attributes:
+        image: Main entity image data
+        header: Entity header image data
+    """
+
+    image: EntityImageData | None = None
+    header: EntityImageData | None = None
 
 
 # Type variable for generic responses

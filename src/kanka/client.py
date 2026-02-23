@@ -29,7 +29,7 @@ from .exceptions import (
     ValidationError,
 )
 from .managers import EntityManager
-from .models.common import SearchResult
+from .models.common import GalleryImage, SearchResult
 from .models.entities import (
     Calendar,
     Character,
@@ -452,6 +452,43 @@ class KankaClient:
         with open(filepath, "w") as f:
             json.dump(debug_data, f, indent=2, default=str)
 
+    def _handle_response(self, response, method: str, endpoint: str) -> dict[str, Any]:
+        """Handle HTTP response, raising appropriate exceptions for errors.
+
+        Args:
+            response: The HTTP response object
+            method: HTTP method that was used
+            endpoint: API endpoint that was called
+
+        Returns:
+            Response data as dict
+
+        Raises:
+            AuthenticationError: On 401
+            ForbiddenError: On 403
+            NotFoundError: On 404
+            ValidationError: On 422
+            KankaException: On other 4xx/5xx errors
+        """
+        if response.status_code == 401:
+            raise AuthenticationError("Invalid authentication token")
+        elif response.status_code == 403:
+            raise ForbiddenError("Access forbidden")
+        elif response.status_code == 404:
+            raise NotFoundError(f"Resource not found: {endpoint}")
+        elif response.status_code == 422:
+            error_data = response.json() if response.text else {}
+            raise ValidationError(f"Validation error: {error_data}")
+        elif response.status_code == 429:
+            raise RateLimitError("Rate limit exceeded")
+        elif response.status_code >= 400:
+            raise KankaException(f"API error {response.status_code}: {response.text}")
+
+        if method == "DELETE":
+            return {}
+
+        return response.json()  # type: ignore[no-any-return]
+
     def _request(self, method: str, endpoint: str, **kwargs) -> dict[str, Any]:
         """Make HTTP request to Kanka API with automatic retry on rate limits.
 
@@ -487,18 +524,8 @@ class KankaClient:
                 # Log to debug file if enabled
                 self._log_debug_request(method, url, kwargs, response, response_time)
 
-                # Handle errors
-                if response.status_code == 401:
-                    raise AuthenticationError("Invalid authentication token")
-                elif response.status_code == 403:
-                    raise ForbiddenError("Access forbidden")
-                elif response.status_code == 404:
-                    raise NotFoundError(f"Resource not found: {endpoint}")
-                elif response.status_code == 422:
-                    error_data = response.json() if response.text else {}
-                    raise ValidationError(f"Validation error: {error_data}")
-                elif response.status_code == 429:
-                    # Rate limit exceeded
+                # Check for rate limit before general handling
+                if response.status_code == 429:
                     attempts += 1
                     if not self.enable_rate_limit_retry or attempts > self.max_retries:
                         raise RateLimitError(
@@ -515,17 +542,7 @@ class KankaClient:
                     delay = min(delay * 2, self.max_retry_delay)
                     continue
 
-                elif response.status_code >= 400:
-                    raise KankaException(
-                        f"API error {response.status_code}: {response.text}"
-                    )
-
-                # Success - return response
-                # Return empty dict for DELETE requests
-                if method == "DELETE":
-                    return {}
-
-                return response.json()  # type: ignore[no-any-return]
+                return self._handle_response(response, method, endpoint)
 
             except RateLimitError as e:
                 last_exception = e
@@ -536,6 +553,126 @@ class KankaClient:
         if last_exception:
             raise last_exception
         raise KankaException("Unexpected error in request retry logic")
+
+    def _upload_request(
+        self,
+        method: str,
+        endpoint: str,
+        files: dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
+        **kwargs,
+    ) -> dict[str, Any]:
+        """Make a multipart upload request to the Kanka API.
+
+        Unlike _request() which sends JSON, this method sends multipart form data
+        suitable for file uploads. It temporarily removes the Content-Type header
+        so the requests library can auto-generate the multipart boundary.
+
+        Args:
+            method: HTTP method (POST, PUT, DELETE, etc.)
+            endpoint: API endpoint (relative to campaign)
+            files: Files to upload (key: field name, value: file tuple)
+            data: Form data fields
+            **kwargs: Additional request parameters
+
+        Returns:
+            Response data as dict
+        """
+        url = f"{self.BASE_URL}/campaigns/{self.campaign_id}/{endpoint}"
+
+        # Temporarily remove Content-Type so requests generates multipart boundary
+        saved_content_type = self.session.headers.pop("Content-Type", None)
+        try:
+            response = self.session.request(
+                method, url, files=files, data=data, **kwargs
+            )
+        finally:
+            if saved_content_type is not None:
+                self.session.headers["Content-Type"] = saved_content_type
+
+        return self._handle_response(response, method, endpoint)
+
+    # Campaign Gallery methods
+
+    def gallery(self, page: int = 1, limit: int = 30) -> list[GalleryImage]:
+        """List campaign gallery images.
+
+        Args:
+            page: Page number (default: 1)
+            limit: Number of results per page (default: 30)
+
+        Returns:
+            List of GalleryImage instances
+        """
+        params: dict[str, int | str] = {"page": page, "limit": limit}
+        response = self._request("GET", "gallery", params=params)
+        self._last_gallery_meta = response.get("meta", {})
+        self._last_gallery_links = response.get("links", {})
+        return [GalleryImage(**item) for item in response["data"]]
+
+    def gallery_get(self, image_id: str) -> GalleryImage:
+        """Get a specific gallery image by UUID.
+
+        Args:
+            image_id: Gallery image UUID
+
+        Returns:
+            GalleryImage instance
+        """
+        response = self._request("GET", f"gallery/{image_id}")
+        return GalleryImage(**response["data"])
+
+    def gallery_upload(
+        self,
+        file_path: str | Path,
+        folder_id: str | None = None,
+        visibility_id: int | None = None,
+    ) -> GalleryImage:
+        """Upload an image to the campaign gallery.
+
+        Args:
+            file_path: Path to the image file
+            folder_id: Optional folder UUID to upload into
+            visibility_id: Optional visibility setting
+
+        Returns:
+            The uploaded GalleryImage instance
+        """
+        file_path = Path(file_path)
+        data: dict[str, Any] = {}
+        if folder_id is not None:
+            data["folder_id"] = folder_id
+        if visibility_id is not None:
+            data["visibility_id"] = visibility_id
+
+        with open(file_path, "rb") as f:
+            files = {"file[]": (file_path.name, f)}
+            response = self._upload_request("POST", "gallery", files=files, data=data)
+
+        # API returns data as a list even for single uploads
+        return GalleryImage(**response["data"][0])
+
+    def gallery_delete(self, image_id: str) -> bool:
+        """Delete a gallery image.
+
+        Args:
+            image_id: Gallery image UUID
+
+        Returns:
+            True if successful
+        """
+        self._request("DELETE", f"gallery/{image_id}")
+        return True
+
+    @property
+    def last_gallery_meta(self) -> dict[str, Any]:
+        """Get metadata from the last gallery() call."""
+        return getattr(self, "_last_gallery_meta", {})
+
+    @property
+    def last_gallery_links(self) -> dict[str, Any]:
+        """Get pagination links from the last gallery() call."""
+        return getattr(self, "_last_gallery_links", {})
 
     @property
     def last_search_meta(self) -> dict[str, Any]:

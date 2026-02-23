@@ -1,12 +1,16 @@
 # Python-Kanka API Reference
 
-> **Note**: This reference is current as of v2.0.0 and reflects the implemented entity types.
+> **Note**: This reference is current as of v2.3.0 and reflects the implemented entity types.
 > Some entity types available in the Kanka API (Timeline, Item, Relation, DiceRoll, Conversation, AttributeTemplate, Bookmark)
 > are not yet implemented in this SDK.
 
 ## Table of Contents
 - [KankaClient](#kankaclient)
+- [Campaign Gallery](#campaign-gallery)
 - [Entity Managers](#entity-managers)
+- [Entity Assets](#entity-assets)
+- [Entity Image](#entity-image)
+- [Convenience Images Parameter](#convenience-images-parameter)
 - [Models](#models)
 - [Exceptions](#exceptions)
 
@@ -92,6 +96,58 @@ Get entities from the generic /entities endpoint with optional filtering.
 - `retry_delay` (float) - Initial retry delay in seconds
 - `max_retry_delay` (float) - Maximum retry delay in seconds
 
+## Campaign Gallery
+
+The client provides methods for managing campaign-level gallery images.
+
+#### gallery(page=1, limit=30)
+List images in the campaign gallery.
+
+**Parameters:**
+- `page` (int, optional): Page number (default: 1)
+- `limit` (int, optional): Results per page (default: 30)
+
+**Returns:** List[GalleryImage]
+
+#### gallery_get(image_id)
+Get a specific gallery image by UUID.
+
+**Parameters:**
+- `image_id` (str): Gallery image UUID
+
+**Returns:** GalleryImage
+
+#### gallery_upload(file_path, folder_id=None, visibility_id=None)
+Upload an image to the campaign gallery.
+
+**Parameters:**
+- `file_path` (str | Path): Path to the image file
+- `folder_id` (str, optional): Folder UUID to upload into
+- `visibility_id` (int, optional): Visibility setting
+
+**Returns:** GalleryImage
+
+**Example:**
+```python
+image = client.gallery_upload("/path/to/image.png")
+print(image.id)   # UUID
+print(image.path)  # Thumbnail URL
+```
+
+#### gallery_delete(image_id)
+Delete a gallery image.
+
+**Parameters:**
+- `image_id` (str): Gallery image UUID
+
+**Returns:** True if successful
+
+#### Gallery Properties
+- `last_gallery_meta` - Metadata from the last gallery() call
+- `last_gallery_links` - Pagination links from the last gallery() call
+
+---
+
 #### Entity Managers
 
 Each implemented entity type has its own manager. The SDK currently supports the following entity types:
@@ -171,10 +227,11 @@ last_sync = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
 updated_chars = client.characters.list(lastSync=last_sync, related=True)
 ```
 
-#### create(**kwargs)
+#### create(*, images=None, **kwargs)
 Create a new entity.
 
 **Parameters:**
+- `images` (dict[str, str | Path], optional): Map of placeholder src values in entry HTML to local file paths. Files are uploaded as entity assets and `<img src>` tags are rewritten to CDN URLs.
 - `**kwargs`: Entity fields (varies by type)
 
 **Returns:** The created entity
@@ -189,13 +246,21 @@ character = client.characters.create(
     title="The Grey",
     is_private=False
 )
+
+# With automatic image management
+character = client.characters.create(
+    name="Hero",
+    entry='<p><img src="portrait.png" /> The brave hero.</p>',
+    images={"portrait.png": "/path/to/portrait.png"},
+)
 ```
 
-#### update(entity_or_id: Union[Entity, int], **kwargs)
+#### update(entity_or_id, *, images=None, **kwargs)
 Update an entity with partial data.
 
 **Parameters:**
 - `entity_or_id`: The entity object or its ID
+- `images` (dict[str, str | Path], optional): Map of placeholder src values to local file paths. Changed images are re-uploaded, unchanged ones are reused, and orphaned managed assets are cleaned up.
 - `**kwargs`: Fields to update
 
 **Returns:** The updated entity
@@ -208,6 +273,13 @@ updated = client.characters.update(character, title="The White")
 
 # Update by ID directly
 updated = client.characters.update(123, title="The White")
+
+# Update with images
+updated = client.characters.update(
+    character,
+    entry='<p><img src="new_portrait.png" /></p>',
+    images={"new_portrait.png": "/path/to/new_portrait.png"},
+)
 ```
 
 #### delete(entity_or_id: Union[Entity, int])
@@ -253,7 +325,7 @@ posts = client.characters.list_posts(character)
 posts = client.characters.list_posts(character.entity_id)
 ```
 
-#### create_post(entity_or_id, name, entry, visibility_id=None, **kwargs)
+#### create_post(entity_or_id, name, entry, *, images=None, visibility_id=None, **kwargs)
 Create a post for an entity.
 
 **IMPORTANT:** Posts use the entity_id, not the type-specific ID!
@@ -262,6 +334,7 @@ Create a post for an entity.
 - `entity_or_id`: The entity object (preferred) or its entity_id (NOT the type-specific ID)
 - `name` (str): Post name
 - `entry` (str): Post content (supports HTML)
+- `images` (dict[str, str | Path], optional): Map of placeholder src values to local file paths. Files are uploaded as entity assets and img src tags are rewritten to CDN URLs.
 - `visibility_id` (int, optional): Control who can see the post (1=all, 2=admin, 3=admin-self, 4=self, 5=members). None defaults to campaign's default post visibility
 - `**kwargs`: Additional fields
 
@@ -288,7 +361,7 @@ Get a specific post.
 
 **Returns:** Post
 
-#### update_post(entity_or_id, post_id, visibility_id=None, **kwargs)
+#### update_post(entity_or_id, post_id, *, images=None, visibility_id=None, **kwargs)
 Update a post.
 
 **NOTE:** The Kanka API requires the 'name' field even when not changing it.
@@ -296,6 +369,7 @@ Update a post.
 **Parameters:**
 - `entity_or_id`: The entity object or its entity_id (NOT the type-specific ID)
 - `post_id` (int): The post ID
+- `images` (dict[str, str | Path], optional): Map of placeholder src values to local file paths. Changed images are re-uploaded, unchanged ones reused, orphans cleaned up.
 - `visibility_id` (int, optional): Update post visibility (1=all, 2=admin, 3=admin-self, 4=self, 5=members). None keeps existing visibility
 - `**kwargs`: Fields to update (must include 'name' even if unchanged)
 
@@ -328,6 +402,175 @@ Delete a post.
 - `last_page_links` - Pagination links from the last list() call
 - `last_posts_meta` - Metadata from the last list_posts() call
 - `last_posts_links` - Pagination links from the last list_posts() call
+- `last_assets_meta` - Metadata from the last list_assets() call
+- `last_assets_links` - Pagination links from the last list_assets() call
+
+## Entity Assets
+
+Entity assets allow you to attach files, links, or aliases to entities.
+
+#### list_assets(entity_or_id, page=1, limit=30)
+List assets for an entity.
+
+**Parameters:**
+- `entity_or_id`: The entity object or its entity_id
+- `page` (int, optional): Page number (default: 1)
+- `limit` (int, optional): Results per page (default: 30)
+
+**Returns:** List[EntityAsset]
+
+#### get_asset(entity_or_id, asset_id)
+Get a specific asset.
+
+**Parameters:**
+- `entity_or_id`: The entity object or its entity_id
+- `asset_id` (int): The asset ID
+
+**Returns:** EntityAsset
+
+#### create_file_asset(entity_or_id, file_path, name=None, visibility_id=None, is_pinned=False)
+Upload a file asset to an entity.
+
+**Parameters:**
+- `entity_or_id`: The entity object or its entity_id
+- `file_path` (str | Path): Path to the file
+- `name` (str, optional): Asset name (defaults to filename stem)
+- `visibility_id` (int, optional): Visibility setting
+- `is_pinned` (bool, optional): Whether to pin the asset (default: False)
+
+**Returns:** EntityAsset
+
+**Example:**
+```python
+character = client.characters.get(123)
+asset = client.characters.create_file_asset(
+    character, "/path/to/map.png", name="Character Map"
+)
+print(asset.url)  # CDN URL for the uploaded file
+```
+
+#### create_link_asset(entity_or_id, name, url, icon=None, visibility_id=None)
+Create a link asset on an entity.
+
+**Parameters:**
+- `entity_or_id`: The entity object or its entity_id
+- `name` (str): Asset name
+- `url` (str): The URL to link to
+- `icon` (str, optional): Icon class (e.g., 'fa-link')
+- `visibility_id` (int, optional): Visibility setting
+
+**Returns:** EntityAsset
+
+#### create_alias_asset(entity_or_id, name, visibility_id=None)
+Create an alias asset on an entity.
+
+**Parameters:**
+- `entity_or_id`: The entity object or its entity_id
+- `name` (str): The alias name
+- `visibility_id` (int, optional): Visibility setting
+
+**Returns:** EntityAsset
+
+#### delete_asset(entity_or_id, asset_id)
+Delete an asset from an entity.
+
+**Parameters:**
+- `entity_or_id`: The entity object or its entity_id
+- `asset_id` (int): The asset ID
+
+**Returns:** True if successful
+
+## Entity Image
+
+Entity managers provide methods for managing entity images (main image and header).
+
+#### get_image(entity_or_id)
+Get image information for an entity.
+
+**Parameters:**
+- `entity_or_id`: The entity object or its entity_id
+
+**Returns:** EntityImageInfo
+
+**Example:**
+```python
+character = client.characters.get(123)
+info = client.characters.get_image(character)
+if info.image:
+    print(f"Image: {info.image.full}")
+if info.header:
+    print(f"Header: {info.header.full}")
+```
+
+#### set_image(entity_or_id, file_path, is_header=False)
+Set the main image or header image for an entity.
+
+**Parameters:**
+- `entity_or_id`: The entity object or its entity_id
+- `file_path` (str | Path): Path to the image file
+- `is_header` (bool, optional): If True, set as header image (default: False)
+
+**Returns:** EntityImageInfo
+
+#### delete_image(entity_or_id, is_header=False)
+Delete the main image or header image for an entity.
+
+**Parameters:**
+- `entity_or_id`: The entity object or its entity_id
+- `is_header` (bool, optional): If True, delete header image (default: False)
+
+**Returns:** True if successful
+
+## Convenience Images Parameter
+
+The `images` parameter on `create()`, `update()`, `create_post()`, and `update_post()` provides automatic image management. It uploads local files as entity assets and rewrites `<img src>` tags in the HTML entry to use CDN URLs.
+
+### How It Works
+
+The `images` dict maps placeholder src values (as they appear in your HTML) to local file paths:
+
+```python
+character = client.characters.create(
+    name="Hero",
+    entry='<p><img src="portrait.png" /> The brave hero.</p>',
+    images={"portrait.png": "/path/to/portrait.png"},
+)
+# Result: entry HTML has src rewritten to CDN URL
+```
+
+### Change Detection
+
+SDK-managed assets use a naming convention: `{name}:{sha256_first12}`. On update:
+- **Unchanged files** (same SHA-256 hash) are reused without re-uploading
+- **Changed files** are re-uploaded and old assets are deleted
+- **Orphaned assets** (managed assets no longer referenced) are cleaned up
+- **Non-managed assets** (user-created assets without the hash suffix) are never touched
+
+### Example: Full Lifecycle
+
+```python
+# Create with images
+character = client.characters.create(
+    name="Hero",
+    entry='<p><img src="portrait.png" /></p>',
+    images={"portrait.png": "/path/to/portrait.png"},
+)
+
+# Update with changed image
+character = client.characters.update(
+    character,
+    entry='<p><img src="portrait.png" /></p>',
+    images={"portrait.png": "/path/to/new_portrait.png"},  # Different file
+)
+
+# Works with posts too
+post = client.characters.create_post(
+    character,
+    "Session Notes",
+    '<p><img src="map.png" /> We explored the dungeon.</p>',
+    images={"map.png": "/path/to/dungeon_map.png"},
+)
+```
 
 ## Models
 
@@ -463,6 +706,57 @@ Represents an entity post/note.
 - `created_by` (int): Creator user ID
 - `updated_at` (datetime): Update timestamp
 - `updated_by` (int, optional): Updater user ID
+
+#### GalleryImage
+Represents a campaign gallery image.
+
+**Fields:**
+- `id` (str): UUID identifier
+- `name` (str, optional): Image name
+- `is_folder` (bool): Whether this is a folder (default: False)
+- `folder_id` (str, optional): Parent folder UUID
+- `path` (str, optional): Thumbnail URL
+- `ext` (str, optional): File extension
+- `size` (int, optional): File size in bytes
+- `created_at` (datetime, optional): Creation timestamp
+- `created_by` (int, optional): Creator user ID
+- `updated_at` (datetime, optional): Last update timestamp
+- `visibility_id` (int, optional): Visibility setting
+- `focus_x` (int, optional): Image focus X coordinate
+- `focus_y` (int, optional): Image focus Y coordinate
+
+#### EntityAsset
+Represents an entity file, link, or alias asset.
+
+**Fields:**
+- `id` (int): Asset ID
+- `entity_id` (int): Parent entity ID
+- `name` (str): Asset name
+- `type_id` (int): Asset type (1=file, 2=link, 3=alias)
+- `visibility_id` (int, optional): Visibility setting
+- `is_pinned` (bool): Whether pinned (default: False)
+- `is_private` (bool): Whether private (default: False)
+- `metadata` (dict, optional): Additional metadata
+- `created_at` (datetime, optional): Creation timestamp
+- `created_by` (int, optional): Creator user ID
+- `updated_at` (datetime, optional): Last update timestamp
+- `updated_by` (int, optional): Last updater user ID
+- `url` (str, optional): CDN URL for file assets (populated from API's `_url` field)
+
+#### EntityImageData
+Image URL data for an entity.
+
+**Fields:**
+- `uuid` (str, optional): Image UUID in gallery
+- `full` (str, optional): Full-size image URL
+- `thumbnail` (str, optional): Thumbnail image URL
+
+#### EntityImageInfo
+Entity image and header information.
+
+**Fields:**
+- `image` (EntityImageData, optional): Main entity image data
+- `header` (EntityImageData, optional): Entity header image data
 
 #### SearchResult
 Represents a search result.

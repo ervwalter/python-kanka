@@ -18,7 +18,14 @@ All models provide:
 """
 
 from .base import Entity, KankaModel, Post
-from .common import SearchResult, Trait
+from .common import (
+    EntityAsset,
+    EntityImageData,
+    EntityImageInfo,
+    GalleryImage,
+    SearchResult,
+    Trait,
+)
 from .entities import (
     Calendar,
     Character,
@@ -55,4 +62,8 @@ __all__ = [
     "Post",
     "SearchResult",
     "Trait",
+    "GalleryImage",
+    "EntityAsset",
+    "EntityImageData",
+    "EntityImageInfo",
 ]

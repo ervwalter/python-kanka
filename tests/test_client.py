@@ -1,6 +1,6 @@
 """Tests for KankaClient."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
@@ -13,10 +13,15 @@ from kanka.exceptions import (
     RateLimitError,
     ValidationError,
 )
-from kanka.models.common import SearchResult
+from kanka.models.common import GalleryImage, SearchResult
 from kanka.models.entities import Character, Location
 
-from .utils import MockResponse, create_api_response, create_mock_search_result
+from .utils import (
+    MockResponse,
+    create_api_response,
+    create_mock_gallery_image,
+    create_mock_search_result,
+)
 
 
 class TestKankaClient:
@@ -259,3 +264,154 @@ class TestKankaClient:
         result = client._request("DELETE", "test/1")
 
         assert result == {}
+
+    @patch("requests.Session")
+    def test_handle_response_shared(self, mock_session_class):
+        """Test _handle_response is used by both _request and _upload_request."""
+        mock_session = MagicMock()
+        mock_session_class.return_value = mock_session
+
+        client = KankaClient(token="test_token", campaign_id=123)
+
+        # Test 404 via _handle_response
+        mock_response = MockResponse({}, status_code=404)
+        with pytest.raises(NotFoundError):
+            client._handle_response(mock_response, "GET", "test")
+
+        # Test success via _handle_response
+        mock_response = MockResponse({"data": {"id": 1}}, status_code=200)
+        result = client._handle_response(mock_response, "GET", "test")
+        assert result == {"data": {"id": 1}}
+
+        # Test DELETE via _handle_response
+        mock_response = MockResponse({}, status_code=200)
+        result = client._handle_response(mock_response, "DELETE", "test")
+        assert result == {}
+
+    def test_upload_request(self):
+        """Test _upload_request sends multipart and restores Content-Type."""
+        client = KankaClient(token="test_token", campaign_id=123)
+
+        mock_response = MockResponse(
+            {"data": [create_mock_gallery_image()]}, status_code=200
+        )
+
+        # Verify Content-Type is set before upload
+        assert client.session.headers["Content-Type"] == "application/json"
+
+        with patch.object(client.session, "request", return_value=mock_response):
+            result = client._upload_request(
+                "POST", "gallery", files={"file[]": ("test.png", b"data")}, data={}
+            )
+
+        # Verify Content-Type is restored after upload
+        assert client.session.headers["Content-Type"] == "application/json"
+        assert "data" in result
+
+    def test_upload_request_restores_content_type_on_error(self):
+        """Test Content-Type is restored even if upload fails."""
+        client = KankaClient(token="test_token", campaign_id=123)
+
+        mock_response = MockResponse({}, status_code=422)
+
+        with (
+            patch.object(client.session, "request", return_value=mock_response),
+            pytest.raises(ValidationError),
+        ):
+            client._upload_request(
+                "POST", "gallery", files={"file[]": ("test.png", b"data")}
+            )
+
+        # Content-Type must still be restored
+        assert client.session.headers["Content-Type"] == "application/json"
+
+
+class TestGalleryMethods:
+    """Test campaign gallery methods."""
+
+    @patch("requests.Session")
+    def test_gallery_list(self, mock_session_class):
+        """Test listing gallery images."""
+        mock_session = MagicMock()
+        mock_session_class.return_value = mock_session
+
+        mock_response = MockResponse(
+            create_api_response(
+                [
+                    create_mock_gallery_image("uuid-1", name="image1.png"),
+                    create_mock_gallery_image("uuid-2", name="image2.png"),
+                ]
+            ),
+            status_code=200,
+        )
+        mock_session.request.return_value = mock_response
+
+        client = KankaClient(token="test_token", campaign_id=123)
+        images = client.gallery()
+
+        mock_session.request.assert_called_with(
+            "GET",
+            "https://api.kanka.io/1.0/campaigns/123/gallery",
+            params={"page": 1, "limit": 30},
+        )
+
+        assert len(images) == 2
+        assert all(isinstance(img, GalleryImage) for img in images)
+        assert images[0].name == "image1.png"
+        assert client.last_gallery_meta["total"] == 2
+
+    @patch("requests.Session")
+    def test_gallery_get(self, mock_session_class):
+        """Test getting a specific gallery image."""
+        mock_session = MagicMock()
+        mock_session_class.return_value = mock_session
+
+        mock_response = MockResponse(
+            {"data": create_mock_gallery_image("uuid-1", name="test.png")},
+            status_code=200,
+        )
+        mock_session.request.return_value = mock_response
+
+        client = KankaClient(token="test_token", campaign_id=123)
+        image = client.gallery_get("uuid-1")
+
+        assert isinstance(image, GalleryImage)
+        assert image.id == "uuid-1"
+        assert image.name == "test.png"
+
+    @patch("builtins.open", mock_open(read_data=b"fake image data"))
+    @patch("requests.Session")
+    def test_gallery_upload(self, mock_session_class):
+        """Test uploading a gallery image."""
+        mock_session = MagicMock()
+        mock_session_class.return_value = mock_session
+
+        mock_response = MockResponse(
+            {"data": [create_mock_gallery_image("new-uuid", name="upload.png")]},
+            status_code=200,
+        )
+        mock_session.request.return_value = mock_response
+
+        client = KankaClient(token="test_token", campaign_id=123)
+        image = client.gallery_upload("/path/to/upload.png", folder_id="folder-uuid")
+
+        assert isinstance(image, GalleryImage)
+        assert image.id == "new-uuid"
+
+    @patch("requests.Session")
+    def test_gallery_delete(self, mock_session_class):
+        """Test deleting a gallery image."""
+        mock_session = MagicMock()
+        mock_session_class.return_value = mock_session
+
+        mock_response = MockResponse({}, status_code=200)
+        mock_session.request.return_value = mock_response
+
+        client = KankaClient(token="test_token", campaign_id=123)
+        result = client.gallery_delete("uuid-1")
+
+        mock_session.request.assert_called_with(
+            "DELETE",
+            "https://api.kanka.io/1.0/campaigns/123/gallery/uuid-1",
+        )
+        assert result is True

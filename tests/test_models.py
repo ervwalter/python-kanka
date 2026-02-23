@@ -5,7 +5,14 @@ from datetime import datetime
 import pytest
 
 from kanka.models.base import Entity, KankaModel, Post
-from kanka.models.common import Profile, SearchResult
+from kanka.models.common import (
+    EntityAsset,
+    EntityImageData,
+    EntityImageInfo,
+    GalleryImage,
+    Profile,
+    SearchResult,
+)
 from kanka.models.entities import Calendar, Character, Location
 
 
@@ -315,3 +322,115 @@ class TestProfile:
         assert profile.locale == "en"
         assert profile.theme == "dark"
         assert profile.is_patreon is True
+
+
+class TestGalleryImage:
+    """Test GalleryImage model."""
+
+    def test_gallery_image_creation(self):
+        """Test creating a gallery image."""
+        image = GalleryImage(
+            id="abc-123",
+            name="portrait.png",
+            is_folder=False,
+            path="https://example.com/image.png",
+            ext="png",
+            size=12345,
+            created_at="2024-01-01T00:00:00.000000Z",
+            created_by=1,
+        )
+
+        assert image.id == "abc-123"
+        assert image.name == "portrait.png"
+        assert image.is_folder is False
+        assert image.ext == "png"
+        assert image.size == 12345
+
+    def test_gallery_image_defaults(self):
+        """Test gallery image default values."""
+        image = GalleryImage(id="abc-123")
+
+        assert image.name is None
+        assert image.is_folder is False
+        assert image.folder_id is None
+        assert image.path is None
+        assert image.focus_x is None
+        assert image.focus_y is None
+
+
+class TestEntityAsset:
+    """Test EntityAsset model."""
+
+    def test_entity_asset_creation(self):
+        """Test creating an entity asset."""
+        asset = EntityAsset(
+            id=1,
+            entity_id=100,
+            name="map.png",
+            type_id=1,
+            is_pinned=True,
+            _url="https://example.com/asset.png",
+        )
+
+        assert asset.id == 1
+        assert asset.entity_id == 100
+        assert asset.name == "map.png"
+        assert asset.type_id == 1
+        assert asset.is_pinned is True
+        assert asset.url == "https://example.com/asset.png"
+
+    def test_entity_asset_link_type(self):
+        """Test entity asset with link type."""
+        asset = EntityAsset(
+            id=2,
+            entity_id=100,
+            name="Reference",
+            type_id=2,
+            metadata={"url": "https://example.com", "icon": "fa-link"},
+        )
+
+        assert asset.type_id == 2
+        assert asset.metadata is not None
+        assert asset.metadata["url"] == "https://example.com"
+
+    def test_entity_asset_alias_type(self):
+        """Test entity asset with alias type."""
+        asset = EntityAsset(
+            id=3,
+            entity_id=100,
+            name="Dragon",
+            type_id=3,
+        )
+
+        assert asset.type_id == 3
+        assert asset.url is None
+
+
+class TestEntityImageInfo:
+    """Test EntityImageInfo model."""
+
+    def test_entity_image_info_creation(self):
+        """Test creating entity image info."""
+        info = EntityImageInfo(
+            image=EntityImageData(
+                uuid="img-uuid",
+                full="https://example.com/full.png",
+                thumbnail="https://example.com/thumb.png",
+            ),
+            header=EntityImageData(
+                uuid="hdr-uuid",
+                full="https://example.com/header.png",
+            ),
+        )
+
+        assert info.image is not None
+        assert info.image.uuid == "img-uuid"
+        assert info.image.full == "https://example.com/full.png"
+        assert info.header is not None
+        assert info.header.uuid == "hdr-uuid"
+
+    def test_entity_image_info_defaults(self):
+        """Test entity image info defaults."""
+        info = EntityImageInfo()
+        assert info.image is None
+        assert info.header is None
