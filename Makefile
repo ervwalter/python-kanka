@@ -34,7 +34,7 @@ lint:
 
 # Run type checking
 typecheck:
-	uv run mypy src/kanka tests examples --ignore-missing-imports
+	uv run mypy src/kanka tests --ignore-missing-imports
 
 # Format code
 format:
