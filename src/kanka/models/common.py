@@ -13,7 +13,7 @@ Classes:
 """
 
 from datetime import datetime
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, TypeVar
 
 from .base import KankaModel  # Import Post from base module
 
@@ -41,14 +41,14 @@ class SearchResult(KankaModel):
     id: int
     entity_id: int
     name: str
-    type: Optional[str] = None
+    type: str | None = None
     url: str
-    image: Optional[str] = None
+    image: str | None = None
     is_private: bool = False
-    tooltip: Optional[str] = None
+    tooltip: str | None = None
     tags: list[int] = []
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class Profile(KankaModel):
@@ -72,15 +72,15 @@ class Profile(KankaModel):
 
     id: int
     name: str
-    avatar: Optional[str] = None
-    avatar_thumb: Optional[str] = None
-    locale: Optional[str] = None
-    timezone: Optional[str] = None
-    date_format: Optional[str] = None
-    default_pagination: Optional[int] = None
-    theme: Optional[str] = None
-    is_patreon: Optional[bool] = None
-    last_campaign_id: Optional[int] = None
+    avatar: str | None = None
+    avatar_thumb: str | None = None
+    locale: str | None = None
+    timezone: str | None = None
+    date_format: str | None = None
+    default_pagination: int | None = None
+    theme: str | None = None
+    is_patreon: bool | None = None
+    last_campaign_id: int | None = None
 
 
 class Trait(KankaModel):
@@ -98,7 +98,7 @@ class Trait(KankaModel):
         default_order: Display order (0-based)
     """
 
-    id: Optional[int] = None
+    id: int | None = None
     name: str
     entry: str
     section: str
@@ -110,7 +110,7 @@ class Trait(KankaModel):
 T = TypeVar("T", bound=KankaModel)
 
 
-class EntityResponse(KankaModel, Generic[T]):
+class EntityResponse[T: KankaModel](KankaModel):
     """Single entity API response wrapper.
 
     Generic wrapper for API responses containing a single entity.
@@ -125,7 +125,7 @@ class EntityResponse(KankaModel, Generic[T]):
     data: T
 
 
-class ListResponse(KankaModel, Generic[T]):
+class ListResponse[T: KankaModel](KankaModel):
     """List API response wrapper with pagination.
 
     Generic wrapper for API responses containing multiple entities

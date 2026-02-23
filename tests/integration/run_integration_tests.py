@@ -4,6 +4,7 @@ Runner script for Kanka SDK integration tests.
 
 This script checks for required environment variables and runs all integration tests.
 """
+
 import argparse
 import importlib
 import os

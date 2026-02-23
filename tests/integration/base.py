@@ -5,7 +5,8 @@ Base class for integration tests.
 import os
 import sys
 import time
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 # We need to add the project src to Python path before importing kanka
 # This is required because this module is imported by test files
@@ -22,9 +23,9 @@ class IntegrationTestBase:
     """Base class for integration tests with credential checking."""
 
     def __init__(self):
-        self.client: Optional[KankaClient] = None
-        self.campaign_id: Optional[int] = None
-        self.token: Optional[str] = None
+        self.client: KankaClient | None = None
+        self.campaign_id: int | None = None
+        self.token: str | None = None
         self._cleanup_tasks: list[tuple[str, Callable]] = []
         self._defer_cleanup = False
         self._pause_before_cleanup = False

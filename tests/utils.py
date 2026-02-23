@@ -1,6 +1,6 @@
 """Test utilities and mock factories."""
 
-from typing import Any, Optional
+from typing import Any
 
 
 def create_mock_entity(
@@ -154,7 +154,7 @@ def create_mock_search_result(
 
 
 def create_api_response(
-    data: Any, meta: Optional[dict] = None, links: Optional[dict] = None
+    data: Any, meta: dict | None = None, links: dict | None = None
 ) -> dict[str, Any]:
     """Create a mock API response with standard structure.
 
@@ -200,7 +200,7 @@ def create_api_response(
 
 
 def create_error_response(
-    status_code: int, message: str, errors: Optional[dict] = None
+    status_code: int, message: str, errors: dict | None = None
 ) -> dict[str, Any]:
     """Create a mock error response.
 
@@ -231,7 +231,7 @@ class MockResponse:
         json_data: dict[str, Any],
         status_code: int = 200,
         text: str = "",
-        headers: Optional[dict[str, str]] = None,
+        headers: dict[str, str] | None = None,
     ):
         self.json_data = json_data
         self.status_code = status_code

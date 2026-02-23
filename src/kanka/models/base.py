@@ -12,7 +12,6 @@ Classes:
 """
 
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -61,10 +60,10 @@ class Post(KankaModel):
     entry: str
     entity_id: int
     created_by: int
-    updated_by: Optional[int] = None
+    updated_by: int | None = None
     created_at: datetime
     updated_at: datetime
-    visibility_id: Optional[int] = None
+    visibility_id: int | None = None
 
 
 class Entity(KankaModel):
@@ -97,20 +96,20 @@ class Entity(KankaModel):
     id: int
     entity_id: int
     name: str
-    image: Optional[str] = None
-    image_full: Optional[str] = None
-    image_thumb: Optional[str] = None
+    image: str | None = None
+    image_full: str | None = None
+    image_thumb: str | None = None
     is_private: bool = False
     tags: list[int] = Field(default_factory=list)
     created_at: datetime
     created_by: int
     updated_at: datetime
-    updated_by: Optional[int] = None
-    entry: Optional[str] = None
+    updated_by: int | None = None
+    entry: str | None = None
 
     # Related data (populated when ?related=1)
-    posts: Optional[list[Post]] = None
-    attributes: Optional[list[dict]] = None
+    posts: list[Post] | None = None
+    attributes: list[dict] | None = None
 
     @property
     def entity_type(self) -> str:

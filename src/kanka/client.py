@@ -18,7 +18,7 @@ import os
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 
 from .exceptions import (
     AuthenticationError,
@@ -295,7 +295,7 @@ class KankaClient:
             results = client.search("dragon")
             results = client.search("dragon", page=2)
         """
-        params: dict[str, Union[int, str]] = {"page": page}
+        params: dict[str, int | str] = {"page": page}
         response = self._request("GET", f"search/{term}", params=params)
 
         # Store pagination metadata for access if needed
@@ -333,7 +333,7 @@ class KankaClient:
         Returns:
             List of entity data
         """
-        params: dict[str, Union[int, str]] = {}
+        params: dict[str, int | str] = {}
 
         # Handle special filters
         if "types" in filters and isinstance(filters["types"], list):
@@ -357,7 +357,7 @@ class KankaClient:
         response = self._request("GET", "entities", params=params)
         return response["data"]  # type: ignore[no-any-return]
 
-    def _parse_rate_limit_headers(self, response) -> Optional[float]:
+    def _parse_rate_limit_headers(self, response) -> float | None:
         """Parse rate limit headers from response.
 
         Returns:
@@ -375,10 +375,10 @@ class KankaClient:
 
                 try:
                     retry_date = parsedate_to_datetime(retry_after)
-                    return (
-                        retry_date
-                        - parsedate_to_datetime(response.headers.get("Date", ""))
-                    ).total_seconds()
+                    delta = retry_date - parsedate_to_datetime(
+                        response.headers.get("Date", "")
+                    )
+                    return float(delta.total_seconds())
                 except Exception:
                     pass
 

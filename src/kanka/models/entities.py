@@ -20,8 +20,6 @@ Entity Types:
     - Tag: Organizational tags
 """
 
-from typing import Optional, Union
-
 from .base import Entity
 
 
@@ -43,14 +41,14 @@ class Character(Entity):
         is_dead: Whether character is deceased
     """
 
-    location_id: Optional[int] = None
-    title: Optional[str] = None
-    age: Optional[str] = None
-    sex: Optional[str] = None
-    pronouns: Optional[str] = None
-    race_id: Optional[int] = None
-    type: Optional[str] = None
-    family_id: Optional[int] = None
+    location_id: int | None = None
+    title: str | None = None
+    age: str | None = None
+    sex: str | None = None
+    pronouns: str | None = None
+    race_id: int | None = None
+    type: str | None = None
+    family_id: int | None = None
     is_dead: bool = False
 
 
@@ -70,11 +68,11 @@ class Location(Entity):
         attributes: Custom attributes (when ?related=1)
     """
 
-    type: Optional[str] = None
-    map: Optional[str] = None
-    map_url: Optional[str] = None
-    is_map_private: Optional[int] = None
-    parent_location_id: Optional[int] = None
+    type: str | None = None
+    map: str | None = None
+    map_url: str | None = None
+    is_map_private: int | None = None
+    parent_location_id: int | None = None
 
 
 class Organisation(Entity):
@@ -91,9 +89,9 @@ class Organisation(Entity):
         attributes: Custom attributes (when ?related=1)
     """
 
-    location_id: Optional[int] = None
-    type: Optional[str] = None
-    organisation_id: Optional[int] = None
+    location_id: int | None = None
+    type: str | None = None
+    organisation_id: int | None = None
 
 
 class Note(Entity):
@@ -108,8 +106,8 @@ class Note(Entity):
         attributes: Custom attributes (when ?related=1)
     """
 
-    type: Optional[str] = None
-    location_id: Optional[int] = None
+    type: str | None = None
+    location_id: int | None = None
 
 
 class Race(Entity):
@@ -125,8 +123,8 @@ class Race(Entity):
         attributes: Custom attributes (when ?related=1)
     """
 
-    type: Optional[str] = None
-    race_id: Optional[int] = None
+    type: str | None = None
+    race_id: int | None = None
 
 
 class Quest(Entity):
@@ -143,9 +141,9 @@ class Quest(Entity):
         attributes: Custom attributes (when ?related=1)
     """
 
-    type: Optional[str] = None
-    quest_id: Optional[int] = None
-    character_id: Optional[int] = None
+    type: str | None = None
+    quest_id: int | None = None
+    character_id: int | None = None
 
 
 class Journal(Entity):
@@ -162,9 +160,9 @@ class Journal(Entity):
         attributes: Custom attributes (when ?related=1)
     """
 
-    type: Optional[str] = None
-    date: Optional[str] = None
-    character_id: Optional[int] = None
+    type: str | None = None
+    date: str | None = None
+    character_id: int | None = None
 
 
 class Family(Entity):
@@ -180,8 +178,8 @@ class Family(Entity):
         attributes: Custom attributes (when ?related=1)
     """
 
-    location_id: Optional[int] = None
-    family_id: Optional[int] = None
+    location_id: int | None = None
+    family_id: int | None = None
 
 
 class Event(Entity):
@@ -198,9 +196,9 @@ class Event(Entity):
         attributes: Custom attributes (when ?related=1)
     """
 
-    type: Optional[str] = None
-    date: Optional[str] = None
-    location_id: Optional[int] = None
+    type: str | None = None
+    date: str | None = None
+    location_id: int | None = None
 
 
 class Creature(Entity):
@@ -216,8 +214,8 @@ class Creature(Entity):
         attributes: Custom attributes (when ?related=1)
     """
 
-    type: Optional[str] = None
-    location_id: Optional[int] = None
+    type: str | None = None
+    location_id: int | None = None
 
 
 class Tag(Entity):
@@ -237,9 +235,9 @@ class Tag(Entity):
         attributes: Custom attributes (when ?related=1)
     """
 
-    type: Optional[str] = None
-    colour: Optional[str] = None
-    tag_id: Optional[int] = None  # Parent tag
+    type: str | None = None
+    colour: str | None = None
+    tag_id: int | None = None  # Parent tag
 
 
 class Calendar(Entity):
@@ -267,20 +265,20 @@ class Calendar(Entity):
         attributes: Custom attributes (when ?related=1)
     """
 
-    type: Optional[str] = None
-    date: Optional[str] = None
-    parameters: Optional[str] = None
-    months: Optional[list[dict]] = None
-    weekdays: Optional[list[str]] = None
-    years: Optional[Union[dict, list]] = None
-    seasons: Optional[list[dict]] = None
-    moons: Optional[list[dict]] = None
-    suffix: Optional[str] = None
-    has_leap_year: Optional[bool] = None
-    leap_year_amount: Optional[int] = None
-    leap_year_month: Optional[int] = None
-    leap_year_offset: Optional[int] = None
-    leap_year_start: Optional[int] = None
+    type: str | None = None
+    date: str | None = None
+    parameters: str | None = None
+    months: list[dict] | None = None
+    weekdays: list[str] | None = None
+    years: dict | list | None = None
+    seasons: list[dict] | None = None
+    moons: list[dict] | None = None
+    suffix: str | None = None
+    has_leap_year: bool | None = None
+    leap_year_amount: int | None = None
+    leap_year_month: int | None = None
+    leap_year_offset: int | None = None
+    leap_year_start: int | None = None
 
 
 # Forward reference updates

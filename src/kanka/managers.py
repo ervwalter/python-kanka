@@ -1,14 +1,6 @@
 """Entity managers for Kanka API."""
 
-from typing import (  # noqa: UP035
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    List,
-    Optional,
-    TypeVar,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, List, TypeVar  # noqa: UP035
 
 from .models.base import Entity, Post
 
@@ -19,7 +11,7 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound=Entity)
 
 
-class EntityManager(Generic[T]):
+class EntityManager[T: Entity]:
     """Manages CRUD operations for a specific entity type."""
 
     def __init__(self, client: "KankaClient", endpoint: str, model: type[T]):
@@ -49,7 +41,7 @@ class EntityManager(Generic[T]):
             AuthenticationError: If authentication fails
             ForbiddenError: If access is forbidden
         """
-        params: dict[str, Union[int, str]] = {"related": 1} if related else {}
+        params: dict[str, int | str] = {"related": 1} if related else {}
         url = f"{self.endpoint}/{id}"
 
         response = self.client._request("GET", url, params=params)
@@ -65,7 +57,7 @@ class EntityManager(Generic[T]):
         return getattr(self, "_last_meta", {})
 
     @property
-    def pagination_links(self) -> dict[str, Optional[str]]:
+    def pagination_links(self) -> dict[str, str | None]:
         """Get pagination links from the last list() call.
 
         Returns:
@@ -147,7 +139,7 @@ class EntityManager(Generic[T]):
             )
         """
         # Build parameters
-        params: dict[str, Union[int, str]] = {"page": page, "limit": limit}
+        params: dict[str, int | str] = {"page": page, "limit": limit}
 
         # Add related parameter if requested
         if related:
@@ -166,7 +158,7 @@ class EntityManager(Generic[T]):
                 elif isinstance(value, bool):
                     # Convert booleans to 0/1
                     params[key] = int(value)
-                elif isinstance(value, (list, tuple)):
+                elif isinstance(value, list | tuple):
                     # For any other list parameters, join with comma
                     params[key] = ",".join(map(str, value))
                 else:
@@ -210,7 +202,7 @@ class EntityManager(Generic[T]):
         response = self.client._request("POST", self.endpoint, json=data)
         return self.model(**response["data"])
 
-    def update(self, entity_or_id: Union[T, int], **kwargs) -> T:
+    def update(self, entity_or_id: T | int, **kwargs) -> T:
         """Update an entity with partial data.
 
         Args:
@@ -281,7 +273,7 @@ class EntityManager(Generic[T]):
         response = self.client._request("PATCH", url, json=data)
         return self.model(**response["data"])
 
-    def delete(self, entity_or_id: Union[T, int]) -> bool:
+    def delete(self, entity_or_id: T | int) -> bool:
         """Delete an entity.
 
         Args:
@@ -330,7 +322,7 @@ class EntityManager(Generic[T]):
 
     # Posts functionality
     def list_posts(
-        self, entity_or_id: Union[T, int], page: int = 1, limit: int = 30
+        self, entity_or_id: T | int, page: int = 1, limit: int = 30
     ) -> List[Post]:  # noqa: UP006
         """List posts for an entity.
 
@@ -353,7 +345,7 @@ class EntityManager(Generic[T]):
             else entity_or_id
         )
 
-        params: dict[str, Union[int, str]] = {"page": page, "limit": limit}
+        params: dict[str, int | str] = {"page": page, "limit": limit}
 
         url = f"entities/{entity_id}/posts"
         response = self.client._request("GET", url, params=params)
@@ -366,10 +358,10 @@ class EntityManager(Generic[T]):
 
     def create_post(
         self,
-        entity_or_id: Union[T, int],
+        entity_or_id: T | int,
         name: str,
         entry: str,
-        visibility_id: Optional[int] = None,
+        visibility_id: int | None = None,
         **kwargs,
     ) -> Post:
         """Create a post for an entity.
@@ -422,7 +414,7 @@ class EntityManager(Generic[T]):
         response = self.client._request("POST", url, json=data)
         return Post(**response["data"])
 
-    def get_post(self, entity_or_id: Union[T, int], post_id: int) -> Post:
+    def get_post(self, entity_or_id: T | int, post_id: int) -> Post:
         """Get a specific post for an entity.
 
         Args:
@@ -445,9 +437,9 @@ class EntityManager(Generic[T]):
 
     def update_post(
         self,
-        entity_or_id: Union[T, int],
+        entity_or_id: T | int,
         post_id: int,
-        visibility_id: Optional[int] = None,
+        visibility_id: int | None = None,
         **kwargs,
     ) -> Post:
         """Update a post for an entity.
@@ -490,7 +482,7 @@ class EntityManager(Generic[T]):
         response = self.client._request("PATCH", url, json=kwargs)
         return Post(**response["data"])
 
-    def delete_post(self, entity_or_id: Union[T, int], post_id: int) -> bool:
+    def delete_post(self, entity_or_id: T | int, post_id: int) -> bool:
         """Delete a post for an entity.
 
         Args:
