@@ -90,12 +90,21 @@ Get a single entity by its universal `entity_id`. Returns a raw dictionary.
 #### entities
 
 ```python
-entities(**filters) → list[dict[str, Any]]
+entities(page: int = 1, limit: int = 15, **filters) → list[dict[str, Any]]
 ```
 
 Query the generic `/entities` endpoint. Returns raw dictionaries.
 
-**Filters:** `types` (list[str]), `name` (str), `tags` (list[int]), `is_private` (bool), `created_by` (int), `updated_by` (int)
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `page` | `int` | `1` | Page number |
+| `limit` | `int` | `15` | Results per page |
+| `types` | `list[str]` | — | Filter by entity types |
+| `name` | `str` | — | Filter by name |
+| `tags` | `list[int]` | — | Filter by tag IDs |
+| `is_private` | `bool` | — | Filter by privacy |
+| `created_by` | `int` | — | Filter by creator ID |
+| `updated_by` | `int` | — | Filter by updater ID |
 
 #### gallery
 
@@ -137,6 +146,9 @@ Delete a gallery image by UUID.
 
 | Property | Type | Description |
 |----------|------|-------------|
+| `last_entities_meta` | `dict` | Pagination metadata from last `entities()` |
+| `last_entities_links` | `dict` | Pagination links from last `entities()` |
+| `entities_has_next_page` | `bool` | Whether next page exists for `entities()` |
 | `last_search_meta` | `dict` | Pagination metadata from last `search()` |
 | `last_search_links` | `dict` | Pagination links from last `search()` |
 | `last_gallery_meta` | `dict` | Pagination metadata from last `gallery()` |
