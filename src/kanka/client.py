@@ -321,19 +321,29 @@ class KankaClient:
         response = self._request("GET", f"entities/{entity_id}")
         return response["data"]  # type: ignore[no-any-return]
 
-    def entities(self, **filters) -> list[dict[str, Any]]:
+    def entities(
+        self, page: int = 1, limit: int = 15, **filters
+    ) -> list[dict[str, Any]]:
         """Access the /entities endpoint with filters.
 
         This endpoint provides a unified way to query entities across all types
         with various filtering options.
 
         Args:
+            page: Page number (default: 1)
+            limit: Number of results per page (default: 15)
             **filters: Filter parameters like types, name, is_private, tags
 
         Returns:
             List of entity data
+
+        Note:
+            Pagination information is available after calling entities():
+            - client.last_entities_meta: Contains total count, current page, etc.
+            - client.last_entities_links: Contains URLs for first, last, prev, next
+            - client.entities_has_next_page: True if more pages are available
         """
-        params: dict[str, int | str] = {}
+        params: dict[str, int | str] = {"page": page, "limit": limit}
 
         # Handle special filters
         if "types" in filters and isinstance(filters["types"], list):
@@ -355,6 +365,8 @@ class KankaClient:
                     params[key] = filters[key]
 
         response = self._request("GET", "entities", params=params)
+        self._last_entities_meta = response.get("meta", {})
+        self._last_entities_links = response.get("links", {})
         return response["data"]  # type: ignore[no-any-return]
 
     def _parse_rate_limit_headers(self, response) -> float | None:
@@ -692,3 +704,27 @@ class KankaClient:
             Dict[str, Any]: Links for pagination including first, last, prev, next URLs
         """
         return getattr(self, "_last_search_links", {})
+
+    @property
+    def last_entities_meta(self) -> dict[str, Any]:
+        """Get metadata from the last entities() call.
+
+        Returns:
+            Dict[str, Any]: Pagination metadata including current_page, from, to,
+                           last_page, per_page, total
+        """
+        return getattr(self, "_last_entities_meta", {})
+
+    @property
+    def last_entities_links(self) -> dict[str, Any]:
+        """Get pagination links from the last entities() call.
+
+        Returns:
+            Dict[str, Any]: Links for pagination including first, last, prev, next URLs
+        """
+        return getattr(self, "_last_entities_links", {})
+
+    @property
+    def entities_has_next_page(self) -> bool:
+        """Check if more pages are available from the last entities() call."""
+        return bool(getattr(self, "_last_entities_links", {}).get("next"))

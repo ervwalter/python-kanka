@@ -83,6 +83,14 @@ Each list endpoint stores its own pagination state:
 | `manager.last_assets_meta` | Metadata from last `list_assets()` |
 | `manager.last_assets_links` | Links from last `list_assets()` |
 
+### Entities
+
+| Property | Description |
+|----------|-------------|
+| `client.last_entities_meta` | Metadata from last `entities()` |
+| `client.last_entities_links` | Links from last `entities()` |
+| `client.entities_has_next_page` | `True` if next page exists |
+
 ### Gallery
 
 | Property | Description |

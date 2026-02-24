@@ -151,7 +151,7 @@ class TestKankaClient:
         mock_session.request.assert_called_with(
             "GET",
             "https://api.kanka.io/1.0/campaigns/123/entities",
-            params={"types": "character,location"},
+            params={"page": 1, "limit": 15, "types": "character,location"},
         )
 
         assert len(results) == 2
@@ -181,6 +181,8 @@ class TestKankaClient:
             "GET",
             "https://api.kanka.io/1.0/campaigns/123/entities",
             params={
+                "page": 1,
+                "limit": 15,
                 "types": "character",
                 "tags": "1,2,3",
                 "name": "test",
@@ -188,6 +190,80 @@ class TestKankaClient:
                 "created_by": 5,
             },
         )
+
+    @patch("requests.Session")
+    def test_entities_pagination(self, mock_session_class):
+        """Test entities endpoint pagination parameters and metadata."""
+        mock_session = MagicMock()
+        mock_session_class.return_value = mock_session
+
+        meta = {
+            "total": 50,
+            "current_page": 2,
+            "per_page": 15,
+            "last_page": 4,
+            "from": 16,
+            "to": 30,
+        }
+        links = {
+            "first": "https://api.kanka.io/1.0/campaigns/123/entities?page=1",
+            "last": "https://api.kanka.io/1.0/campaigns/123/entities?page=4",
+            "prev": "https://api.kanka.io/1.0/campaigns/123/entities?page=1",
+            "next": "https://api.kanka.io/1.0/campaigns/123/entities?page=3",
+        }
+        mock_response = MockResponse(
+            create_api_response(
+                [{"id": 1, "name": "Test", "type": "character"}],
+                meta=meta,
+                links=links,
+            ),
+            status_code=200,
+        )
+        mock_session.request.return_value = mock_response
+
+        client = KankaClient(token="test_token", campaign_id=123)
+        results = client.entities(page=2, limit=15, types=["character"])
+
+        mock_session.request.assert_called_with(
+            "GET",
+            "https://api.kanka.io/1.0/campaigns/123/entities",
+            params={"page": 2, "limit": 15, "types": "character"},
+        )
+
+        assert len(results) == 1
+        assert client.last_entities_meta["total"] == 50
+        assert client.last_entities_meta["current_page"] == 2
+        assert client.last_entities_links["next"] is not None
+        assert client.entities_has_next_page is True
+
+    @patch("requests.Session")
+    def test_entities_no_next_page(self, mock_session_class):
+        """Test entities_has_next_page is False on last page."""
+        mock_session = MagicMock()
+        mock_session_class.return_value = mock_session
+
+        mock_response = MockResponse(
+            create_api_response([{"id": 1, "name": "Test", "type": "character"}]),
+            status_code=200,
+        )
+        mock_session.request.return_value = mock_response
+
+        client = KankaClient(token="test_token", campaign_id=123)
+        client.entities()
+
+        assert client.entities_has_next_page is False
+
+    @patch("requests.Session")
+    def test_entities_pagination_defaults(self, mock_session_class):
+        """Test entities pagination properties before any call."""
+        mock_session = MagicMock()
+        mock_session_class.return_value = mock_session
+
+        client = KankaClient(token="test_token", campaign_id=123)
+
+        assert client.last_entities_meta == {}
+        assert client.last_entities_links == {}
+        assert client.entities_has_next_page is False
 
     @patch("requests.Session")
     def test_request_error_handling(self, mock_session_class):
