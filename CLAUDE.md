@@ -142,6 +142,46 @@ Integration tests are NOT pytest tests - they have custom runners:
    - **Available in Kanka API but not yet implemented**: Timeline, Item, Relation, DiceRoll, Conversation, AttributeTemplate, Bookmark, Ability, Map, Inventory
    - **Never existed/removed**: EntityNote, EntityEvent, Attribute, Species
 
+## Version Bumping
+
+This project uses `bump2version` for version management. The version is tracked in three files:
+- `pyproject.toml` — package version
+- `src/kanka/_version.py` — runtime version
+- `.bumpversion.cfg` — bump2version's own tracking (must stay in sync)
+
+**To bump the version:**
+
+```bash
+# Patch (bug fixes): 2.4.1 → 2.4.2
+uv run bump2version patch
+
+# Minor (new features): 2.4.1 → 2.5.0
+uv run bump2version minor
+
+# Major (breaking changes): 2.4.1 → 3.0.0
+uv run bump2version major
+```
+
+This automatically:
+1. Updates the version in `pyproject.toml`, `src/kanka/_version.py`, and `.bumpversion.cfg`
+2. Creates a commit with message `Bump version: X.Y.Z → A.B.C`
+3. Creates a git tag `vA.B.C`
+
+**After bumping, always run `uv sync`** to update `uv.lock`, then amend the lock file into the bump commit and retag:
+
+```bash
+uv sync
+git add uv.lock
+git commit --amend --no-edit
+git tag -d vA.B.C
+git tag vA.B.C
+```
+
+**Important notes:**
+- The working tree must be clean before running bump2version (use `--allow-dirty` only if `.bumpversion.cfg` is the dirty file due to a sync fix)
+- If `.bumpversion.cfg`'s `current_version` is out of sync with the actual version in `pyproject.toml`, fix it manually before bumping
+- Use `feat` commits → minor bump, `fix` commits → patch bump
+
 ## Development Preferences
 
 - When executing test scripts with long output, redirect to file for parsing
