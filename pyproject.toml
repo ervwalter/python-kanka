@@ -33,11 +33,15 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/ervwalter/python-kanka"
-Documentation = "https://github.com/ervwalter/python-kanka#readme"
+Documentation = "https://python-kanka.ewal.dev/"
 Repository = "https://github.com/ervwalter/python-kanka"
 Issues = "https://github.com/ervwalter/python-kanka/issues"
 
 [dependency-groups]
+docs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+]
 dev = [
     "pytest==9.0.2",
     "pytest-asyncio==1.3.0",

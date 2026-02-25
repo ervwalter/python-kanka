@@ -1,4 +1,4 @@
-.PHONY: install test lint format typecheck check clean coverage help sync build
+.PHONY: install test lint format typecheck check clean coverage help sync build docs-serve docs-build
 
 # Default target
 help:
@@ -13,6 +13,8 @@ help:
 	@echo "  make clean     - Clean up temporary files"
 	@echo "  make coverage  - Run tests with coverage report"
 	@echo "  make build     - Build the package"
+	@echo "  make docs-serve - Serve docs locally for preview"
+	@echo "  make docs-build - Build docs locally"
 
 # Install development dependencies and sync with lock file
 install:
@@ -71,3 +73,22 @@ coverage:
 # Build the package
 build:
 	uv build
+
+# Serve docs locally for preview
+docs-serve:
+	mv docs/README.md docs/index.md
+	uv run mkdocs serve || true
+	mv docs/index.md docs/README.md
+
+# Build docs locally
+docs-build:
+	mv docs/README.md docs/index.md
+	uv run mkdocs build --strict
+	mv docs/index.md docs/README.md
+	@for f in docs/*.md; do \
+		name=$$(basename "$$f"); \
+		if [ "$$name" != "README.md" ]; then \
+			cp "$$f" site/; \
+		fi; \
+	done
+	cp docs/README.md site/llms.txt
