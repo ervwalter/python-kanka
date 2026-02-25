@@ -47,7 +47,7 @@ client.characters.delete(gandalf)
 
 ## Documentation
 
-See the **[full documentation](docs/)** for guides, examples, and complete API reference.
+See the **[full documentation](https://python-kanka.ewal.dev/)** for guides, examples, and complete API reference.
 
 ## License
 
