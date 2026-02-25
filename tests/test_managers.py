@@ -145,6 +145,60 @@ class TestEntityManager:
         call_args = self.mock_client._request.call_args
         assert call_args[1]["params"]["types"] == "character,npc"
 
+    def test_list_captures_sync_timestamp(self):
+        """Test that list() captures the sync timestamp from the response."""
+        mock_data = [create_mock_entity("character", 1)]
+        sync_ts = "2025-06-15T10:30:00.123456Z"
+        mock_response = create_api_response(mock_data, sync=sync_ts)
+        self.mock_client._request.return_value = mock_response
+
+        self.manager.list()
+
+        assert self.manager.last_sync == sync_ts
+
+    def test_last_sync_is_none_before_list(self):
+        """Test that last_sync is None before any list() call."""
+        assert self.manager.last_sync is None
+
+    def test_last_sync_updates_on_subsequent_calls(self):
+        """Test that last_sync updates with each list() call."""
+        first_sync = "2025-06-15T10:00:00.000000Z"
+        second_sync = "2025-06-15T11:00:00.000000Z"
+
+        self.mock_client._request.return_value = create_api_response(
+            [], sync=first_sync
+        )
+        self.manager.list()
+        assert self.manager.last_sync == first_sync
+
+        self.mock_client._request.return_value = create_api_response(
+            [], sync=second_sync
+        )
+        self.manager.list()
+        assert self.manager.last_sync == second_sync
+
+    def test_list_with_last_sync_parameter(self):
+        """Test that last_sync parameter is sent as lastSync query param."""
+        self.mock_client._request.return_value = create_api_response([])
+        sync_ts = "2025-06-15T10:00:00.000000Z"
+
+        self.manager.list(last_sync=sync_ts)
+
+        self.mock_client._request.assert_called_with(
+            "GET",
+            "characters",
+            params={"page": 1, "limit": 30, "lastSync": sync_ts},
+        )
+
+    def test_list_without_last_sync_omits_param(self):
+        """Test that lastSync is not sent when last_sync is None."""
+        self.mock_client._request.return_value = create_api_response([])
+
+        self.manager.list()
+
+        call_params = self.mock_client._request.call_args[1]["params"]
+        assert "lastSync" not in call_params
+
     def test_create_entity(self):
         """Test creating an entity."""
         # Setup mock response

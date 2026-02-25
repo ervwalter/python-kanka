@@ -72,15 +72,17 @@ results = client.characters.list(
 )
 ```
 
-### The `lastSync` Filter
+### The `last_sync` Parameter
 
-Use the `lastSync` filter with an ISO 8601 timestamp to retrieve only entities modified after a specific time. This is useful for synchronization workflows:
+Use the `last_sync` parameter with an ISO 8601 timestamp to retrieve only entities modified after a specific time. This is useful for keeping a local cache in sync with Kanka without re-fetching everything. See [Last Sync](last-sync.md) for a complete guide including pagination, persistence, and important caveats.
 
 ```python
-from datetime import datetime, timedelta, timezone
+# Fetch all characters, capturing the sync timestamp
+characters = client.characters.list(page=1, limit=100)
+sync_timestamp = client.characters.last_sync
 
-last_sync = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
-updated = client.characters.list(lastSync=last_sync, related=True)
+# Later, fetch only characters that changed since then
+updated = client.characters.list(last_sync=sync_timestamp)
 ```
 
 ### Iterating All Pages

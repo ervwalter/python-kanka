@@ -398,6 +398,140 @@ class TestEntitiesApiIntegration(IntegrationTestBase):
 
         print("  Verified entity structure for generic API response")
 
+    def test_sync_timestamp(self):
+        """Test that entities() captures sync and last_sync filters correctly."""
+        # Verify last_entities_sync is None before any call
+        self.assert_true(
+            self.client.last_entities_sync is None,
+            "last_entities_sync should be None before any entities() call",
+        )
+
+        # Initial call — capture the sync timestamp
+        self.client.entities(limit=1)
+        sync_ts = self.client.last_entities_sync
+
+        self.assert_not_none(
+            sync_ts, "last_entities_sync should not be None after call"
+        )
+        self.assert_true(
+            isinstance(sync_ts, str) and len(sync_ts) > 0,
+            "last_entities_sync should be a non-empty string",
+        )
+        print(f"  Initial sync timestamp: {sync_ts}")
+
+        # Nothing should have changed yet
+        self.wait_for_api()
+        unchanged = self.client.entities(last_sync=sync_ts)
+        print(f"  Before creating entity: {len(unchanged)} entities changed")
+
+        # Now create an entity — this should show up as changed
+        self.wait_for_api()
+        character = self.client.characters.create(
+            name=f"Sync Test Character - DELETE ME - {datetime.now().isoformat()}",
+            type="NPC",
+        )
+        self._register_entity_cleanup("characters", character.id, character.name)
+
+        self.wait_for_api()
+
+        # Fetch with the old sync timestamp — the new entity should appear
+        updated = self.client.entities(last_sync=sync_ts)
+        new_sync = self.client.last_entities_sync
+
+        self.assert_true(
+            len(updated) > 0,
+            "Should find at least 1 entity changed after creating one",
+        )
+        self.assert_not_none(
+            new_sync, "last_entities_sync should be set after lastSync call"
+        )
+
+        # Verify the created entity is in the results
+        found = any(e.get("child_id") == character.id for e in updated)
+        self.assert_true(
+            found,
+            f"Created character (ID {character.id}) should appear in lastSync results",
+        )
+
+        # Fetch again with the NEW sync timestamp — should get nothing new
+        self.wait_for_api()
+        updated_again = self.client.entities(last_sync=new_sync)
+        self.assert_equal(
+            len(updated_again),
+            0,
+            f"No entities should have changed since new sync, got {len(updated_again)}",
+        )
+
+        print(f"  After creating entity: {len(updated)} entities changed")
+        print(
+            f"  After second sync: {len(updated_again)} entities changed (expected 0)"
+        )
+
+    def test_entity_manager_sync_timestamp(self):
+        """Test that EntityManager.list() captures sync and last_sync filters correctly."""
+        # Verify last_sync is None before any call
+        self.assert_true(
+            self.client.characters.last_sync is None,
+            "last_sync should be None before any list() call",
+        )
+
+        # Initial call — capture the sync timestamp
+        self.client.characters.list(limit=1)
+        sync_ts = self.client.characters.last_sync
+
+        self.assert_not_none(sync_ts, "last_sync should not be None after list()")
+        self.assert_true(
+            isinstance(sync_ts, str) and len(sync_ts) > 0,
+            "last_sync should be a non-empty string",
+        )
+        print(f"  Characters sync timestamp: {sync_ts}")
+
+        # Nothing should have changed yet
+        self.wait_for_api()
+        unchanged = self.client.characters.list(last_sync=sync_ts)
+        print(f"  Before creating character: {len(unchanged)} characters changed")
+
+        # Create a character — this should show up
+        self.wait_for_api()
+        character = self.client.characters.create(
+            name=f"Sync Test Character - DELETE ME - {datetime.now().isoformat()}",
+            type="NPC",
+        )
+        self._register_entity_cleanup("characters", character.id, character.name)
+
+        self.wait_for_api()
+
+        # Fetch with old sync timestamp — the new character should appear
+        updated = self.client.characters.list(last_sync=sync_ts)
+        new_sync = self.client.characters.last_sync
+
+        self.assert_true(
+            len(updated) > 0,
+            "Should find at least 1 character changed after creating one",
+        )
+        self.assert_not_none(new_sync, "last_sync should be set after lastSync call")
+
+        # Verify the created character is in the results
+        found = any(c.id == character.id for c in updated)
+        self.assert_true(
+            found,
+            f"Created character (ID {character.id}) should appear in lastSync results",
+        )
+
+        # Fetch again with the NEW sync — should get nothing new
+        self.wait_for_api()
+        updated_again = self.client.characters.list(last_sync=new_sync)
+        self.assert_equal(
+            len(updated_again),
+            0,
+            f"No characters should have changed since new sync, got {len(updated_again)}",
+        )
+
+        print(f"  After creating character: {len(updated)} characters changed")
+        print(
+            f"  After second sync: {len(updated_again)} characters changed (expected 0)"
+        )
+
     def run_all_tests(self):
         """Run all entities API integration tests."""
         tests = [
@@ -409,6 +543,8 @@ class TestEntitiesApiIntegration(IntegrationTestBase):
             ("Filter by Tags", self.test_filter_with_tags),
             ("Combined Filters", self.test_combined_filters),
             ("Entity Response Structure", self.test_entity_response_structure),
+            ("Sync Timestamp", self.test_sync_timestamp),
+            ("Entity Manager Sync Timestamp", self.test_entity_manager_sync_timestamp),
         ]
 
         results = []

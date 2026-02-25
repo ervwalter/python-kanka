@@ -154,7 +154,10 @@ def create_mock_search_result(
 
 
 def create_api_response(
-    data: Any, meta: dict | None = None, links: dict | None = None
+    data: Any,
+    meta: dict | None = None,
+    links: dict | None = None,
+    sync: str | None = "2025-01-15T12:00:00.000000Z",
 ) -> dict[str, Any]:
     """Create a mock API response with standard structure.
 
@@ -162,6 +165,8 @@ def create_api_response(
         data: The response data (single item or list)
         meta: Pagination metadata
         links: Pagination links
+        sync: Sync timestamp (included by default for list responses,
+            matching real API behavior). Pass None to omit.
 
     Returns:
         Dict representing an API response
@@ -195,6 +200,10 @@ def create_api_response(
                 "prev": None,
                 "next": None,
             }
+
+    # Include sync timestamp for list responses, matching real API behavior
+    if sync is not None and isinstance(data, list):
+        response["sync"] = sync
 
     return response
 

@@ -266,6 +266,96 @@ class TestKankaClient:
         assert client.entities_has_next_page is False
 
     @patch("requests.Session")
+    def test_entities_sync_captured(self, mock_session_class):
+        """Test that entities() captures the sync timestamp."""
+        mock_session = MagicMock()
+        mock_session_class.return_value = mock_session
+
+        sync_ts = "2025-06-15T10:30:00.123456Z"
+        mock_response = MockResponse(
+            create_api_response(
+                [{"id": 1, "name": "Test", "type": "character"}], sync=sync_ts
+            ),
+            status_code=200,
+        )
+        mock_session.request.return_value = mock_response
+
+        client = KankaClient(token="test_token", campaign_id=123)
+        client.entities()
+
+        assert client.last_entities_sync == sync_ts
+
+    @patch("requests.Session")
+    def test_entities_sync_default_is_none(self, mock_session_class):
+        """Test that last_entities_sync is None before any call."""
+        mock_session = MagicMock()
+        mock_session_class.return_value = mock_session
+
+        client = KankaClient(token="test_token", campaign_id=123)
+
+        assert client.last_entities_sync is None
+
+    @patch("requests.Session")
+    def test_entities_last_sync_parameter(self, mock_session_class):
+        """Test that last_sync parameter sends lastSync query param."""
+        mock_session = MagicMock()
+        mock_session_class.return_value = mock_session
+
+        mock_response = MockResponse(
+            create_api_response([], sync="2025-06-15T11:00:00.000000Z"),
+            status_code=200,
+        )
+        mock_session.request.return_value = mock_response
+
+        client = KankaClient(token="test_token", campaign_id=123)
+        sync_ts = "2025-06-15T10:00:00.000000Z"
+        client.entities(last_sync=sync_ts)
+
+        # Verify lastSync was included in the request params
+        call_args = mock_session.request.call_args
+        assert "lastSync" in call_args[1]["params"]
+        assert call_args[1]["params"]["lastSync"] == sync_ts
+
+    @patch("requests.Session")
+    def test_search_sync_captured(self, mock_session_class):
+        """Test that search() captures the sync timestamp."""
+        mock_session = MagicMock()
+        mock_session_class.return_value = mock_session
+
+        sync_ts = "2025-06-15T10:30:00.123456Z"
+        search_data = [
+            {
+                "id": 1,
+                "entity_id": 100,
+                "name": "Dragon",
+                "type": "character",
+                "url": "https://app.kanka.io/w/1/entities/100",
+                "is_private": False,
+                "tags": [],
+            }
+        ]
+        mock_response = MockResponse(
+            create_api_response(search_data, sync=sync_ts),
+            status_code=200,
+        )
+        mock_session.request.return_value = mock_response
+
+        client = KankaClient(token="test_token", campaign_id=123)
+        client.search("dragon")
+
+        assert client.last_search_sync == sync_ts
+
+    @patch("requests.Session")
+    def test_search_sync_default_is_none(self, mock_session_class):
+        """Test that last_search_sync is None before any call."""
+        mock_session = MagicMock()
+        mock_session_class.return_value = mock_session
+
+        client = KankaClient(token="test_token", campaign_id=123)
+
+        assert client.last_search_sync is None
+
+    @patch("requests.Session")
     def test_request_error_handling(self, mock_session_class):
         """Test error handling in _request method."""
         # Setup mock

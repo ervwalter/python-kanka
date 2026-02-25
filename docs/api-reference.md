@@ -90,7 +90,12 @@ Get a single entity by its universal `entity_id`. Returns a raw dictionary.
 #### entities
 
 ```python
-entities(page: int = 1, limit: int = 15, **filters) → list[dict[str, Any]]
+entities(
+    page: int = 1,
+    limit: int = 15,
+    last_sync: str | None = None,
+    **filters,
+) → list[dict[str, Any]]
 ```
 
 Query the generic `/entities` endpoint. Returns raw dictionaries.
@@ -99,6 +104,7 @@ Query the generic `/entities` endpoint. Returns raw dictionaries.
 |-----------|------|---------|-------------|
 | `page` | `int` | `1` | Page number |
 | `limit` | `int` | `15` | Results per page |
+| `last_sync` | `str \| None` | `None` | Only return entities modified after this ISO 8601 timestamp. See [Last Sync](last-sync.md). |
 | `types` | `list[str]` | — | Filter by entity types |
 | `name` | `str` | — | Filter by name |
 | `tags` | `list[int]` | — | Filter by tag IDs |
@@ -149,8 +155,10 @@ Delete a gallery image by UUID.
 | `last_entities_meta` | `dict` | Pagination metadata from last `entities()` |
 | `last_entities_links` | `dict` | Pagination links from last `entities()` |
 | `entities_has_next_page` | `bool` | Whether next page exists for `entities()` |
+| `last_entities_sync` | `str \| None` | Sync timestamp from last `entities()` call. See [Last Sync](last-sync.md). |
 | `last_search_meta` | `dict` | Pagination metadata from last `search()` |
 | `last_search_links` | `dict` | Pagination links from last `search()` |
+| `last_search_sync` | `str \| None` | Sync timestamp from last `search()` call |
 | `last_gallery_meta` | `dict` | Pagination metadata from last `gallery()` |
 | `last_gallery_links` | `dict` | Pagination links from last `gallery()` |
 
@@ -203,6 +211,7 @@ list(
     page: int = 1,
     limit: int = 30,
     related: bool = False,
+    last_sync: str | None = None,
     **filters,
 ) → list[T]
 ```
@@ -214,6 +223,7 @@ List entities with optional filtering.
 | `page` | `int` | `1` | Page number |
 | `limit` | `int` | `30` | Results per page |
 | `related` | `bool` | `False` | Include posts and attributes |
+| `last_sync` | `str \| None` | `None` | Only return entities modified after this ISO 8601 timestamp. See [Last Sync](last-sync.md). |
 | `name` | `str` | — | Filter by name (partial match) |
 | `type` | `str` | — | Filter by entity type |
 | `types` | `list[str]` | — | Filter by multiple types |
@@ -223,7 +233,6 @@ List entities with optional filtering.
 | `updated_at` | `str` | — | Filter by update date |
 | `created_by` | `int` | — | Filter by creator ID |
 | `updated_by` | `int` | — | Filter by updater ID |
-| `lastSync` | `str` | — | Only entities modified after this ISO 8601 timestamp |
 
 **Returns:** List of entity model instances
 
@@ -438,6 +447,7 @@ delete_image(entity_or_id: T | int, is_header: bool = False) → bool
 | `pagination_meta` | `dict` | Metadata from last `list()` |
 | `pagination_links` | `dict` | Links from last `list()` |
 | `has_next_page` | `bool` | Whether next page exists |
+| `last_sync` | `str \| None` | Sync timestamp from last `list()` call. See [Last Sync](last-sync.md). |
 | `last_page_meta` | `dict` | Alias for `pagination_meta` |
 | `last_page_links` | `dict` | Alias for `pagination_links` |
 | `last_posts_meta` | `dict` | Metadata from last `list_posts()` |

@@ -137,7 +137,7 @@ results = client.characters.list(
 | `updated_at` | `str` | Filter by update date (ISO format, supports `>=` prefix) |
 | `created_by` | `int` | Filter by creator user ID |
 | `updated_by` | `int` | Filter by last updater user ID |
-| `lastSync` | `str` | Only return entities modified after this ISO 8601 timestamp |
+| `last_sync` | `str` | Only return entities modified after this ISO 8601 timestamp |
 
 ### Filter Value Handling
 
@@ -147,14 +147,7 @@ results = client.characters.list(
 
 ### Sync Filter
 
-The `lastSync` filter is useful for synchronization workflows — it returns only entities that have been modified since the given timestamp:
-
-```python
-from datetime import datetime, timedelta, timezone
-
-last_sync = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
-updated_chars = client.characters.list(lastSync=last_sync, related=True)
-```
+The `last_sync` parameter returns only entities modified since a given timestamp. Each API response includes a sync timestamp (available via the `last_sync` property) that you should capture and reuse. See [Last Sync](last-sync.md) for a complete guide including the full sync workflow, pagination, persistence, and important caveats.
 
 ## Choosing the Right Approach
 

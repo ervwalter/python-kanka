@@ -80,7 +80,12 @@ class EntityManager[T: Entity]:
         return bool(self.pagination_links.get("next"))
 
     def list(
-        self, page: int = 1, limit: int = 30, related: bool = False, **filters
+        self,
+        page: int = 1,
+        limit: int = 30,
+        related: bool = False,
+        last_sync: str | None = None,
+        **filters,
     ) -> list[T]:
         """List entities with optional filters.
 
@@ -88,6 +93,9 @@ class EntityManager[T: Entity]:
             page: Page number (default: 1)
             limit: Number of results per page (default: 30)
             related: Include related data (posts, attributes, etc.)
+            last_sync: ISO 8601 timestamp; only return entities modified after
+                this time. Use the ``last_sync`` property from a previous call
+                to implement incremental sync.
             **filters: Additional filters supported by the API
 
         Supported filters:
@@ -104,10 +112,12 @@ class EntityManager[T: Entity]:
             List of entity instances
 
         Note:
-            Pagination information is available after calling list():
+            After calling list(), the following properties are available:
             - manager.pagination_meta: Contains total count, current page, etc.
             - manager.pagination_links: Contains URLs for first, last, prev, next
             - manager.has_next_page: True if more pages are available
+            - manager.last_sync: Server-generated sync timestamp for use with
+              the ``last_sync`` parameter on subsequent calls
 
         Examples:
             # Get all public characters
@@ -154,6 +164,10 @@ class EntityManager[T: Entity]:
         if related:
             params["related"] = 1
 
+        # Add lastSync parameter for incremental sync
+        if last_sync is not None:
+            params["lastSync"] = last_sync
+
         # Add filters
         for key, value in filters.items():
             if value is not None:
@@ -175,9 +189,10 @@ class EntityManager[T: Entity]:
 
         response = self.client._request("GET", self.endpoint, params=params)
 
-        # Store pagination metadata on the manager for access if needed
+        # Store pagination metadata and sync timestamp for access if needed
         self._last_meta = response.get("meta", {})
         self._last_links = response.get("links", {})
+        self._last_sync: str | None = response.get("sync")
 
         return [self.model(**item) for item in response["data"]]
 
@@ -378,6 +393,19 @@ class EntityManager[T: Entity]:
                 - next: URL to next page (if applicable)
         """
         return getattr(self, "_last_links", {})
+
+    @property
+    def last_sync(self) -> str | None:
+        """Get the sync timestamp from the last list() call.
+
+        This is a server-generated ISO 8601 timestamp representing when the
+        response was produced. Pass it as the ``last_sync`` parameter on a
+        subsequent ``list()`` call to fetch only entities modified since then.
+
+        Returns:
+            The sync timestamp string, or None if list() has not been called.
+        """
+        return getattr(self, "_last_sync", None)
 
     def _extract_entity_id(self, entity_or_id: T | int) -> int:
         """Extract entity_id from an entity object or integer.

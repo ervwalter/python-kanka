@@ -244,6 +244,7 @@ When testing against the real API:
 - `docs/assets-and-images.md` — Assets, images, automatic image management
 - `docs/gallery.md` — Campaign gallery
 - `docs/search-and-filtering.md` — Search and filtering
+- `docs/last-sync.md` — Incremental sync using lastSync/sync
 - `docs/pagination.md` — Pagination
 - `docs/error-handling.md` — Exception types and patterns
 - `docs/rate-limiting.md` — Rate limit configuration

@@ -298,9 +298,10 @@ class KankaClient:
         params: dict[str, int | str] = {"page": page}
         response = self._request("GET", f"search/{term}", params=params)
 
-        # Store pagination metadata for access if needed
+        # Store pagination metadata and sync timestamp for access if needed
         self._last_search_meta = response.get("meta", {})
         self._last_search_links = response.get("links", {})
+        self._last_search_sync: str | None = response.get("sync")
 
         return [SearchResult(**item) for item in response["data"]]
 
@@ -322,7 +323,11 @@ class KankaClient:
         return response["data"]  # type: ignore[no-any-return]
 
     def entities(
-        self, page: int = 1, limit: int = 15, **filters
+        self,
+        page: int = 1,
+        limit: int = 15,
+        last_sync: str | None = None,
+        **filters,
     ) -> list[dict[str, Any]]:
         """Access the /entities endpoint with filters.
 
@@ -332,18 +337,27 @@ class KankaClient:
         Args:
             page: Page number (default: 1)
             limit: Number of results per page (default: 15)
+            last_sync: ISO 8601 timestamp; only return entities modified after
+                this time. Use the ``last_entities_sync`` property from a
+                previous call to implement incremental sync.
             **filters: Filter parameters like types, name, is_private, tags
 
         Returns:
             List of entity data
 
         Note:
-            Pagination information is available after calling entities():
+            After calling entities(), the following properties are available:
             - client.last_entities_meta: Contains total count, current page, etc.
             - client.last_entities_links: Contains URLs for first, last, prev, next
             - client.entities_has_next_page: True if more pages are available
+            - client.last_entities_sync: Server-generated sync timestamp for use
+              with the ``last_sync`` parameter on subsequent calls
         """
         params: dict[str, int | str] = {"page": page, "limit": limit}
+
+        # Add lastSync parameter for incremental sync
+        if last_sync is not None:
+            params["lastSync"] = last_sync
 
         # Handle special filters
         if "types" in filters and isinstance(filters["types"], list):
@@ -367,6 +381,7 @@ class KankaClient:
         response = self._request("GET", "entities", params=params)
         self._last_entities_meta = response.get("meta", {})
         self._last_entities_links = response.get("links", {})
+        self._last_entities_sync: str | None = response.get("sync")
         return response["data"]  # type: ignore[no-any-return]
 
     def _parse_rate_limit_headers(self, response) -> float | None:
@@ -706,6 +721,15 @@ class KankaClient:
         return getattr(self, "_last_search_links", {})
 
     @property
+    def last_search_sync(self) -> str | None:
+        """Get the sync timestamp from the last search() call.
+
+        Returns:
+            The sync timestamp string, or None if search() has not been called.
+        """
+        return getattr(self, "_last_search_sync", None)
+
+    @property
     def last_entities_meta(self) -> dict[str, Any]:
         """Get metadata from the last entities() call.
 
@@ -723,6 +747,19 @@ class KankaClient:
             Dict[str, Any]: Links for pagination including first, last, prev, next URLs
         """
         return getattr(self, "_last_entities_links", {})
+
+    @property
+    def last_entities_sync(self) -> str | None:
+        """Get the sync timestamp from the last entities() call.
+
+        This is a server-generated ISO 8601 timestamp representing when the
+        response was produced. Pass it as the ``last_sync`` parameter on a
+        subsequent ``entities()`` call to fetch only entities modified since then.
+
+        Returns:
+            The sync timestamp string, or None if entities() has not been called.
+        """
+        return getattr(self, "_last_entities_sync", None)
 
     @property
     def entities_has_next_page(self) -> bool:

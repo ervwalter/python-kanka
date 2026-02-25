@@ -12,6 +12,7 @@ A modern Python client for the [Kanka API](https://app.kanka.io/api-docs/1.0), t
 | [Entity Types Reference](entity-types-reference.md) | All 12 entity types with their specific fields |
 | [Posts](posts.md) | Attach notes and comments to any entity |
 | [Search and Filtering](search-and-filtering.md) | Global search, entities endpoint, list filters |
+| [Last Sync](last-sync.md) | Incremental sync using the lastSync/sync mechanism |
 | [Pagination](pagination.md) | Navigate large result sets |
 | [Assets and Images](assets-and-images.md) | File/link/alias assets, entity images, automatic image management |
 | [Campaign Gallery](gallery.md) | Campaign-level image storage |
