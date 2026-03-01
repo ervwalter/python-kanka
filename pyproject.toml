@@ -50,7 +50,7 @@ dev = [
     "mypy==1.19.1",
     "black==26.1.0",
     "isort==8.0.0",
-    "ruff==0.15.2",
+    "ruff==0.15.4",
     "types-requests",
     "bump2version==1.0.1",
     "build==1.4.0",
