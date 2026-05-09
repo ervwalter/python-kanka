@@ -28,7 +28,7 @@ classifiers = [
 dependencies = [
     "requests==2.33.1",
     "requests-toolbelt==1.0.0",
-    "pydantic==2.13.3",
+    "pydantic==2.13.4",
 ]
 
 [project.urls]
