@@ -54,7 +54,7 @@ dev = [
     "types-requests",
     "bump2version==1.0.1",
     "build==1.5.1",
-    "twine==6.2.0",
+    "twine==7.0.0",
     "pre-commit==4.6.2",
     "python-dotenv==1.2.2",
 ]
