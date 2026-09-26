@@ -52,5 +52,5 @@ npcs = client.characters.list(type="NPC", is_private=False)
 
 - [Kanka.io](https://kanka.io) — The Kanka platform
 - [Kanka API Docs](https://app.kanka.io/api-docs/1.0) — Official API documentation
-- [GitHub Repository](https://github.com/ervwalter/python-kanka) — Source code
+- [GitHub Repository](https://github.com/twistymaze/python-kanka) — Source code
 - [PyPI](https://pypi.org/project/python-kanka/) — Package page

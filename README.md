@@ -57,5 +57,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Kanka.io](https://kanka.io) - The Kanka platform
 - [Kanka API Documentation](https://app.kanka.io/api-docs/1.0) - Official API docs
-- [GitHub Repository](https://github.com/ervwalter/python-kanka) - Source code
-- [Issue Tracker](https://github.com/ervwalter/python-kanka/issues) - Report bugs or request features
+- [GitHub Repository](https://github.com/twistymaze/python-kanka) - Source code
+- [Issue Tracker](https://github.com/twistymaze/python-kanka/issues) - Report bugs or request features

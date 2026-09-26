@@ -1,8 +1,8 @@
 site_name: python-kanka
 site_url: https://python-kanka.ewal.dev/
 site_description: A modern Python client for the Kanka API
-repo_url: https://github.com/ervwalter/python-kanka
-repo_name: ervwalter/python-kanka
+repo_url: https://github.com/twistymaze/python-kanka
+repo_name: twistymaze/python-kanka
 
 theme:
   name: material
