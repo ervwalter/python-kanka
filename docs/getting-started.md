@@ -34,7 +34,7 @@ pip install python-kanka
 ### From Source
 
 ```bash
-git clone https://github.com/ervwalter/python-kanka.git
+git clone https://github.com/twistymaze/python-kanka.git
 cd python-kanka
 uv sync --all-groups
 uv pip install -e .
